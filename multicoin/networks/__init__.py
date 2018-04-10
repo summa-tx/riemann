@@ -1,15 +1,19 @@
 SUPPORTED = [
     'bitcoin_main',
-    'bitcoin_test'
+    # TODO add more
 ]
 
-REQUIRED_ARGS = (
-    'network_name', 'subnet_name',
-    'p2sh_prefix', 'address_prefix',
-    'segwit')
+
+def get_network(name):
+    if name not in SUPPORTED:
+        raise ValueError('Unknown chain specifed: {}'.format(name))
+    if name == 'bitcoin_main':
+        return BitcoinMain
+    # TODO add more
 
 
 class Network:
+    SYMBOL = 'BTC'
     NETWORK_NAME = None
     SUBNET_NAME = None
     P2PKH = None
@@ -18,10 +22,11 @@ class Network:
 
 
 class BitcoinMain(Network):
+    SYMBOL = 'BTC'
     NETWORK_NAME = 'bitcoin'
     SUBNET_NAME = 'mainnet'
     P2PKH = b'\x00'
     P2SH = b'\x05'
     SEGWIT = True
 
-# TODO
+# TODO add more
