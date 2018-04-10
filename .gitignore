@@ -1,0 +1,13 @@
+*.pyc
+*.egg-info/
+build/
+dist/
+
+# Virtual environment
+venv/
+
+# Unit test / coverage reports
+.tox/
+coverage/
+.coverage
+.cache
