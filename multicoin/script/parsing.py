@@ -5,9 +5,10 @@ import binascii
 def serialize_from_string(script_string):
     string_tokens = script_string.split()
     serialized_script = bytearray()
+
     for token in string_tokens:
-        if token in CODE_TO_INT:
-            serialized_script.extend([CODE_TO_INT[token]])
+        if token in CODE_TO_INT:  # If the string is a known opcode
+            serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
             continue  # Skip rest of loop
 
         token_bytes = binascii.unhexlify(token)
