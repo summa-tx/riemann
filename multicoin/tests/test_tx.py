@@ -2,6 +2,7 @@ import unittest
 from .. import tx
 from .. import utils
 
+
 class TestVarInt(unittest.TestCase):
 
     def setUp(self):
@@ -57,15 +58,16 @@ class TestTx(unittest.TestCase):
         flag = b'\x00\x01'
         tx_ins = [
             tx.TxIn(
-                tx.Outpoint(bytearray([0xee] * 32), bytearray([0] * 4)),
-                bytearray([0xff] * 20),
-                bytearray([0xaa] * 4)
+                outpoint=tx.Outpoint(
+                    bytearray([0xee] * 32), bytearray([0] * 4)),
+                script=bytearray([0xff] * 20),
+                sequence=bytearray([0xaa] * 4)
             )
         ]
         tx_outs = [
             tx.TxOut(
-                bytearray(utils.i2lx(0xccbbccbbccbbccbb)),
-                bytearray([0xdd] * 32)
+                value=bytearray(utils.i2lx(0xccbbccbbccbbccbb)),
+                pk_script=bytearray([0xdd] * 32)
             )
         ]
         tx_witnesses = [
