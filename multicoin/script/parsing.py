@@ -3,7 +3,6 @@ import binascii
 
 
 def serialize_from_string(script_string):
-    print(script_string)
     string_tokens = script_string.split()
     serialized_script = bytearray()
     for token in string_tokens:
