@@ -1,5 +1,6 @@
 SUPPORTED = [
     'bitcoin_main',
+    'bitcoin_test'
     # TODO add more
 ]
 
@@ -9,6 +10,8 @@ def get_network(name):
         raise ValueError('Unknown chain specifed: {}'.format(name))
     if name == 'bitcoin_main':
         return BitcoinMain
+    if name == 'bitcoin_test':
+        return BitcoinTest
     # TODO add more
 
 
@@ -29,4 +32,11 @@ class BitcoinMain(Network):
     P2SH = b'\x05'
     SEGWIT = True
 
-# TODO add more
+
+class BitcoinTest(Network):
+    SYMBOL = 'tBTC'
+    NETWORK_NAME = 'bitcoin'
+    SUBNET_NAME = 'testnet'
+    P2PKH = b'o'  # 0x6f
+    P2SH = b'\xc4'
+    SEGWIT = True
