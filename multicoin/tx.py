@@ -23,7 +23,7 @@ class VarInt(Serializable):
             self += bytes([0xfe])
         elif number <= 0xffffffffffffffff:
             self += bytes([0xff])
-        self += utils.lx(number)
+        self += utils.i2lx(number)
         while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
@@ -71,7 +71,7 @@ class TxIn(Serializable):
                 .format(sequence))
 
         self += outpoint
-        self += VarInt([len(script)])
+        self += VarInt(len(script))
         self += script
         self += sequence
 
@@ -97,11 +97,23 @@ class TxOut(Serializable):
         self += pk_script
 
 
+class StackItem(Serializable):
+
+    def __init__(self, item):
+        if not isinstance(item, bytearray):
+            raise ValueError(
+                'Invalid item. '
+                'Expected bytearray. Got {}'
+                .format(item))
+        self += VarInt(len(item))
+        self += item
+
+
 class TxWitness(Serializable):
 
     def __init__(self, stack):
         for item in stack:
-            if not isinstance(item, bytearray):
+            if not isinstance(item, StackItem):
                 raise ValueError(
                     'Invalid witness stack item. '
                     'Expected bytes. Got {}'
@@ -122,7 +134,7 @@ class Tx(Serializable):
                 .format(version))
 
         if flag is not None:
-            if flag is not b'\x00\x01':
+            if flag != b'\x00\x01':
                 raise ValueError(
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
@@ -130,11 +142,20 @@ class Tx(Serializable):
             if tx_witnesses is None:
                 raise ValueError('Got segwit flag but no witnesses')
 
-        if flag is None and tx_witnesses is not None:
-            raise ValueError('Got witnesses but no segwit flag.')
+        if tx_witnesses is not None:
+            if flag is None:
+                raise ValueError('Got witnesses but no segwit flag.')
+            if len(tx_witnesses) != len(tx_ins):
+                raise ValueError(
+                    'Witness and TxIn lists must be same length. '
+                    'Got {} inputs and {} witnesses.'
+                    .format(len(tx_ins), len(tx_witnesses)))
 
-        if max(len(tx_ins), len(tx_outs), len(tx_witnesses)) > 255:
+        if max(len(tx_ins), len(tx_outs)) > 255:
             raise ValueError('Too many inputs or outputs. Stop that.')
+
+        if min(len(tx_ins), len(tx_outs)) == 0:
+            raise ValueError('Too few inputs or outputs. Stop that.')
 
         for tx_in in tx_ins:
             if not isinstance(tx_in, TxIn):
@@ -166,10 +187,10 @@ class Tx(Serializable):
         self += version
         if flag is not None:
             self += flag
-        self += VarInt([len(tx_ins)])
+        self += VarInt(len(tx_ins))
         for tx_in in tx_ins:
             self += tx_in
-        self += VarInt([len(tx_outs)])
+        self += VarInt(len(tx_outs))
         for tx_out in tx_outs:
             self += tx_out
         for witness in tx_witnesses:

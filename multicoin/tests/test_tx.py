@@ -1,6 +1,6 @@
 import unittest
 from .. import tx
-
+from .. import utils
 
 class TestVarInt(unittest.TestCase):
 
@@ -45,3 +45,38 @@ class TestVarInt(unittest.TestCase):
 
         self.assertIn('VarInt cannot be greater than (2 ** 64) - 1.',
                       str(context.exception))
+
+
+class TestTx(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_everything(self):
+        version = bytearray([0] * 4)
+        flag = b'\x00\x01'
+        tx_ins = [
+            tx.TxIn(
+                tx.Outpoint(bytearray([0xee] * 32), bytearray([0] * 4)),
+                bytearray([0xff] * 20),
+                bytearray([0xaa] * 4)
+            )
+        ]
+        tx_outs = [
+            tx.TxOut(
+                bytearray(utils.i2lx(0xccbbccbbccbbccbb)),
+                bytearray([0xdd] * 32)
+            )
+        ]
+        tx_witnesses = [
+            tx.TxWitness(
+                [
+                    tx.StackItem(bytearray([0x88] * 18)),
+                    tx.StackItem(bytearray([0x99] * 18))
+                ]
+            )
+        ]
+        lock_time = bytearray([0xff] * 4)
+
+        res = tx.Tx(version, flag, tx_ins, tx_outs, tx_witnesses, lock_time)
+        print(res.hex())

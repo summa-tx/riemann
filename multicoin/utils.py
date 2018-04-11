@@ -1,7 +1,7 @@
 import binascii
 
 
-def lx(number):
+def i2lx(number):
     b = '%x' % number
     if len(b) & 1:
         b = '0' + b
