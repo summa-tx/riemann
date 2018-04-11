@@ -53,6 +53,7 @@ class TestTx(unittest.TestCase):
     def setUp(self):
         pass
 
+    # Convenience monotest
     def test_everything(self):
         version = bytearray([0] * 4)
         flag = b'\x00\x01'
@@ -66,7 +67,7 @@ class TestTx(unittest.TestCase):
         ]
         tx_outs = [
             tx.TxOut(
-                value=bytearray(utils.i2lx(0xccbbccbbccbbccbb)),
+                value=bytearray(utils.i2lx(21000000) + (b'\x00' * 4)),
                 pk_script=bytearray([0xdd] * 32)
             )
         ]
@@ -81,4 +82,5 @@ class TestTx(unittest.TestCase):
         lock_time = bytearray([0xff] * 4)
 
         res = tx.Tx(version, flag, tx_ins, tx_outs, tx_witnesses, lock_time)
+        print('')
         print(res.hex())

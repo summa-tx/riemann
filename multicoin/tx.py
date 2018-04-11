@@ -3,7 +3,9 @@ from . import utils
 
 
 class Serializable(bytearray):
-    pass
+
+    def make_immutable(self):
+        return bytes(self)
 
 
 class VarInt(Serializable):
@@ -27,6 +29,8 @@ class VarInt(Serializable):
         while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
+        self.number = number
+
 
 class Outpoint(Serializable):
 
@@ -46,6 +50,9 @@ class Outpoint(Serializable):
 
         self += tx_id
         self += index
+
+        self.tx_id = tx_id
+        self.index = index
 
 
 class TxIn(Serializable):
@@ -75,6 +82,11 @@ class TxIn(Serializable):
         self += script
         self += sequence
 
+        self.outpoint = outpoint
+        self.script_len = len(script)
+        self.script = script
+        self.sequence = sequence
+
 
 class TxOut(Serializable):
 
@@ -93,8 +105,12 @@ class TxOut(Serializable):
                 .format(pk_script))
 
         self += value
-        self += bytes([len(pk_script)])
+        self += VarInt(len(pk_script))
         self += pk_script
+
+        self.value = value
+        self.pk_script_len = len(pk_script)
+        self.pk_script = pk_script
 
 
 class StackItem(Serializable):
@@ -105,8 +121,12 @@ class StackItem(Serializable):
                 'Invalid item. '
                 'Expected bytearray. Got {}'
                 .format(item))
+
         self += VarInt(len(item))
         self += item
+
+        self.item_len = len(item)
+        self.item = item
 
 
 class TxWitness(Serializable):
@@ -118,9 +138,12 @@ class TxWitness(Serializable):
                     'Invalid witness stack item. '
                     'Expected bytes. Got {}'
                     .format(item))
-        self += bytes([len(stack)])
+        self += VarInt(len(stack))
         for item in stack:
             self += item
+
+        self.stack_len = len(stack)
+        self.stack = [item for item in stack]
 
 
 class Tx(Serializable):
@@ -196,6 +219,15 @@ class Tx(Serializable):
         for witness in tx_witnesses:
             self += witness
         self += lock_time
+
+        self.version = version
+        self.flag = flag
+        self.tx_ins_len = len(tx_ins)
+        self.tx_ins = [tx_in for tx_in in tx_ins]
+        self.tx_outs_len = len(tx_outs)
+        self.tx_witnesses_len = self.tx_ins_len
+        self.tx_witnesses = [wit for wit in tx_witnesses]
+        self.lock_time = lock_time
 
         if len(self) > 100000:
             raise ValueError(
