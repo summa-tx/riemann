@@ -1,3 +1,8 @@
+# To add a new coin
+# 1. define a class
+# 2. add it to get_network
+# 3. add it to SUPPORTED
+
 SUPPORTED = [
     'bitcoin_main',
     'bitcoin_test'
@@ -16,7 +21,7 @@ def get_network(name):
 
 
 class Network:
-    SYMBOL = 'BTC'
+    SYMBOL = None
     NETWORK_NAME = None
     SUBNET_NAME = None
     P2PKH = None
@@ -40,3 +45,5 @@ class BitcoinTest(Network):
     P2PKH = b'o'  # 0x6f
     P2SH = b'\xc4'
     SEGWIT = True
+
+# TODO add more
