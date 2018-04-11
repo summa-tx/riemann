@@ -1,19 +1,9 @@
-import binascii
 import math
-
-
-def lx(number):
-    b = '%x' % number
-    if len(b) & 1:
-        b = '0' + b
-    b = binascii.unhexlify(b)[::-1]
-    return b
+from . import utils
 
 
 class Serializable(bytearray):
-    @classmethod
-    def from_hex_string(Class, h):
-        return Class(binascii.unhexlify(h))
+    pass
 
 
 class VarInt(Serializable):
@@ -22,9 +12,9 @@ class VarInt(Serializable):
             raise ValueError('VarInt cannot be less than 0. '
                              'Got: {}'.format(number))
         if number > 0xffffffffffffffff:
-            raise ValueError('VarInt cannot be greater than 2 ** 64. '
-                             'Got: 2 ** {}'
-                             .format(int(math.log(number, 2))))
+            raise ValueError('VarInt cannot be greater than (2 ** 64) - 1. '
+                             'Got: {}'
+                             .format(number))
         if number <= 0xfc:
             pass  # No prefix
         elif number <= 0xffff:
@@ -33,7 +23,7 @@ class VarInt(Serializable):
             self += bytes([0xfe])
         elif number <= 0xffffffffffffffff:
             self += bytes([0xff])
-        self += lx(number)
+        self += utils.lx(number)
         while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
