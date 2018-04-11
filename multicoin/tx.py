@@ -107,7 +107,8 @@ class TxWitness(Serializable):
                     'Expected bytes. Got {}'
                     .format(item))
         self += bytes([len(stack)])
-        self += stack
+        for item in stack:
+            self += item
 
 
 class Tx(Serializable):

@@ -12,6 +12,11 @@ class TestVarInt(unittest.TestCase):
         self.assertEqual(res, b'\xfb')
         self.assertIsInstance(res, tx.VarInt)
 
+    def test_one_byte_boundary(self):
+        res = tx.VarInt(0xff)
+        self.assertEqual(res, b'\xfd' + b'\xff')
+        self.assertIsInstance(res, tx.VarInt)
+
     def test_two_bytes(self):
         res = tx.VarInt(0xffff)
         self.assertEqual(res, b'\xfd' + (b'\xff' * 2))
