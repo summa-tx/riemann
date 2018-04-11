@@ -2,6 +2,7 @@ import unittest
 from .. import tx
 from .. import utils
 
+
 class TestVarInt(unittest.TestCase):
 
     def setUp(self):
