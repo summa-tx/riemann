@@ -231,11 +231,14 @@ class Tx(Serializable):
         self.lock_time = lock_time
 
         if flag is not None:
-            self.wtx_id = utils.hash256(self.make_immutable())
-            self.tx_id = utils.hash256(self.no_witness())
+            self.wtx_id_le = utils.hash256(self.make_immutable())
+            self.tx_id_le = utils.hash256(self.no_witness())
+            self.tx_id = utils.change_endianness(self.tx_id_le)
+            self.wtx_id = utils.change_endianness(self.wtx_id_le)
 
         else:
-            self.tx_id = utils.hash256(self.make_immutable)
+            self.tx_id_le = utils.hash256(self.make_immutable)
+            self.tx_id = utils.change_endianness(self.tx_id_le)
 
         if len(self) > 100000:
             raise ValueError(
