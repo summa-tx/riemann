@@ -67,7 +67,7 @@ class TestTx(unittest.TestCase):
         ]
         tx_outs = [
             tx.TxOut(
-                value=bytearray(utils.i2lx(21000000) + (b'\x00' * 4)),
+                value=bytearray(utils.i2le(21000000) + (b'\x00' * 4)),
                 pk_script=bytearray([0xdd] * 32)
             )
         ]
@@ -84,3 +84,7 @@ class TestTx(unittest.TestCase):
         res = tx.Tx(version, flag, tx_ins, tx_outs, tx_witnesses, lock_time)
         print('')
         print(res.hex())
+        print('')
+        print(res.tx_id.hex())
+        print('')
+        print(res.wtx_id.hex())

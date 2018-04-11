@@ -25,7 +25,7 @@ class VarInt(Serializable):
             self += bytes([0xfe])
         elif number <= 0xffffffffffffffff:
             self += bytes([0xff])
-        self += utils.i2lx(number)
+        self += utils.i2le(number)
         while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
@@ -225,11 +225,31 @@ class Tx(Serializable):
         self.tx_ins_len = len(tx_ins)
         self.tx_ins = [tx_in for tx_in in tx_ins]
         self.tx_outs_len = len(tx_outs)
+        self.tx_outs = [tx_out for tx_out in tx_outs]
         self.tx_witnesses_len = self.tx_ins_len
         self.tx_witnesses = [wit for wit in tx_witnesses]
         self.lock_time = lock_time
+
+        if flag is not None:
+            self.wtx_id = utils.hash256(self.make_immutable())
+            self.tx_id = utils.hash256(self.no_witness())
+
+        else:
+            self.tx_id = utils.hash256(self.make_immutable)
 
         if len(self) > 100000:
             raise ValueError(
                 'Tx is too large.'
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def no_witness(self):
+        tx = bytes()
+        tx += self.version
+        tx += VarInt(len(self.tx_ins))
+        for tx_in in self.tx_ins:
+            tx += tx_in
+        tx += VarInt(len(self.tx_outs))
+        for tx_out in self.tx_outs:
+            tx += tx_out
+        tx += self.lock_time
+        return bytes(tx)
