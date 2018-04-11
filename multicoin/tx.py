@@ -2,6 +2,14 @@ import binascii
 import math
 
 
+def lx(number):
+    b = '%x' % number
+    if len(b) & 1:
+        b = '0' + b
+    b = binascii.unhexlify(b)[::-1]
+    return b
+
+
 class Serializable(bytearray):
     @classmethod
     def from_hex_string(Class, h):
@@ -25,13 +33,8 @@ class VarInt(Serializable):
             self += bytes([0xfe])
         elif number <= 0xffffffffffffffff:
             self += bytes([0xff])
-        b = '%x' % number
-        if len(b) & 1:
-            b = '0' + b
-        b = binascii.unhexlify(b)[::-1]
-        self += b
-
-        while math.log(len(self) - 1, 2) % 1 != 0:
+        self += lx(number)
+        while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
 
