@@ -99,6 +99,8 @@ class BitcoinMain(Network):
     P2PKH_PREFIX = b'\x00'
     P2SH_PREFIX = b'\x05'
     SEGWIT = True
+    P2WSH_PREFIX = b'\x00\x20'
+    P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'bc'
 
 
