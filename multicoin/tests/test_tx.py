@@ -1,4 +1,5 @@
 import unittest
+import binascii
 from .. import tx
 from .. import utils
 
@@ -68,7 +69,7 @@ class TestTx(unittest.TestCase):
         tx_outs = [
             tx.TxOut(
                 value=bytearray(utils.i2le(21000000) + (b'\x00' * 4)),
-                pk_script=bytearray([0xdd] * 32)
+                pk_script=bytearray(binascii.unhexlify('5221022626e955ea6ea6d98850c994f9107b036b1334f18ca8830bfff1295d21cfdb702103b287eaf122eea69030a0e9feed096bed8045c8b98bec453e1ffac7fbdbd4bb7152ae'))
             )
         ]
         tx_witnesses = [

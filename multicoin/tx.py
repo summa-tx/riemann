@@ -101,8 +101,8 @@ class TxOut(Serializable):
         if not isinstance(pk_script, bytearray):
             raise ValueError(
                 'Invalid pk_script. '
-                'Expected 8 bytes. Got: {}'
-                .format(pk_script))
+                'Expected bytearray. Got: {}'
+                .format(type(pk_script)))
 
         self += value
         self += VarInt(len(pk_script))
