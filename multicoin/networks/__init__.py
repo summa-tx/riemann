@@ -99,6 +99,7 @@ class BitcoinMain(Network):
     P2PKH = b'\x00'
     P2SH = b'\x05'
     SEGWIT = True
+    BECH32_HRP = 'bc'
 
 
 class BitcoinTest(Network):
@@ -108,6 +109,7 @@ class BitcoinTest(Network):
     P2PKH = b'o'  # 0x6f
     P2SH = b'\xc4'
     SEGWIT = True
+    BECH32_HRP = 'tb'
 
 
 class LitecoinMain(Network):
