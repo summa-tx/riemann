@@ -87,8 +87,8 @@ class Network:
     SYMBOL = None
     NETWORK_NAME = None
     SUBNET_NAME = None
-    P2PKH = None
-    P2SH = None
+    P2PKH_PREFIX = None
+    P2SH_PREFIX = None
     SEGWIT = None
 
 
@@ -96,8 +96,8 @@ class BitcoinMain(Network):
     SYMBOL = 'BTC'
     NETWORK_NAME = 'bitcoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x00'
-    P2SH = b'\x05'
+    P2PKH_PREFIX = b'\x00'
+    P2SH_PREFIX = b'\x05'
     SEGWIT = True
     BECH32_HRP = 'bc'
 
@@ -106,8 +106,8 @@ class BitcoinTest(Network):
     SYMBOL = 'tBTC'
     NETWORK_NAME = 'bitcoin'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'o'  # 0x6f
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'o'  # 0x6f
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = True
     BECH32_HRP = 'tb'
 
@@ -116,8 +116,8 @@ class LitecoinMain(Network):
     SYMBOL = 'LTC'
     NETWORK_NAME = 'litecoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'0'
-    P2SH = b'\x05'
+    P2PKH_PREFIX = b'0'
+    P2SH_PREFIX = b'\x05'
     SEGWIT = True
 
 
@@ -125,8 +125,8 @@ class LitecoinTest(Network):
     SYMBOL = 'tLTC'
     NETWORK_NAME = 'litecoin'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'o'
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'o'
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = True
 
 
@@ -134,8 +134,8 @@ class BitcoinCashMain(Network):
     SYMBOL = 'BCH'
     NETWORK_NAME = 'bitcoin_cash'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x00'
-    P2SH = b'\x05'
+    P2PKH_PREFIX = b'\x00'
+    P2SH_PREFIX = b'\x05'
     SEGWIT = False
 
 
@@ -143,8 +143,8 @@ class BitcoinGoldMain(Network):
     SYMBOL = 'BTG'
     NETWORK_NAME = 'bitcoin_gold'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'&'
-    P2SH = b'\x17'
+    P2PKH_PREFIX = b'&'
+    P2SH_PREFIX = b'\x17'
     SEGWIT = True
 
 
@@ -152,8 +152,8 @@ class BitcoinGoldTest(Network):
     SYMBOL = 'tBTG'
     NETWORK_NAME = 'bitcoin_gold'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'o'
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'o'
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = True
 
 
@@ -161,8 +161,8 @@ class DogecoinMain(Network):
     SYMBOL = 'DOGE'
     NETWORK_NAME = 'dogecoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x1e'
-    P2SH = b'\x16'
+    P2PKH_PREFIX = b'\x1e'
+    P2SH_PREFIX = b'\x16'
     SEGWIT = False  # as of 4/2018, at least; dogewit is a-comin', they say
 
 
@@ -170,8 +170,8 @@ class DogecoinTest(Network):
     SYMBOL = 'tDOGE'
     NETWORK_NAME = 'dogecoin'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'q'
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'q'
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = False
 
 
@@ -179,8 +179,8 @@ class DashMain(Network):
     SYMBOL = 'DASH'
     NETWORK_NAME = 'dash'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'L'
-    P2SH = b'\x10'
+    P2PKH_PREFIX = b'L'
+    P2SH_PREFIX = b'\x10'
     SEGWIT = False
 
 
@@ -188,8 +188,8 @@ class DashTest(Network):
     SYMBOL = 'tDASH'
     NETWORK_NAME = 'dash'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'\x8c'
-    P2SH = b'\x13'
+    P2PKH_PREFIX = b'\x8c'
+    P2SH_PREFIX = b'\x13'
     SEGWIT = False
 
 
@@ -197,8 +197,8 @@ class ZcashMain(Network):
     SYMBOL = 'ZEC'
     NETWORK_NAME = 'zcash'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x1c\xb8'
-    P2SH = b'\x1c\xbd'
+    P2PKH_PREFIX = b'\x1c\xb8'
+    P2SH_PREFIX = b'\x1c\xbd'
     SEGWIT = False
 
 
@@ -206,8 +206,8 @@ class DecredMain(Network):
     SYMBOL = 'DCR'
     NETWORK_NAME = 'decred'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x07?'
-    P2SH = b'\x07\x1a'
+    P2PKH_PREFIX = b'\x07?'
+    P2SH_PREFIX = b'\x07\x1a'
     SEGWIT = False
 
 
@@ -215,8 +215,8 @@ class DecredTest(Network):
     SYMBOL = 'tDCR'
     NETWORK_NAME = 'decred'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'\x0f!'
-    P2SH = b'\x0el'
+    P2PKH_PREFIX = b'\x0f!'
+    P2SH_PREFIX = b'\x0el'
     SEGWIT = False
 
 
@@ -224,8 +224,8 @@ class PivxMain(Network):
     SYMBOL = 'PIVX'
     NETWORK_NAME = 'pivx'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x1e'
-    P2SH = b'\x00d'
+    P2PKH_PREFIX = b'\x1e'
+    P2SH_PREFIX = b'\x00d'
     SEGWIT = False
 
 
@@ -233,8 +233,8 @@ class PivxTest(Network):
     SYMBOL = 'tPIVX'
     NETWORK_NAME = 'pivx'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'\x8b'
-    P2SH = b'\x13'
+    P2PKH_PREFIX = b'\x8b'
+    P2SH_PREFIX = b'\x13'
     SEGWIT = False
 
 
@@ -244,8 +244,8 @@ class ViacoinMain(Network):
     SYMBOL = 'VIA'
     NETWORK_NAME = 'viacoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'G'
-    P2SH = b'!'
+    P2PKH_PREFIX = b'G'
+    P2SH_PREFIX = b'!'
     SEGWIT = True
 
 
@@ -253,8 +253,8 @@ class ViacoinTest(Network):
     SYMBOL = 'tVIA'
     NETWORK_NAME = 'viacoin'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'\x7f'
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'\x7f'
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = True
 
 
@@ -262,8 +262,8 @@ class FeathercoinMain(Network):
     SYMBOL = 'FTC'
     NETWORK_NAME = 'feathercoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'\x0e'
-    P2SH = b'`'
+    P2PKH_PREFIX = b'\x0e'
+    P2SH_PREFIX = b'`'
     SEGWIT = True
 
 
@@ -271,8 +271,8 @@ class FeathercoinTest(Network):
     SYMBOL = 'tFTC'
     NETWORK_NAME = 'feathercoin'
     SUBNET_NAME = 'testnet'
-    P2PKH = b'A'
-    P2SH = b'\xc4'
+    P2PKH_PREFIX = b'A'
+    P2SH_PREFIX = b'\xc4'
     SEGWIT = True
 
 
@@ -280,8 +280,8 @@ class UnobtaniumMain(Network):
     SYMBOL = 'UNO'  # or else draw two!
     NETWORK_NAME = 'unobtanium'  # still can't with that spelling
     SUBNET_NAME = 'testnet'
-    P2PKH = b'\x82'
-    P2SH = b'\x1e'
+    P2PKH_PREFIX = b'\x82'
+    P2SH_PREFIX = b'\x1e'
     SEGWIT = True
 
 
@@ -289,8 +289,8 @@ class FaircoinMain(Network):
     SYMBOL = 'FAI'
     NETWORK_NAME = 'faircoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'_'  # ('_')b it approves!
-    P2SH = b'$'
+    P2PKH_PREFIX = b'_'  # ('_')b it approves!
+    P2SH_PREFIX = b'$'
     SEGWIT = False  # no information exists
 
 
@@ -298,8 +298,8 @@ class BitcoinDarkMain(Network):
     SYMBOL = 'BTCD'
     NETWORK_NAME = 'bitcoin_dark'
     SUBNET_NAME = 'mainnet'
-    P2PKH = b'<'
-    P2SH = b'-'
+    P2PKH_PREFIX = b'<'
+    P2SH_PREFIX = b'-'
     SEGWIT = False
 
 # TODO add more

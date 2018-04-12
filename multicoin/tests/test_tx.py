@@ -3,9 +3,9 @@ import binascii
 from .. import tx
 from .. import utils
 
-
+# On chain legacy tx p2sh -> p2pkh tx
 'https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex'
-'010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000'
+RAW_P2SH_TO_P2PKH = '010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000'
 
 
 class TestVarInt(unittest.TestCase):
@@ -138,7 +138,6 @@ class TestTx(unittest.TestCase):
 
     def test_everything(self):
         version = utils.i2le_padded(1, 4)
-        flag = None
         outpoint_index = utils.i2le_padded(0, 4)
         outpoint_tx_id = bytearray(binascii.unhexlify(
             '10399b3f20cbdd4b5ac3f823afdba28b'
@@ -161,24 +160,11 @@ class TestTx(unittest.TestCase):
         lock_time = utils.i2le_padded(0, 4)
 
         res = tx.Tx(version, None, tx_ins, tx_outs, None, lock_time)
+
+        self.assertEqual(res.hex(), RAW_P2SH_TO_P2PKH)
         print('')
         print('printing legacy tx hex')
         print(res.hex())
         print('')
         print('print legacy tx_id hex')
         print(res.tx_id.hex())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1
