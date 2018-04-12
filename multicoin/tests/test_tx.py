@@ -89,3 +89,18 @@ class TestTx(unittest.TestCase):
         print(res.tx_id.hex())
         print('')
         print(res.wtx_id.hex())
+
+
+class TestOutpoint(unittest.TestCase):
+
+    def test_create_outpoint(self):
+        outpoint_index = utils.i2le_padded(0, 4)
+        outpoint_tx_id = bytearray(binascii.unhexlify(
+            '51b78168d94ec307e2855697209275d4'
+            '77e05d8647caf29cb9e38fb6a4661145'))[::-1]
+        outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+        self.assertEqual(
+            outpoint.hex(),
+            '451166a4b68fe3b99cf2ca47865de077d475'
+            '9220975685e207c34ed96881b75100000000')

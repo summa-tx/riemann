@@ -1,4 +1,4 @@
-from . import utils
+from .. import utils
 
 BASE58_ALPHABET = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 BASE58_BASE = len(BASE58_ALPHABET)

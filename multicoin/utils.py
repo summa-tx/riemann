@@ -10,6 +10,12 @@ def i2le(number):
     return b
 
 
+def i2le_padded(number, length):
+    b = bytearray(i2le(number))
+    b.extend([0] * (length - len(b)))
+    return b
+
+
 def change_endianness(b):
     return b[::-1]
 
