@@ -173,6 +173,12 @@ class Tx(Serializable):
                     'Witness and TxIn lists must be same length. '
                     'Got {} inputs and {} witnesses.'
                     .format(len(tx_ins), len(tx_witnesses)))
+            for witness in tx_witnesses:
+                if not isinstance(witness, TxWitness):
+                    raise ValueError(
+                        'Invalid TxWitness.'
+                        'Expected instance of TxWitness. Got {}'
+                        .format(type(witness)))
 
         if max(len(tx_ins), len(tx_outs)) > 255:
             raise ValueError('Too many inputs or outputs. Stop that.')
@@ -194,13 +200,6 @@ class Tx(Serializable):
                     'Expected instance of TxOut. Got {}'
                     .format(type(tx_out)))
 
-        for witness in tx_witnesses:
-            if not isinstance(witness, TxWitness):
-                raise ValueError(
-                    'Invalid TxWitness.'
-                    'Expected instance of TxWitness. Got {}'
-                    .format(type(witness)))
-
         if not isinstance(lock_time, bytearray):
             raise ValueError(
                 'Invalid lock_time. '
@@ -216,8 +215,9 @@ class Tx(Serializable):
         self += VarInt(len(tx_outs))
         for tx_out in tx_outs:
             self += tx_out
-        for witness in tx_witnesses:
-            self += witness
+        if tx_witnesses is not None:
+            for witness in tx_witnesses:
+                self += witness
         self += lock_time
 
         self.version = version
@@ -227,18 +227,21 @@ class Tx(Serializable):
         self.tx_outs_len = len(tx_outs)
         self.tx_outs = [tx_out for tx_out in tx_outs]
         self.tx_witnesses_len = self.tx_ins_len
-        self.tx_witnesses = [wit for wit in tx_witnesses]
+        self.tx_witnesses = \
+            [wit for wit in tx_witnesses] if tx_witnesses is not None else None
         self.lock_time = lock_time
 
         if flag is not None:
-            self.wtx_id_le = utils.hash256(self.make_immutable())
             self.tx_id_le = utils.hash256(self.no_witness())
+            self.wtx_id_le = utils.hash256(self.make_immutable())
             self.tx_id = utils.change_endianness(self.tx_id_le)
             self.wtx_id = utils.change_endianness(self.wtx_id_le)
 
         else:
-            self.tx_id_le = utils.hash256(self.make_immutable)
+            self.tx_id_le = utils.hash256(self.make_immutable())
             self.tx_id = utils.change_endianness(self.tx_id_le)
+            self.wtx_id = None
+            self.wtx_le = None
 
         if len(self) > 100000:
             raise ValueError(
