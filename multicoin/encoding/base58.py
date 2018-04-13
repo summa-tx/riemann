@@ -9,18 +9,30 @@ class EncodingError(ValueError):
     pass
 
 
-def encode(s):
+def encode(data, checksum=True):
     """Convert binary to base58 using BASE58_ALPHABET."""
-    v, prefix = to_long(256, lambda x: x, iter(s))
-    s = from_long(v, prefix, BASE58_BASE, lambda v: BASE58_ALPHABET[v])
-    return s.decode("utf8")
+
+    if checksum:
+        data = data + utils.hash256(data)[:4]
+    v, prefix = to_long(256, lambda x: x, iter(data))
+    data = from_long(v, prefix, BASE58_BASE, lambda v: BASE58_ALPHABET[v])
+    return data.decode("utf8")
 
 
-def decode(s):
+def decode(s, checksum=True):
     """Convert base58 to binary using BASE58_ALPHABET."""
     v, prefix = to_long(
         BASE58_BASE, lambda c: BASE58_LOOKUP[c], s.encode("utf8"))
-    return from_long(v, prefix, 256, lambda x: x)
+
+    data = from_long(v, prefix, 256, lambda x: x)
+
+    if checksum:
+        data, the_hash = data[:-4], data[-4:]
+        if utils.hash256(data)[:4] == the_hash:
+            return data
+        raise EncodingError("hashed base58 has bad checksum %s" % s)
+
+    return data
 
 
 def encode_with_checksum(data):
@@ -29,7 +41,7 @@ def encode_with_checksum(data):
     with four bytes of hash data at the end.
     This function turns data into its hashed_base58 equivalent.
     """
-    return encode(data + utils.hash256(data)[:4])
+    return encode(data, checksum=True)
 
 
 def decode_with_checksum(s):
@@ -37,11 +49,7 @@ def decode_with_checksum(s):
     If the passed string is hashed_base58, return the binary data.
     Otherwise raises an EncodingError.
     """
-    data = decode(s)
-    data, the_hash = data[:-4], data[-4:]
-    if utils.hash256(data)[:4] == the_hash:
-        return data
-    raise EncodingError("hashed base58 has bad checksum %s" % s)
+    return decode(s, checksum=True)
 
 
 def hash_checksum(base58):

@@ -1,5 +1,4 @@
 from .opcodes import CODE_TO_INT, INT_TO_CODE
-import binascii
 
 
 def serialize_from_string(script_string):
@@ -11,7 +10,7 @@ def serialize_from_string(script_string):
             serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
             continue  # Skip rest of loop
 
-        token_bytes = binascii.unhexlify(token)
+        token_bytes = bytes.fromhex(token)
 
         if len(token_bytes) > 76:
             raise NotImplementedError('PUSHDATA ops not supported')
@@ -57,4 +56,4 @@ def deserialize_script(serialized_script):
 
 
 def deserialize_script_hex(script_hex):
-    return deserialize_script(binascii.unhexlify(script_hex))
+    return deserialize_script(bytes.fromhex(script_hex))

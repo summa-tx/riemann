@@ -23,7 +23,6 @@
 
 """Reference tests for segwit adresses"""
 
-import binascii
 import unittest
 from ...encoding import bech32
 
@@ -118,7 +117,7 @@ class TestBech32(unittest.TestCase):
                 witver, witprog = bech32.decode(hrp, address)
             self.assertIsNotNone(witver)
             scriptpubkey = segwit_scriptpubkey(witver, witprog)
-            self.assertEqual(scriptpubkey, binascii.unhexlify(hexscript))
+            self.assertEqual(scriptpubkey, bytearray.fromhex(hexscript))
             addr = bech32.encode(hrp, witver, witprog)
             self.assertEqual(address.lower(), addr)
 
