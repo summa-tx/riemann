@@ -5,6 +5,8 @@ from ..script import parsing
 from ..encoding import base58, bech32
 
 
+# TODO: Coerce the [expletive] out of pubkeys
+
 def make_sh_output_script(script_string, witness=False):
     output_script = bytearray()
 
