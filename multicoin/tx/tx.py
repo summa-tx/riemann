@@ -20,7 +20,6 @@ class ByteData():
         return self._bytearray[self._current - 1]
 
     def __iadd__(self, other):
-
         if isinstance(other, bytes) or isinstance(other, bytearray):
             self._bytearray.extend(other)
         elif isinstance(other, ByteData):
@@ -51,6 +50,11 @@ class ByteData():
     def make_immutable(self):
         self.__immutable = True
         self._bytearray = bytes(self._bytearray)
+
+    def find(self, substring):
+        if isinstance(substring, ByteData):
+            substring = ByteData.to_bytes
+        return self._bytearray.find(substring)
 
     def __setattr__(self, key, value):
         if self.__immutable and not hasattr(self, key):

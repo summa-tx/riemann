@@ -78,10 +78,7 @@ class TestTxIn(unittest.TestCase):
         outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
         sequence = utils.i2le_padded(0, 4)
-
         script = bytearray(binascii.unhexlify('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))
-
-
         tx_in = tx.TxIn(outpoint, script, sequence)
         print('')
         print('Printing TxIn')
