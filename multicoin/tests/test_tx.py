@@ -118,8 +118,8 @@ class TestTx(unittest.TestCase):
         tx_witnesses = [
             tx.TxWitness(
                 [
-                    tx.StackItem(bytearray([0x88] * 18)),
-                    tx.StackItem(bytearray([0x99] * 18))
+                    tx.WitnessStackItem(bytearray([0x88] * 18)),
+                    tx.WitnessStackItem(bytearray([0x99] * 18))
                 ]
             )
         ]
