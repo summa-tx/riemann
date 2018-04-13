@@ -118,7 +118,7 @@ class LitecoinMain(Network):
     SYMBOL = 'LTC'
     NETWORK_NAME = 'litecoin'
     SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x31'
+    P2PKH_PREFIX = b'\x30'
     P2SH_PREFIX = b'\x32'
     SEGWIT = True
 
