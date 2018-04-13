@@ -3,6 +3,8 @@
 # 2. add it to get_network
 # 3. add it to SUPPORTED
 
+from multicoin.encoding import base58, bech32
+
 SUPPORTED = [
     'bitcoin_main',
     'bitcoin_test',
@@ -90,6 +92,8 @@ class Network:
     P2PKH_PREFIX = None
     P2SH_PREFIX = None
     SEGWIT = None
+    LEGACY_ENCODER = base58
+    WITNESS_ENCODER = bech32
 
 
 class BitcoinMain(Network):
