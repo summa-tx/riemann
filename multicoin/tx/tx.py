@@ -4,10 +4,11 @@ from .. import utils
 
 class ByteData():
 
+    __immutable = False
+
     def __init__(self):
         self._bytearray = bytearray()
         self._current = 0
-        self.__immutable = False
 
     def __iter__(self):
         return self._bytearray
@@ -47,8 +48,8 @@ class ByteData():
         return self._bytearray.hex()
 
     def make_immutable(self):
-        self.__immutable = True
         self._bytearray = bytes(self._bytearray)
+        self.__immutable = True
 
     def find(self, substring):
         if isinstance(substring, ByteData):
@@ -56,8 +57,8 @@ class ByteData():
         return self._bytearray.find(substring)
 
     def __setattr__(self, key, value):
-        if self.__immutable and not hasattr(self, key):
-            raise TypeError("%r is a frozen class" % self)
+        if self.__immutable:
+            raise TypeError("%r cannot be written to." % self)
         object.__setattr__(self, key, value)
 
     def __repr__(self):

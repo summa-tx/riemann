@@ -1,3 +1,5 @@
+# The MIT License (MIT)
+#
 # Copyright (c) 2017 Pieter Wuille
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,9 +21,66 @@
 # THE SOFTWARE.
 
 """Reference implementation for Bech32 and segwit addresses."""
+
 import multicoin
 
+
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+
+
+def encode(data):
+    return bech32_encode(multicoin.network.BECH32_HRP, data)
+
+
+def decode(bech):
+    return segwit_decode(multicoin.network.BECH32_HRP, bech)
+
+
+def segwit_decode(hrp, addr):
+    """Decode a segwit address."""
+    hrpgot, data = bech32_decode(addr)
+    if hrpgot != hrp:
+        return (None, None)
+    decoded = convertbits(data[1:], 5, 8, False)
+    if decoded is None or len(decoded) < 2 or len(decoded) > 40:
+        return (None, None)
+    if data[0] > 16:
+        return (None, None)
+    if data[0] == 0 and len(decoded) != 20 and len(decoded) != 32:
+        return (None, None)
+    return (data[0], decoded)
+
+
+def segwit_encode(hrp, witver, witprog):
+    """Encode a segwit address."""
+    ret = bech32_encode(hrp, [witver] + convertbits(witprog, 8, 5))
+    if segwit_decode(hrp, ret) == (None, None):
+        return None
+    return ret
+
+
+def bech32_encode(hrp, data):
+    """Compute a Bech32 string given HRP and data values."""
+    combined = data + bech32_create_checksum(hrp, data)
+    return hrp + '1' + ''.join([CHARSET[d] for d in combined])
+
+
+def bech32_decode(bech):
+    """Validate a Bech32 string, and determine HRP and data."""
+    if ((any(ord(x) < 33 or ord(x) > 126 for x in bech)) or
+            (bech.lower() != bech and bech.upper() != bech)):
+        return (None, None)
+    bech = bech.lower()
+    pos = bech.rfind('1')
+    if pos < 1 or pos + 7 > len(bech) or len(bech) > 90:
+        return (None, None)
+    if not all(x in CHARSET for x in bech[pos+1:]):
+        return (None, None)
+    hrp = bech[:pos]
+    data = [CHARSET.find(x) for x in bech[pos+1:]]
+    if not bech32_verify_checksum(hrp, data):
+        return (None, None)
+    return (hrp, data[:-6])
 
 
 def bech32_polymod(values):
@@ -53,30 +112,6 @@ def bech32_create_checksum(hrp, data):
     return [(polymod >> 5 * (5 - i)) & 31 for i in range(6)]
 
 
-def bech32_encode(hrp, data):
-    """Compute a Bech32 string given HRP and data values."""
-    combined = data + bech32_create_checksum(hrp, data)
-    return hrp + '1' + ''.join([CHARSET[d] for d in combined])
-
-
-def bech32_decode(bech):
-    """Validate a Bech32 string, and determine HRP and data."""
-    if ((any(ord(x) < 33 or ord(x) > 126 for x in bech)) or
-            (bech.lower() != bech and bech.upper() != bech)):
-        return (None, None)
-    bech = bech.lower()
-    pos = bech.rfind('1')
-    if pos < 1 or pos + 7 > len(bech) or len(bech) > 90:
-        return (None, None)
-    if not all(x in CHARSET for x in bech[pos+1:]):
-        return (None, None)
-    hrp = bech[:pos]
-    data = [CHARSET.find(x) for x in bech[pos+1:]]
-    if not bech32_verify_checksum(hrp, data):
-        return (None, None)
-    return (hrp, data[:-6])
-
-
 def convertbits(data, frombits, tobits, pad=True):
     """General power-of-2 base conversion."""
     acc = 0
@@ -96,28 +131,5 @@ def convertbits(data, frombits, tobits, pad=True):
         if bits:
             ret.append((acc << (tobits - bits)) & maxv)
     elif bits >= frombits or ((acc << (tobits - bits)) & maxv):
-        return None
-    return ret
-
-
-def decode(hrp, addr):
-    """Decode a segwit address."""
-    hrpgot, data = bech32_decode(addr)
-    if hrpgot != hrp:
-        return (None, None)
-    decoded = convertbits(data[1:], 5, 8, False)
-    if decoded is None or len(decoded) < 2 or len(decoded) > 40:
-        return (None, None)
-    if data[0] > 16:
-        return (None, None)
-    if data[0] == 0 and len(decoded) != 20 and len(decoded) != 32:
-        return (None, None)
-    return (data[0], decoded)
-
-
-def encode(hrp, witver, witprog):
-    """Encode a segwit address."""
-    ret = bech32_encode(hrp, [witver] + convertbits(witprog, 8, 5))
-    if decode(hrp, ret) == (None, None):
         return None
     return ret

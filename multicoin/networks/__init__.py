@@ -99,6 +99,7 @@ class BitcoinMain(Network):
     P2PKH_PREFIX = b'\x00'
     P2SH_PREFIX = b'\x05'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'bc'
@@ -111,6 +112,7 @@ class BitcoinTest(Network):
     P2PKH_PREFIX = b'o'  # 0x6f
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
     BECH32_HRP = 'tb'
 
 
@@ -121,6 +123,7 @@ class LitecoinMain(Network):
     P2PKH_PREFIX = b'\x30'
     P2SH_PREFIX = b'\x32'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class LitecoinTest(Network):
@@ -130,6 +133,7 @@ class LitecoinTest(Network):
     P2PKH_PREFIX = b'o'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class BitcoinCashMain(Network):
@@ -148,6 +152,7 @@ class BitcoinGoldMain(Network):
     P2PKH_PREFIX = b'&'
     P2SH_PREFIX = b'\x17'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class BitcoinGoldTest(Network):
@@ -157,6 +162,7 @@ class BitcoinGoldTest(Network):
     P2PKH_PREFIX = b'o'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class DogecoinMain(Network):
@@ -249,6 +255,7 @@ class ViacoinMain(Network):
     P2PKH_PREFIX = b'G'
     P2SH_PREFIX = b'!'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class ViacoinTest(Network):
@@ -258,6 +265,7 @@ class ViacoinTest(Network):
     P2PKH_PREFIX = b'\x7f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class FeathercoinMain(Network):
@@ -267,6 +275,7 @@ class FeathercoinMain(Network):
     P2PKH_PREFIX = b'\x0e'
     P2SH_PREFIX = b'`'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class FeathercoinTest(Network):
@@ -276,6 +285,7 @@ class FeathercoinTest(Network):
     P2PKH_PREFIX = b'A'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class UnobtaniumMain(Network):
@@ -285,6 +295,7 @@ class UnobtaniumMain(Network):
     P2PKH_PREFIX = b'\x82'
     P2SH_PREFIX = b'\x1e'
     SEGWIT = True
+    WITNESS_VERSION = b'\x00'
 
 
 class FaircoinMain(Network):

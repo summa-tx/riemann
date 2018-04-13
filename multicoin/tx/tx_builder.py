@@ -63,7 +63,7 @@ def make_p2wpkh_output_script(pubkey):
 def make_sh_address(script_string, witness=False):
     script_bytes = make_sh_output_script(script_string, witness)
     if witness:
-        return bech32.encode(multicoin.network.BECH32_HRP, 0, script_bytes[2:])
+        return bech32.encode(script_bytes)
     return base58.encode(script_bytes)
 
 
@@ -78,7 +78,7 @@ def make_p2sh_address(script_string):
 def make_pkh_address(pubkey, witness=False):
     script_bytes = make_pkh_output_script(pubkey)
     if witness:
-        return bech32.encode(multicoin.network.BECH32_HRP, 0, script_bytes[2:])
+        return bech32.encode(script_bytes)
     return base58.encode(script_bytes)
 
 
