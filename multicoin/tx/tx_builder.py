@@ -55,3 +55,7 @@ def make_p2wsh_output_script(script_string):
 
 def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
+
+
+def make_
+    
