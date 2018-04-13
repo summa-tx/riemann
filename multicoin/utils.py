@@ -1,4 +1,3 @@
-import binascii
 import hashlib
 
 

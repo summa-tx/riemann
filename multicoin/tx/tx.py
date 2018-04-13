@@ -4,11 +4,10 @@ from .. import utils
 
 class ByteData():
 
-    __immutable = False
-
     def __init__(self):
         self._bytearray = bytearray()
         self._current = 0
+        self.__immutable = False
 
     def __iter__(self):
         return self._bytearray

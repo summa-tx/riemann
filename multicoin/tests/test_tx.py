@@ -1,5 +1,4 @@
 import unittest
-import binascii
 from ..tx import tx
 from .. import utils
 
