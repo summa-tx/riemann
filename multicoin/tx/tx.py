@@ -1,5 +1,5 @@
 import math
-from . import utils
+from .. import utils
 
 
 class Serializable(bytearray):

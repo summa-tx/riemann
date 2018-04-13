@@ -1,6 +1,6 @@
 import unittest
 import binascii
-from .. import tx
+from ..tx import tx
 from .. import utils
 
 # On chain legacy tx p2sh -> p2pkh tx

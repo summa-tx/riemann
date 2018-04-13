@@ -1,7 +1,7 @@
 # import tx
 import multicoin
-from . import utils
-from .script import parsing
+from .. import utils
+from ..script import parsing
 
 
 def make_sh_output_script(script_string, witness=False):
