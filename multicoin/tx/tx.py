@@ -2,54 +2,14 @@ import math
 from .. import utils
 
 
-class ByteData():
+class Serializable(bytearray):
 
-    def __init__(self):
-        self._bytearray = bytearray()
-        self._current = 0
-
-    def __iter__(self):
-        return self._bytearray
-
-    def __next__(self):
-        if self._current > len(self._bytearray):
-            raise StopIteration
-        self._current += 1
-        return self._bytearray[self._current - 1]
-
-    def __iadd__(self, other):
-
-        if isinstance(other, bytes) or isinstance(other, bytearray):
-            self._bytearray.extend(other)
-        elif isinstance(other, ByteData):
-            self._bytearray.extend(other._bytearray)
-        else:
-            raise TypeError('unsupported operand type(s) for +=: '
-                            '{} and {}'.format(type(self), type(other)))
-        return self
-
-    def __ne__(self, other):
-        if isinstance(other, bytes) or isinstance(other, bytearray):
-            return self._bytearray != other
-        elif isinstance(other, ByteData):
-            return self._bytearray != other.bytearray
-
-    def __eq__(self, other):
-        return not self != other
-
-    def __len__(self):
-        return len(self._bytearray)
-
-    def to_bytes(self):
-        return bytes(self._bytearray)
-
-    def hex(self):
-        return self._bytearray.hex()
+    def make_immutable(self):
+        return bytes(self)
 
 
-class VarInt(ByteData):
+class VarInt(Serializable):
     def __init__(self, number):
-        super().__init__()
         if number < 0x0:
             raise ValueError('VarInt cannot be less than 0. '
                              'Got: {}'.format(number))
@@ -72,10 +32,9 @@ class VarInt(ByteData):
         self.number = number
 
 
-class Outpoint(ByteData):
+class Outpoint(Serializable):
 
     def __init__(self, tx_id, index):
-        super().__init__()
 
         if not isinstance(tx_id, bytearray) or len(tx_id) != 32:
             raise ValueError(
@@ -96,10 +55,9 @@ class Outpoint(ByteData):
         self.index = index
 
 
-class TxIn(ByteData):
+class TxIn(Serializable):
 
     def __init__(self, outpoint, script, sequence):
-        super().__init__()
 
         if not isinstance(outpoint, Outpoint):
             raise ValueError(
@@ -130,10 +88,9 @@ class TxIn(ByteData):
         self.sequence = sequence
 
 
-class TxOut(ByteData):
+class TxOut(Serializable):
 
     def __init__(self, value, pk_script):
-        super().__init__()
 
         if not isinstance(value, bytearray) or len(value) != 8:
             raise ValueError(
@@ -156,10 +113,9 @@ class TxOut(ByteData):
         self.pk_script = pk_script
 
 
-class StackItem(ByteData):
+class StackItem(Serializable):
 
     def __init__(self, item):
-        super().__init__()
         if not isinstance(item, bytearray):
             raise ValueError(
                 'Invalid item. '
@@ -173,10 +129,9 @@ class StackItem(ByteData):
         self.item = item
 
 
-class TxWitness(ByteData):
+class TxWitness(Serializable):
 
     def __init__(self, stack):
-        super().__init__()
         for item in stack:
             if not isinstance(item, StackItem):
                 raise ValueError(
@@ -191,13 +146,10 @@ class TxWitness(ByteData):
         self.stack = [item for item in stack]
 
 
-class Tx(ByteData):
+class Tx(Serializable):
 
     def __init__(self, version, flag, tx_ins,
                  tx_outs, tx_witnesses, lock_time):
-
-        super().__init__()
-
         if not isinstance(version, bytearray) or len(version) != 4:
             raise ValueError(
                 'Invalid version. '
@@ -281,12 +233,12 @@ class Tx(ByteData):
 
         if flag is not None:
             self.tx_id_le = utils.hash256(self.no_witness())
-            self.wtx_id_le = utils.hash256(self.to_bytes())
+            self.wtx_id_le = utils.hash256(self.make_immutable())
             self.tx_id = utils.change_endianness(self.tx_id_le)
             self.wtx_id = utils.change_endianness(self.wtx_id_le)
 
         else:
-            self.tx_id_le = utils.hash256(self.to_bytes())
+            self.tx_id_le = utils.hash256(self.make_immutable())
             self.tx_id = utils.change_endianness(self.tx_id_le)
             self.wtx_id = None
             self.wtx_le = None
@@ -299,11 +251,11 @@ class Tx(ByteData):
     def no_witness(self):
         tx = bytes()
         tx += self.version
-        tx += VarInt(len(self.tx_ins)).to_bytes()
+        tx += VarInt(len(self.tx_ins))
         for tx_in in self.tx_ins:
-            tx += tx_in.to_bytes()
-        tx += VarInt(len(self.tx_outs)).to_bytes()
+            tx += tx_in
+        tx += VarInt(len(self.tx_outs))
         for tx_out in self.tx_outs:
-            tx += tx_out.to_bytes()
+            tx += tx_out
         tx += self.lock_time
         return bytes(tx)
