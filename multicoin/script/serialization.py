@@ -43,7 +43,7 @@ def deserialize_script(serialized_script):
     i = 0
     while i < len(serialized_script):
         current_byte = serialized_script[i]
-        if current_byte = 0xab:
+        if current_byte == 0xab:
             raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
         if current_byte <= 76 and current_byte != 0:
 

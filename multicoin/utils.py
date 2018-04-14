@@ -5,20 +5,14 @@ def i2le(number):
     '''
     int -> bytearray
     '''
-    b = '%x' % number
-    if len(b) & 1:
-        b = '0' + b
-    b = bytearray.fromhex(b)[::-1]
-    return b
+    return number.to_bytes((number.bit_length() + 7) // 8, 'little')
 
 
 def i2le_padded(number, length):
     '''
     int, int -> bytearray
     '''
-    b = i2le(number)
-    b.extend([0] * (length - len(b)))
-    return b
+    return number.to_bytes(length, 'little')
 
 
 def le2i(b, signed=False):

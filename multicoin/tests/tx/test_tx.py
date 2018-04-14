@@ -109,7 +109,7 @@ class TestTx(unittest.TestCase):
         tx_outs = [
             tx.TxOut(
                 value=bytearray(utils.i2le_padded(2000, 8)),
-                pk_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
+                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
         ]
         tx_witnesses = [
             tx.InputWitness(
@@ -150,7 +150,7 @@ class TestTx(unittest.TestCase):
         tx_outs = [
             tx.TxOut(
                 value=bytearray(utils.i2le_padded(2000, 8)),
-                pk_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
+                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
         ]
 
         lock_time = utils.i2le_padded(0, 4)

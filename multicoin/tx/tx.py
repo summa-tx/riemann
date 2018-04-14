@@ -137,10 +137,15 @@ class TxIn(ByteData):
         self.validate_bytes(stack_script, None)
         self.validate_bytes(redeem_script, None)
 
+        if len(stack_script) + len(redeem_script) > 1650:
+            raise ValueError('Input script_sig is too long. '
+                             'Expected <= 1650 bytes. Got {} bytes.'
+                             .format(len(stack_script) + len(redeem_script)))
+
         self.validate_bytes(sequence, 4)
 
         self += outpoint
-        self += VarInt(len(stack_script + redeem_script))
+        self += VarInt(len(stack_script) + len(redeem_script))
         self += stack_script
         self += redeem_script
         self += sequence
@@ -162,6 +167,11 @@ class TxOut(ByteData):
 
         self.validate_bytes(value, 8)
         self.validate_bytes(output_script, None)
+
+        if utils.le2i(value) <= 546:
+            raise ValueError('Transaction value below dust limit. '
+                             'Expected more than 546 sat. Got: {} sat.'
+                             .format(utils.le2i(value)))
 
         self += value
         self += VarInt(len(output_script))
@@ -336,6 +346,18 @@ class Tx(ByteData):
         '''
         return len(self._bytearray)
 
+    def calc_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        Inputs don't know their value without the whole chain.
+        '''
+        return \
+            sum(input_values) \
+            - sum([utils.le2i(o.value) for o in self.tx_outs])
+
+    def _make_copy_tx(self):
+        pass
+
     def sighash_single(self, index, anyone_can_pay=False):
         '''
         Tx, int, bool
@@ -348,12 +370,3 @@ class Tx(ByteData):
 
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
-
-    def calc_fee(self, input_values):
-        '''
-        Tx, list(int) -> int
-        Inputs don't know their value without the whole chain.
-        '''
-        return \
-            sum(input_values) \
-            - sum([utils.le2i(o.value) for o in self.tx_outs])
