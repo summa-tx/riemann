@@ -129,22 +129,26 @@ class Outpoint(ByteData):
 
 class TxIn(ByteData):
 
-    def __init__(self, outpoint, script, sequence, make_immutable=True):
+    def __init__(self, outpoint, stack_script, redeem_script,
+                 sequence, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(outpoint, 36)
-        self.validate_bytes(script, None)
+        self.validate_bytes(stack_script, None)
+        self.validate_bytes(redeem_script, None)
 
         self.validate_bytes(sequence, 4)
 
         self += outpoint
-        self += VarInt(len(script))
-        self += script
+        self += VarInt(len(stack_script + redeem_script))
+        self += stack_script
+        self += redeem_script
         self += sequence
 
         self.outpoint = outpoint
-        self.script_len = len(script)
-        self.script = script
+        self.script_len = len(stack_script + redeem_script)
+        self.stack_script = stack_script
+        self.redeem_script = redeem_script
         self.sequence = sequence
 
         if make_immutable:
@@ -323,3 +327,23 @@ class Tx(ByteData):
             tx += tx_out.to_bytes()
         tx += self.lock_time
         return bytes(tx)
+
+    @property
+    def size(self):
+        '''
+        Tx -> int
+        size in bytes
+        '''
+        return len(self._bytearray)
+
+    @property
+    def sighash_single(index, anyone_can_pay=False):
+        pass
+
+    @property
+    def sighash_all(anyone_can_pay=False):
+        pass
+
+    @property
+    def sighash_none():
+        raise NotImplementedError('SIGHASH_NONE is a bad idea.')

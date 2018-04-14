@@ -120,6 +120,9 @@ def simple_p2wsh_input_and_witness(outpoint, stack,
 
 
 def simple_legacy_tx(tx_ins, tx_outs):
+    '''
+    list(TxIn), list(TxOut) -> Tx
+    '''
     version = guess_version()
     # Look at each input to guess lock_time
     lock_time = max(
@@ -135,6 +138,10 @@ def simple_legacy_tx(tx_ins, tx_outs):
 
 
 def simple_witness_tx(tx_ins, tx_outs, tx_witnesses):
+    '''
+    list(TxIn), list(TxOut), list(InputWitness) -> Tx
+    '''
+
     version = guess_version()
 
     # Parse legacy scripts AND witness scripts for OP_CLTV

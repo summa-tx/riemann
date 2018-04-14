@@ -9,6 +9,8 @@ def serialize_from_string(script_string):
     serialized_script = bytearray()
 
     for token in string_tokens:
+        if token == 'OP_CODESEPARATOR':
+            raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
         if token in CODE_TO_INT:  # If the string is a known opcode
             serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
             continue  # Skip rest of loop
@@ -16,6 +18,7 @@ def serialize_from_string(script_string):
         token_bytes = bytes.fromhex(token)
 
         if len(token_bytes) > 76:
+            # TODO
             raise NotImplementedError('PUSHDATA ops not supported')
 
         op = 'OP_PUSH_{}'.format(len(token_bytes))
@@ -40,6 +43,8 @@ def deserialize_script(serialized_script):
     i = 0
     while i < len(serialized_script):
         current_byte = serialized_script[i]
+        if current_byte = 0xab:
+            raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
         if current_byte <= 76 and current_byte != 0:
 
             deserialized.append(

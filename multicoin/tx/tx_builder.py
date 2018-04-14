@@ -167,7 +167,8 @@ def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
     Outpoint, str, str, int -> TxIn
     '''
     return tx.TxIn(outpoint=outpoint,
-                   script=make_script_sig(stack_script, redeem_script),
+                   stack_script=stack_script,
+                   redeem_script=redeem_script,
                    sequence=utils.i2le_padded(sequence, 4))
 
 
@@ -185,7 +186,8 @@ def make_witness_input(outpoint, sequence):
     Outpoint, int -> TxIn
     '''
     return tx.TxIn(outpoint=outpoint,
-                   script=bytearray(),
+                   stack_script=bytearray([0]),
+                   redeem_script=bytearray(),
                    sequence=sequence)
 
 
