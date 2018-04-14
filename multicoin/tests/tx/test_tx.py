@@ -1,6 +1,6 @@
 import unittest
-from ..tx import tx
-from .. import utils
+from ...tx import tx
+from ... import utils
 
 # On chain legacy tx p2sh -> p2pkh tx
 'https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex'
