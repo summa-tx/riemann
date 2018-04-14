@@ -2,6 +2,9 @@ from .opcodes import CODE_TO_INT, INT_TO_CODE
 
 
 def serialize_from_string(script_string):
+    '''
+    str -> bytearray
+    '''
     string_tokens = script_string.split()
     serialized_script = bytearray()
 
@@ -23,6 +26,9 @@ def serialize_from_string(script_string):
 
 
 def hex_serialize_from_string(script_string):
+    '''
+    str -> str
+    '''
     return serialize_from_string(script_string).hex()
 
 

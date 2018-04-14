@@ -13,15 +13,10 @@ from ...tx import tx_builder as tb
 # print(CBitcoinAddress.from_scriptPubKey(a.to_scriptPubKey))
 
 
-OP_IF_P2SH = '3MpTk145zbm5odhRALfT9BnUs8DB5w4ydw'
+tb
 
 
 class TestTxBuilder(unittest.TestCase):
 
     def setUp(self):
         pass
-
-    def test_make_p2sh_address(self):
-
-        res = tb.make_p2sh_address('OP_IF')
-        self.assertEqual(res, OP_IF_P2SH)

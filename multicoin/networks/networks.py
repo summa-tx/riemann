@@ -16,6 +16,7 @@ class Network:
     WITNESS_SCRIPT_VERSION = '\x00'
     SEGWIT_ENCODER = bech32
     LEGACY_ENCODER = base58
+    SEGWIT_TX_FLAG = b'\x00\x01'
 
 
 class BitcoinMain(Network):

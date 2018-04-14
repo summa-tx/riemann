@@ -1,3 +1,4 @@
+import multicoin
 import math
 from .. import utils
 
@@ -41,6 +42,14 @@ class ByteData():
     def __len__(self):
         return len(self._bytearray)
 
+    def __setattr__(self, key, value):
+        if self.__immutable:
+            raise TypeError("%r cannot be written to." % self)
+        object.__setattr__(self, key, value)
+
+    def __repr__(self):
+        return '{}: {}'.format(type(self).__name__, self._bytearray)
+
     def to_bytes(self):
         return bytes(self._bytearray)
 
@@ -56,13 +65,21 @@ class ByteData():
             substring = ByteData.to_bytes
         return self._bytearray.find(substring)
 
-    def __setattr__(self, key, value):
-        if self.__immutable:
-            raise TypeError("%r cannot be written to." % self)
-        object.__setattr__(self, key, value)
+    @staticmethod
+    def validate_bytes(data, length=4):
+        if (not isinstance(data, ByteData)
+                and not isinstance(data, bytes)
+                and not isinstance(data, bytearray)):
+            raise ValueError('Expected byte-like object. '
+                             'Got: {}'.format(type(data)))
 
-    def __repr__(self):
-        return '{}: {}'.format(type(self).__name__, self._bytearray)
+        if length is None:
+            return
+
+        if len(data) != length:
+            raise ValueError('Expected bytes-like object with length {}. '
+                             'Got {} with length {}.'
+                             .format(length, type(data), len(data)))
 
 
 class VarInt(ByteData):
@@ -96,23 +113,15 @@ class Outpoint(ByteData):
     def __init__(self, tx_id, index):
         super().__init__()
 
-        if not isinstance(tx_id, bytearray) or len(tx_id) != 32:
-            raise ValueError(
-                'Invalid tx_id. '
-                'Expected 32 bytes. Got: {}'
-                .format(tx_id))
-
-        if not isinstance(index, bytearray) or len(index) != 4:
-            raise ValueError(
-                'Invalid index. '
-                'Expected 4 bytes. Got: {}'
-                .format(index))
+        self.validate_bytes(tx_id, 32)
+        self.validate_bytes(index, 4)
 
         self += tx_id
         self += index
 
         self.tx_id = tx_id
         self.index = index
+
         self.make_immutable()
 
 
@@ -121,23 +130,10 @@ class TxIn(ByteData):
     def __init__(self, outpoint, script, sequence):
         super().__init__()
 
-        if not isinstance(outpoint, Outpoint):
-            raise ValueError(
-                'Invalid Outpoint. '
-                'Expected Outpoint instance. Got: {}'
-                .format(type(outpoint)))
+        self.validate_bytes(outpoint, 36)
+        self.validate_bytes(script, None)
 
-        if not isinstance(script, bytearray):
-            raise ValueError(
-                'Invalid Script. '
-                'Expected many bytes. Got: {}'
-                .format(script))
-
-        if not isinstance(sequence, bytearray):
-            raise ValueError(
-                'Invalid sequence. '
-                'Expected 4 bytes. Got: {}'
-                .format(sequence))
+        self.validate_bytes(sequence, 4)
 
         self += outpoint
         self += VarInt(len(script))
@@ -156,17 +152,8 @@ class TxOut(ByteData):
     def __init__(self, value, pk_script):
         super().__init__()
 
-        if not isinstance(value, bytearray) or len(value) != 8:
-            raise ValueError(
-                'Invalid value. '
-                'Expected 8 bytes. Got: {}'
-                .format(value))
-
-        if not isinstance(pk_script, bytearray):
-            raise ValueError(
-                'Invalid pk_script. '
-                'Expected bytearray. Got: {}'
-                .format(type(pk_script)))
+        self.validate_bytes(value, 8)
+        self.validate_bytes(pk_script, None)
 
         self += value
         self += VarInt(len(pk_script))
@@ -182,11 +169,8 @@ class WitnessStackItem(ByteData):
 
     def __init__(self, item):
         super().__init__()
-        if not isinstance(item, bytearray):
-            raise ValueError(
-                'Invalid item. '
-                'Expected bytearray. Got {}'
-                .format(item))
+
+        self.validate_bytes(item, None)
 
         self += VarInt(len(item))
         self += item
@@ -222,18 +206,15 @@ class Tx(ByteData):
 
         super().__init__()
 
-        if not isinstance(version, bytearray) or len(version) != 4:
-            raise ValueError(
-                'Invalid version. '
-                'Expected 4 bytes. Got: {}'
-                .format(version))
+        self.validate_bytes(version, 4)
+        self.validate_bytes(lock_time, 4)
 
         if flag is not None:
-            if flag != b'\x00\x01':
+            if flag != multicoin.network.SEGWIT_TX_FLAG:
                 raise ValueError(
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
-                    .format(b'\x00\x01', flag))
+                    .format(multicoin.networkself.SEGWIT_TX_FLAG, flag))
             if tx_witnesses is None:
                 raise ValueError('Got segwit flag but no witnesses')
 
@@ -271,12 +252,6 @@ class Tx(ByteData):
                     'Invalid TxOut.'
                     'Expected instance of TxOut. Got {}'
                     .format(type(tx_out)))
-
-        if not isinstance(lock_time, bytearray):
-            raise ValueError(
-                'Invalid lock_time. '
-                'Expected 4 bytes. Got: {}'
-                .format(lock_time))
 
         self += version
         if flag is not None:
@@ -323,6 +298,9 @@ class Tx(ByteData):
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
     def no_witness(self):
+        '''
+        Tx -> bytes
+        '''
         tx = bytes()
         tx += self.version
         tx += VarInt(len(self.tx_ins)).to_bytes()
