@@ -1,322 +1,79 @@
 # To add a new coin
 # 1. define a class
-# 2. add it to get_network
-# 3. add it to SUPPORTED
+# 2. add it to SUPPORTED
 
-from multicoin.encoding import base58, bech32
+from .networks import *
 
-SUPPORTED = [
-    'bitcoin_main',
-    'bitcoin_test',
-    'litecoin_main',
-    'litecoin_test',
-    'bitcoin_cash_main',
-    'bitcoin_gold_main',
-    'bitcoin_gold_test',
-    'dogecoin_main',
-    'dogecoin_test',
-    'dash_main',
-    'dash_test',
-    'zcash_main',
-    'decred_main',
-    'decred_test',
-    'pivx_main',
-    'pivx_test',
-    'viacoin_main',
-    'viacoin_test',
-    'feathercoin_main',
-    'feathercoin_test',
-    'unobtanium_main',
-    'faircoin_main',
-    'bitcoin_dark_main'
-    # TODO add more()
-]
+
+SUPPORTED = {
+    'bitcoin_main': BitcoinMain,
+    'bitcoin_test': BitcoinTest,
+    'bitcoin_reg': BitcoinRegtest,
+    'litecoin_main': LitecoinMain,
+    'litecoin_test': LitecoinTest,
+    'litecoin_reg': LitecoinRegtest,
+    'bitcoin_cash_main': BitcoinCashMain,
+    'bitcoin_cash_test': BitcoinCashTest,
+    'bitcoin_cash_reg': BitcoinCashRegtest,
+    'bitcoin_gold_main': BitcoinGoldMain,
+    'bitcoin_gold_test': BitcoinGoldTest,
+    'bitcoin_gold_reg': BitcoinGoldRegtest,
+    'dogecoin_main': DogecoinMain,
+    'dogecoin_test': DogecoinTest,
+    'dogecoin_reg': DogecoinRegtest,
+    'dash_main': DashMain,
+    'dash_test': DashTest,
+    'dash_reg': DashRegtest,
+    'zcash_main': ZcashMain,
+    'zcash_test': ZcashTest,
+    'zcash_reg': ZcashRegtest,
+    'decred_main': DecredMain,
+    'decred_test': DecredTest,
+    'decred_simnet': DecredSimnet,
+    'pivx_main': PivxMain,
+    'pivx_test': PivxTest,
+    'pivx_reg': PivxRegtest,
+    'viacoin_main': ViacoinMain,
+    'viacoin_test': ViacoinTest,
+    'viacoin_simnet': ViacoinSimnet,
+    'feathercoin_main': FeathercoinMain,
+    'feathercoin_test': FeathercoinTest,
+    'feathercoin_reg': FeathercoinRegtest,
+    'bitcoin_dark_main': BitcoinDarkMain,
+    'bitcoin_dark_test': BitcoinDarkTest,
+    'bitcoin_dark_reg': BitcoinDarkRegtest,
+    'axe_main': AxeMain,
+    'axe_test': AxeTest,
+    'axe_reg': AxeRegtest,
+    'bitcore_main': BitcoreMain,
+    'bitcore_test': BitcoreTest,
+    'bitcore_reg': BitcoreRegtest,
+    'digibyte_main': DigibyteMain,
+    'digibyte_test': DigibyteTest,
+    'digibyte_reg': DigibyteRegtest,
+    'groestlcoin_main': GroestlcoinMain,
+    'groestlcoin_test': GroestlcoinTest,
+    'groestlcoin_reg': GroestlcoinRegtest,
+    'monacoin_main': MonacoinMain,
+    'monacoin_test': MonacoinTest,
+    'monacoin_reg': MonacoinRegtest,
+    'navcoin_main': NavcoinMain,
+    'navcoin_test': NavcoinTest,
+    'navcoin_reg': NavcoinRegtest,
+    'syscoin_main': SyscoinMain,
+    'syscoin_test': SyscoinTest,
+    'syscoin_reg': SyscoinRegtest,
+    'vertcoin_main': VertcoinMain,
+    'vertcoin_test': VertcoinTest,
+    'vertcoin_reg': VertcoinRegtest
+}
 
 
 def get_network(name):
+    '''
+    Check by name if network is supported. Then return the class.
+    '''
     if name not in SUPPORTED:
         raise ValueError('Unknown chain specifed: {}'.format(name))
-    if name == 'bitcoin_main':
-        return BitcoinMain
-    if name == 'bitcoin_test':
-        return BitcoinTest
-    if name == 'litecoin_main':
-        return LitecoinMain
-    if name == 'litecoin_test':
-        return LitecoinTest
-    if name == 'bitcoin_cash_main':
-        return BitcoinCashMain
-    if name == 'bitcoin_gold_main':
-        return BitcoinGoldMain
-    if name == 'bitcoin_gold_test':
-        return BitcoinGoldTest
-    if name == 'dogecoin_main':
-        return DogecoinMain
-    if name == 'dogecoin_test':
-        return DogecoinTest
-    if name == 'dash_main':
-        return DashMain
-    if name == 'dash_test':
-        return DashTest
-    if name == 'zcash_main':
-        return ZcashMain
-    if name == 'decred_main':
-        return DecredMain
-    if name == 'decred_test':
-        return DecredTest
-    if name == 'pivx_main':
-        return PivxMain
-    if name == 'pivx_test':
-        return PivxTest
-    if name == 'viacoin_main':
-        return ViacoinMain
-    if name == 'viacoin_test':
-        return ViacoinTest
-    if name == 'feathercoin_main':
-        return FeathercoinMain
-    if name == 'feathercoin_test':
-        return FeathercoinTest
-    if name == 'unobtanium_main':
-        return UnobtaniumMain
-    if name == 'faircoin_main':
-        return FaircoinMain
-    if name == 'bitcoin_dark_main':
-        return BitcoinDarkMain
-    # TODO add more
 
-
-class Network:
-    SYMBOL = None
-    NETWORK_NAME = None
-    SUBNET_NAME = None
-    P2PKH_PREFIX = None
-    P2SH_PREFIX = None
-    SEGWIT = None
-    LEGACY_ENCODER = base58
-    WITNESS_ENCODER = bech32
-
-
-class BitcoinMain(Network):
-    SYMBOL = 'BTC'
-    NETWORK_NAME = 'bitcoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x00'
-    P2SH_PREFIX = b'\x05'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-    P2WSH_PREFIX = b'\x00\x20'
-    P2WPKH_PREFIX = b'\x00\x14'
-    BECH32_HRP = 'bc'
-
-
-class BitcoinTest(Network):
-    SYMBOL = 'tBTC'
-    NETWORK_NAME = 'bitcoin'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'o'  # 0x6f
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-    BECH32_HRP = 'tb'
-
-
-class LitecoinMain(Network):
-    SYMBOL = 'LTC'
-    NETWORK_NAME = 'litecoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x30'
-    P2SH_PREFIX = b'\x32'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class LitecoinTest(Network):
-    SYMBOL = 'tLTC'
-    NETWORK_NAME = 'litecoin'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'o'
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class BitcoinCashMain(Network):
-    SYMBOL = 'BCH'
-    NETWORK_NAME = 'bitcoin_cash'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x00'
-    P2SH_PREFIX = b'\x05'
-    SEGWIT = False
-
-
-class BitcoinGoldMain(Network):
-    SYMBOL = 'BTG'
-    NETWORK_NAME = 'bitcoin_gold'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'&'
-    P2SH_PREFIX = b'\x17'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class BitcoinGoldTest(Network):
-    SYMBOL = 'tBTG'
-    NETWORK_NAME = 'bitcoin_gold'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'o'
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class DogecoinMain(Network):
-    SYMBOL = 'DOGE'
-    NETWORK_NAME = 'dogecoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x1e'
-    P2SH_PREFIX = b'\x16'
-    SEGWIT = False  # as of 4/2018, at least; dogewit is a-comin', they say
-
-
-class DogecoinTest(Network):
-    SYMBOL = 'tDOGE'
-    NETWORK_NAME = 'dogecoin'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'q'
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = False
-
-
-class DashMain(Network):
-    SYMBOL = 'DASH'
-    NETWORK_NAME = 'dash'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'L'
-    P2SH_PREFIX = b'\x10'
-    SEGWIT = False
-
-
-class DashTest(Network):
-    SYMBOL = 'tDASH'
-    NETWORK_NAME = 'dash'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'\x8c'
-    P2SH_PREFIX = b'\x13'
-    SEGWIT = False
-
-
-class ZcashMain(Network):
-    SYMBOL = 'ZEC'
-    NETWORK_NAME = 'zcash'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x1c\xb8'
-    P2SH_PREFIX = b'\x1c\xbd'
-    SEGWIT = False
-
-
-class DecredMain(Network):
-    SYMBOL = 'DCR'
-    NETWORK_NAME = 'decred'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x07?'
-    P2SH_PREFIX = b'\x07\x1a'
-    SEGWIT = False
-
-
-class DecredTest(Network):
-    SYMBOL = 'tDCR'
-    NETWORK_NAME = 'decred'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'\x0f!'
-    P2SH_PREFIX = b'\x0el'
-    SEGWIT = False
-
-
-class PivxMain(Network):
-    SYMBOL = 'PIVX'
-    NETWORK_NAME = 'pivx'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x1e'
-    P2SH_PREFIX = b'\x00d'
-    SEGWIT = False
-
-
-class PivxTest(Network):
-    SYMBOL = 'tPIVX'
-    NETWORK_NAME = 'pivx'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'\x8b'
-    P2SH_PREFIX = b'\x13'
-    SEGWIT = False
-
-
-# from here down, are those coins in top 100 ~coins~ on coinmarketcap
-# rather than the true front page, which is top 100 coins and tokens
-class ViacoinMain(Network):
-    SYMBOL = 'VIA'
-    NETWORK_NAME = 'viacoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'G'
-    P2SH_PREFIX = b'!'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class ViacoinTest(Network):
-    SYMBOL = 'tVIA'
-    NETWORK_NAME = 'viacoin'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'\x7f'
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class FeathercoinMain(Network):
-    SYMBOL = 'FTC'
-    NETWORK_NAME = 'feathercoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'\x0e'
-    P2SH_PREFIX = b'`'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class FeathercoinTest(Network):
-    SYMBOL = 'tFTC'
-    NETWORK_NAME = 'feathercoin'
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'A'
-    P2SH_PREFIX = b'\xc4'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class UnobtaniumMain(Network):
-    SYMBOL = 'UNO'  # or else draw two!
-    NETWORK_NAME = 'unobtanium'  # still can't with that spelling
-    SUBNET_NAME = 'testnet'
-    P2PKH_PREFIX = b'\x82'
-    P2SH_PREFIX = b'\x1e'
-    SEGWIT = True
-    WITNESS_VERSION = b'\x00'
-
-
-class FaircoinMain(Network):
-    SYMBOL = 'FAI'
-    NETWORK_NAME = 'faircoin'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'_'  # ('_')b it approves!
-    P2SH_PREFIX = b'$'
-    SEGWIT = False  # no information exists
-
-
-class BitcoinDarkMain(Network):
-    SYMBOL = 'BTCD'
-    NETWORK_NAME = 'bitcoin_dark'
-    SUBNET_NAME = 'mainnet'
-    P2PKH_PREFIX = b'<'
-    P2SH_PREFIX = b'-'
-    SEGWIT = False
-
-# TODO add more
+    return SUPPORTED[name]

@@ -29,10 +29,16 @@ CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
 
 def encode(data):
-    return bech32_encode(multicoin.network.BECH32_HRP, data)
+    if multicoin.network.BECH32_HRP is None:
+        raise ValueError(
+            'Network ({}) does not support bech32 encoding.'
+            .format(multicoin.get_current_network()))
+    return bech32_encode(multicoin.network.BECH32_HRP, convertbits(data, 8, 5))
 
 
 def decode(bech):
+    if multicoin.network.BECH32_HRP is None:
+        raise ValueError('Network does not support bech32 encoding.')
     return segwit_decode(multicoin.network.BECH32_HRP, bech)
 
 

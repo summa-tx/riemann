@@ -8,6 +8,12 @@ from ..encoding import base58, bech32
 # TODO: Coerce the [expletive] out of pubkeys
 
 def make_sh_output_script(script_string, witness=False):
+
+    if witness and not multicoin.network.SEGWIT:
+        raise ValueError(
+            'Network {} does not support witness scripts.'
+            .format(multicoin.get_current_network()))
+
     output_script = bytearray()
 
     script_bytes = parsing.serialize_from_string(script_string)
@@ -26,6 +32,12 @@ def make_sh_output_script(script_string, witness=False):
 
 
 def make_pkh_output_script(pubkey, witness=False):
+
+    if witness and not multicoin.network.SEGWIT:
+        raise ValueError(
+            'Network {} does not support witness scripts.'
+            .format(multicoin.get_current_network()))
+
     output_script = bytearray()
 
     if type(pubkey) is not bytearray and type(pubkey) is not bytes:
@@ -88,7 +100,6 @@ def make_p2wpkh_address(pubkey):
 
 def make_p2pkh_address(pubkey):
     return make_pkh_address(pubkey, witness=False)
-
 
 
 
