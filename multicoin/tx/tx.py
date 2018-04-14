@@ -157,19 +157,19 @@ class TxIn(ByteData):
 
 class TxOut(ByteData):
 
-    def __init__(self, value, pk_script, make_immutable=True):
+    def __init__(self, value, output_script, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(value, 8)
-        self.validate_bytes(pk_script, None)
+        self.validate_bytes(output_script, None)
 
         self += value
-        self += VarInt(len(pk_script))
-        self += pk_script
+        self += VarInt(len(output_script))
+        self += output_script
 
         self.value = value
-        self.pk_script_len = len(pk_script)
-        self.pk_script = pk_script
+        self.output_script_len = len(output_script)
+        self.output_script = output_script
 
         if make_immutable:
             self.make_immutable()
@@ -336,14 +336,24 @@ class Tx(ByteData):
         '''
         return len(self._bytearray)
 
-    @property
-    def sighash_single(index, anyone_can_pay=False):
+    def sighash_single(self, index, anyone_can_pay=False):
+        '''
+        Tx, int, bool
+        Sighashes suck
+        '''
         pass
 
-    @property
-    def sighash_all(anyone_can_pay=False):
+    def sighash_all(self, anyone_can_pay=False):
         pass
 
-    @property
-    def sighash_none():
+    def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
+
+    def calc_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        Inputs don't know their value without the whole chain.
+        '''
+        return \
+            sum(input_values) \
+            - sum([utils.le2i(o.value) for o in self.tx_outs])
