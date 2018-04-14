@@ -1,8 +1,7 @@
-# import tx
 import multicoin
 from . import tx
 from .. import utils
-from ..script import parsing
+from ..script import serialization
 
 
 # TODO: Coerce the [expletive] out of everything
@@ -19,7 +18,7 @@ def make_sh_output_script(script_string, witness=False):
 
     output_script = bytearray()
 
-    script_bytes = parsing.serialize_from_string(script_string)
+    script_bytes = serialization.serialize_from_string(script_string)
     script_hash = \
         utils.hash160(script_bytes) if not witness \
         else utils.sha256(script_bytes)
@@ -77,12 +76,16 @@ def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
 
+def make_output(value, script):
+    return tx.TxOut(value, script)
+
+
 def make_sh_output(value, script, witness=False):
     '''
     int, str -> TxOut
     '''
-    return tx.TxOut(value=utils.i2le_padded(value),
-                    script=make_sh_output(script, witness))
+    return make_output(value=utils.i2le_padded(value),
+                       script=make_sh_output_script(script, witness))
 
 
 def make_p2sh_output(value, script):
@@ -97,8 +100,8 @@ def make_pkh_output(value, pubkey, witness=False):
     '''
     int, bytearray -> TxOut
     '''
-    return tx.TxOut(value=utils.i2le_padded(value),
-                    script=make_pkh_output(pubkey, witness))
+    return make_output(value=utils.i2le_padded(value),
+                       script=make_pkh_output_script(pubkey, witness))
 
 
 def make_p2pkh_output(value, pubkey):
@@ -137,8 +140,8 @@ def make_script_sig(script_sig, redeem_script):
     str, str -> bytearray
     '''
     script_sig += ' {}'.format(
-        parsing.hex_serialize_from_string(redeem_script))
-    return parsing.serialize_from_string(script_sig)
+        serialization.hex_serialize_from_string(redeem_script))
+    return serialization.serialize_from_string(script_sig)
 
 
 def make_input(outpoint, script_sig, redeem_script, sequence):
@@ -150,7 +153,8 @@ def make_input(outpoint, script_sig, redeem_script, sequence):
                    sequence=utils.i2le_padded(sequence, 4))
 
 
-def make_tx(version, tx_ins, tx_outs, lock_time, tx_witnesses=None):
+def make_tx(version, tx_ins, tx_outs, lock_time,
+            tx_witnesses=None, make_immutable=True):
 
     '''
     int, list(TxIn), list(TxOut), int, list(TxWitness) -> Tx
@@ -163,3 +167,8 @@ def make_tx(version, tx_ins, tx_outs, lock_time, tx_witnesses=None):
                  tx_outs=tx_outs,
                  tx_witnesses=tx_witnesses,
                  lock_time=utils.i2le_padded(lock_time, 4))
+
+
+def make_mutable_tx(version, tx_ins, tx_outs, lock_time, tx_witnesses=None):
+    return make_tx(version, tx_ins, tx_outs, lock_time,
+                   tx_witnesses=None, make_immutable=True)

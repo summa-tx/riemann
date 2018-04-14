@@ -83,7 +83,7 @@ class ByteData():
 
 
 class VarInt(ByteData):
-    def __init__(self, number):
+    def __init__(self, number, make_immutable=True):
         super().__init__()
         if number < 0x0:
             raise ValueError('VarInt cannot be less than 0. '
@@ -105,12 +105,13 @@ class VarInt(ByteData):
             self += bytes([0x00])
 
         self.number = number
-        self.make_immutable()
+        if make_immutable:
+            self.make_immutable()
 
 
 class Outpoint(ByteData):
 
-    def __init__(self, tx_id, index):
+    def __init__(self, tx_id, index, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(tx_id, 32)
@@ -122,12 +123,13 @@ class Outpoint(ByteData):
         self.tx_id = tx_id
         self.index = index
 
-        self.make_immutable()
+        if make_immutable:
+            self.make_immutable()
 
 
 class TxIn(ByteData):
 
-    def __init__(self, outpoint, script, sequence):
+    def __init__(self, outpoint, script, sequence, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(outpoint, 36)
@@ -144,12 +146,14 @@ class TxIn(ByteData):
         self.script_len = len(script)
         self.script = script
         self.sequence = sequence
-        self.make_immutable()
+
+        if make_immutable:
+            self.make_immutable()
 
 
 class TxOut(ByteData):
 
-    def __init__(self, value, pk_script):
+    def __init__(self, value, pk_script, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(value, 8)
@@ -162,12 +166,14 @@ class TxOut(ByteData):
         self.value = value
         self.pk_script_len = len(pk_script)
         self.pk_script = pk_script
-        self.make_immutable()
+
+        if make_immutable:
+            self.make_immutable()
 
 
 class WitnessStackItem(ByteData):
 
-    def __init__(self, item):
+    def __init__(self, item, make_immutable=True):
         super().__init__()
 
         self.validate_bytes(item, None)
@@ -177,12 +183,14 @@ class WitnessStackItem(ByteData):
 
         self.item_len = len(item)
         self.item = item
-        self.make_immutable()
+
+        if make_immutable:
+            self.make_immutable()
 
 
 class TxWitness(ByteData):
 
-    def __init__(self, stack):
+    def __init__(self, stack, make_immutable=True):
         super().__init__()
         for item in stack:
             if not isinstance(item, WitnessStackItem):
@@ -196,13 +204,16 @@ class TxWitness(ByteData):
 
         self.stack_len = len(stack)
         self.stack = [item for item in stack]
-        self.make_immutable()
+
+        if make_immutable:
+            self.make_immutable()
 
 
 class Tx(ByteData):
 
     def __init__(self, version, flag, tx_ins,
-                 tx_outs, tx_witnesses, lock_time):
+                 tx_outs, tx_witnesses, lock_time,
+                 make_immutable=True):
 
         super().__init__()
 
@@ -290,7 +301,8 @@ class Tx(ByteData):
             self.wtx_id = None
             self.wtx_le = None
 
-        self.make_immutable()
+        if make_immutable:
+            self.make_immutable()
 
         if len(self) > 100000:
             raise ValueError(
