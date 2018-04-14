@@ -5,11 +5,11 @@ p2w = 'OP_0 {}'  # Needs length-prefixed witness script
 
 # Needs a 32 byte hash, alice's pubkey, a timeout, and bob's pubkey
 htlc = 'OP_IF ' \
-            'OP_SHA256 {} OP_EQUALVERIFY ' \
-            'OP_DUP OP_HASH160 {} ' \
-       'OP_ELSE ' \
-            '{} OP_CHECKLOCKTIMEVERIFY OP_DROP ' \
-            'OP_DUP OP_HASH160 {} ' \
-       'OP_ENDIF ' \
-       'OP_EQUALVERIFY ' \
-       'OP_CHECKSIG'
+    'OP_SHA256 {} OP_EQUALVERIFY ' \
+    'OP_DUP OP_HASH160 {} ' \
+    'OP_ELSE ' \
+    '{} OP_CHECKLOCKTIMEVERIFY OP_DROP ' \
+    'OP_DUP OP_HASH160 {} ' \
+    'OP_ENDIF ' \
+    'OP_EQUALVERIFY ' \
+    'OP_CHECKSIG'

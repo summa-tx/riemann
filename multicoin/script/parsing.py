@@ -35,7 +35,7 @@ def deserialize_script(serialized_script):
         if current_byte <= 76 and current_byte != 0:
 
             deserialized.append(
-                serialized_script[i+1:i+1+current_byte].hex())
+                serialized_script[i + 1: i + 1 + current_byte].hex())
 
             i += 1 + current_byte
             if i > len(serialized_script):
