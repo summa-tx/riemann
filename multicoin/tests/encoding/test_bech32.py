@@ -97,7 +97,7 @@ class TestBech32(unittest.TestCase):
             hrp, _ = bech32.bech32_decode(test)
             self.assertIsNotNone(hrp)
             pos = test.rfind('1')
-            test = test[:pos+1] + chr(ord(test[pos + 1]) ^ 1) + test[pos+2:]
+            test = test[:pos + 1] + chr(ord(test[pos + 1]) ^ 1) + test[pos + 2:]
             hrp, _ = bech32.bech32_decode(test)
             self.assertIsNone(hrp)
 
