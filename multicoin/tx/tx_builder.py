@@ -216,5 +216,8 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
 
 
 def make_mutable_tx(version, tx_ins, tx_outs, lock_time, tx_witnesses=None):
+    '''
+    int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
+    '''
     return make_tx(version, tx_ins, tx_outs, lock_time,
                    tx_witnesses=None, make_immutable=True)

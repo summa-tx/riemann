@@ -4,43 +4,66 @@ from .. import utils
 
 
 class ByteData():
-
+    '''
+    Wrapper class for byte-like data.
+    Iterable
+    Can be made immutable.
+    self._bytes is a bytearray object when mutable.
+    self._bytes is a byte object when immutable.
+    '''
     __immutable = False
 
     def __init__(self):
-        self._bytearray = bytearray()
+        self._bytes = bytearray()
         self._current = 0
 
     def __iter__(self):
-        return self._bytearray
+        return self._bytes
 
     def __next__(self):
-        if self._current > len(self._bytearray):
+        if self._current > len(self._bytes):
             raise StopIteration
         self._current += 1
-        return self._bytearray[self._current - 1]
+        return self._bytes[self._current - 1]
 
     def __iadd__(self, other):
+        '''
+        ByteData, bytes-like -> ByteData
+        Define += operator.
+        Extend self's bytes with other's bytes.
+        '''
         if isinstance(other, bytes) or isinstance(other, bytearray):
-            self._bytearray.extend(other)
+            self._bytes.extend(other)
         elif isinstance(other, ByteData):
-            self._bytearray.extend(other._bytearray)
+            self._bytes.extend(other._bytes)
         else:
             raise TypeError('unsupported operand type(s) for +=: '
                             '{} and {}'.format(type(self), type(other)))
         return self
 
     def __ne__(self, other):
+        '''
+        ByteData, bytes-like -> bool
+        Define != operator.
+        Compares self._bytes to other.
+        '''
         if isinstance(other, bytes) or isinstance(other, bytearray):
-            return self._bytearray != other
+            return self._bytes != other
         elif isinstance(other, ByteData):
-            return self._bytearray != other.bytearray
+            return self._bytes != other.bytearray
 
     def __eq__(self, other):
+        '''
+        ByteData, bytes-like -> bool
+        Define == operator.
+        '''
         return not self != other
 
     def __len__(self):
-        return len(self._bytearray)
+        '''
+        ByteData -> int
+        '''
+        return len(self._bytes)
 
     def __setattr__(self, key, value):
         if self.__immutable:
@@ -48,25 +71,47 @@ class ByteData():
         object.__setattr__(self, key, value)
 
     def __repr__(self):
-        return '{}: {}'.format(type(self).__name__, self._bytearray)
+        '''
+        ByteData -> str
+        '''
+        return '{}: {}'.format(type(self).__name__, self._bytes)
 
     def to_bytes(self):
-        return bytes(self._bytearray)
+        '''
+        ByteData -> bytes
+        '''
+        return bytes(self._bytes)
 
     def hex(self):
-        return self._bytearray.hex()
+        '''
+        ByteData -> hex_string
+        '''
+        return self._bytes.hex()
 
     def make_immutable(self):
-        self._bytearray = bytes(self._bytearray)
+        '''
+        Prevents any future changes to the object
+        '''
+        self._bytes = bytes(self._bytes)
         self.__immutable = True
 
     def find(self, substring):
+        '''
+        byte-like -> int
+        Finds the index of substring
+        '''
         if isinstance(substring, ByteData):
             substring = ByteData.to_bytes
-        return self._bytearray.find(substring)
+        return self._bytes.find(substring)
 
     @staticmethod
     def validate_bytes(data, length=4):
+        '''
+        Raises ValueError if data is not bytes.
+        Raises ValueError if len(data) is not length.
+        Length may be None for unknown lengths (e.g. scripts).
+        length=None will allow 0 length data.
+        '''
         if (not isinstance(data, ByteData)
                 and not isinstance(data, bytes)
                 and not isinstance(data, bytearray)):
@@ -83,6 +128,9 @@ class ByteData():
 
 
 class VarInt(ByteData):
+    '''
+    NB: number must be integer
+    '''
     def __init__(self, number, make_immutable=True):
         super().__init__()
         if number < 0x0:
@@ -110,6 +158,9 @@ class VarInt(ByteData):
 
 
 class Outpoint(ByteData):
+    '''
+    NB: Args must be little-endian
+    '''
 
     def __init__(self, tx_id, index, make_immutable=True):
         super().__init__()
@@ -128,6 +179,9 @@ class Outpoint(ByteData):
 
 
 class TxIn(ByteData):
+    '''
+    NB: sequence must be little-endian
+    '''
 
     def __init__(self, outpoint, stack_script, redeem_script,
                  sequence, make_immutable=True):
@@ -161,6 +215,9 @@ class TxIn(ByteData):
 
 
 class TxOut(ByteData):
+    '''
+    NB: value must be little-endian
+    '''
 
     def __init__(self, value, output_script, make_immutable=True):
         super().__init__()
@@ -224,6 +281,9 @@ class InputWitness(ByteData):
 
 
 class Tx(ByteData):
+    '''
+    NB: version, lock_time must be little-endian
+    '''
 
     def __init__(self, version, flag, tx_ins,
                  tx_outs, tx_witnesses, lock_time,
@@ -344,7 +404,7 @@ class Tx(ByteData):
         Tx -> int
         size in bytes
         '''
-        return len(self._bytearray)
+        return len(self._bytes)
 
     def calc_fee(self, input_values):
         '''
@@ -356,16 +416,24 @@ class Tx(ByteData):
             - sum([utils.le2i(o.value) for o in self.tx_outs])
 
     def _make_copy_tx(self):
+        '''
+        Tx -> Tx
+        Sighashes suck
+        '''
         pass
 
     def sighash_single(self, index, anyone_can_pay=False):
         '''
-        Tx, int, bool
+        Tx, int, bool -> bytearray
         Sighashes suck
         '''
         pass
 
     def sighash_all(self, anyone_can_pay=False):
+        '''
+        Tx, int, bool -> bytearray
+        Sighashes suck
+        '''
         pass
 
     def sighash_none(self):
