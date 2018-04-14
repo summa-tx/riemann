@@ -2,7 +2,6 @@
 import multicoin
 from .. import utils
 from ..script import parsing
-from ..encoding import base58, bech32
 
 
 # TODO: Coerce the [expletive] out of pubkeys
@@ -71,35 +70,6 @@ def make_p2wsh_output_script(script_string):
 def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
-
-def make_sh_address(script_string, witness=False):
-    script_bytes = make_sh_output_script(script_string, witness)
-    if witness:
-        return bech32.encode(script_bytes)
-    return base58.encode(script_bytes)
-
-
-def make_p2wsh_address(script_string):
-    return make_sh_address(script_string, witness=True)
-
-
-def make_p2sh_address(script_string):
-    return make_sh_address(script_string, witness=False)
-
-
-def make_pkh_address(pubkey, witness=False):
-    script_bytes = make_pkh_output_script(pubkey)
-    if witness:
-        return bech32.encode(script_bytes)
-    return base58.encode(script_bytes)
-
-
-def make_p2wpkh_address(pubkey):
-    return make_pkh_address(pubkey, witness=True)
-
-
-def make_p2pkh_address(pubkey):
-    return make_pkh_address(pubkey, witness=False)
 
 
 
