@@ -30,3 +30,41 @@ def make_p2wpkh_address(pubkey):
 
 def make_p2pkh_address(pubkey):
     return make_pkh_address(pubkey, witness=False)
+
+
+def parse_pkh_address(address):
+    try:
+        return bytearray(multicoin.network.LEGACY_ENCODER.decode(address))
+    except:
+        try:
+            return bytearray(multicoin.network.SEGWIT_ENCODER.decode(address))
+        except:
+            raise ValueError(
+                'Unsupported address format: {}'.format(address))
+
+
+def parse_p2wpkh_address(address):
+    return parse_pkh_address(address)
+
+
+def parse_p2pkh_address(address):
+    return parse_pkh_address(address)
+
+
+def parse_sh_address(address):
+    try:
+        return bytearray(multicoin.network.LEGACY_ENCODER.decode(address))
+    except:
+        try:
+            return bytearray(multicoin.network.SEGWIT_ENCODER.decode(address))
+        except:
+            raise ValueError(
+                'Unsupported address format: {}'.format(address))
+
+
+def parse_p2sh_address(address):
+    return parse_sh_address(address)
+
+
+def parse_p2wsh_address(address):
+    return parse_sh_address(address)
