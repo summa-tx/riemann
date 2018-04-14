@@ -1,5 +1,5 @@
 # To add a new coin
-# 1. define a class
+# 1. define a class in networks.py
 # 2. add it to SUPPORTED
 
 from .networks import *
