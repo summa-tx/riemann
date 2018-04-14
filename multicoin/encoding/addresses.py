@@ -68,3 +68,29 @@ def parse_p2sh_address(address):
 
 def parse_p2wsh_address(address):
     return parse_sh_address(address)
+
+
+def parse_hash_from_address(address):
+    '''
+    There's probably a better way to do this.
+    '''
+
+    raw = parse_sh_address(address)
+
+    try:
+        address.find(multicoin.network.BECH32_HRP)  # errors on NoneType
+        if raw.find(multicoin.network.P2WPKH_PREFIX) != -1:
+            return raw[len(multicoin.network.P2WPKH_PREFIX):]
+        if raw.find(multicoin.network.P2WPKH_PREFIX) != -1:
+            return raw[len(multicoin.network.P2WPKH_PREFIX):]
+    except:
+        pass
+
+    if raw.find(multicoin.network.P2SH_PREFIX) != -1:
+        return raw[len(multicoin.network.P2SH_PREFIX):]
+    if raw.find(multicoin.network.P2PKH_PREFIX) != -1:
+        return raw[len(multicoin.network.P2PKH_PREFIX)]
+
+    raise ValueError(
+        'Network {} does not support address format: {} '
+        .format(multicoin.get_current_network(), address))

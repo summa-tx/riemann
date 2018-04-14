@@ -71,13 +71,14 @@ def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
 
+1
 
+1
 
+1
 
+1
 
-
-
-
-
+1
 
 1
