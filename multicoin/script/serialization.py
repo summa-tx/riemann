@@ -27,13 +27,15 @@ def serialize_from_string(script_string):
 
 def hex_serialize_from_string(script_string):
     '''
-    str -> str
+    str -> hex_str
     '''
     return serialize_from_string(script_string).hex()
 
 
 def deserialize_script(serialized_script):
-
+    '''
+    bytearray -> str
+    '''
     deserialized = []
     i = 0
     while i < len(serialized_script):
@@ -62,4 +64,7 @@ def deserialize_script(serialized_script):
 
 
 def deserialize_script_hex(script_hex):
+    '''
+    bytearray -> hex_str
+    '''
     return deserialize_script(bytes.fromhex(script_hex))

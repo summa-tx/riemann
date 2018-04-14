@@ -5,6 +5,24 @@ from ..script import serialization
 
 
 # TODO: Coerce the [expletive] out of everything
+# TODO: Check Terminology.
+# NB:
+# script_sig -> Goes in TxIn.
+#   - Legacy only
+#   - Contains initial stack (stack_script)
+#   - Contains pubey/script revelation
+# stack_script -> Goes in script_sig
+#   - Legacy only
+#   - Contains script that makes initial stack
+# script_pubkey -> Goes in TxOut
+#   - Legacy only
+#   - Contains the official p2sh or p2pkh script_pubkey
+#   - Contains a hash160 of the script or pubkey
+# WitnessStackItem -> Goes in InputWitness
+#   - Witness only
+#   - Contains a length-prefixed stack item
+# InputWitness -> Goes in Witness
+
 
 def make_sh_output_script(script_string, witness=False):
     '''
@@ -121,9 +139,9 @@ def make_witness_stack_item(data):
 
 def make_witness(data_list):
     '''
-    list(bytearray) -> TxWitness
+    list(bytearray) -> InputWitness
     '''
-    return tx.TxWitness(
+    return tx.InputWitness(
         stack=[make_witness_stack_item(item) for item in data_list])
 
 
@@ -135,29 +153,55 @@ def make_outpoint(tx_id_le, index):
                        index=utils.i2le_padded(index, 4))
 
 
-def make_script_sig(script_sig, redeem_script):
+def make_script_sig(stack_script, redeem_script):
     '''
     str, str -> bytearray
     '''
-    script_sig += ' {}'.format(
+    stack_script += ' {}'.format(
         serialization.hex_serialize_from_string(redeem_script))
-    return serialization.serialize_from_string(script_sig)
+    return serialization.serialize_from_string(stack_script)
 
 
-def make_input(outpoint, script_sig, redeem_script, sequence):
+def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
     '''
     Outpoint, str, str, int -> TxIn
     '''
     return tx.TxIn(outpoint=outpoint,
-                   script=make_script_sig(script_sig, redeem_script),
+                   script=make_script_sig(stack_script, redeem_script),
                    sequence=utils.i2le_padded(sequence, 4))
+
+
+def make_legacy_input_and_empty_witness(outpoint, stack_script,
+                                        redeem_script, sequence):
+    '''
+    Outpoint, str, str, int -> (TxIn, InputWitness)
+    '''
+    return (make_legacy_input(outpoint, stack_script, redeem_script, sequence),
+            tx.InputWitness(bytearray([0])))
+
+
+def make_witness_input(outpoint, sequence):
+    '''
+    Outpoint, int -> TxIn
+    '''
+    return tx.TxIn(outpoint=outpoint,
+                   script=bytearray(),
+                   sequence=sequence)
+
+
+def make_witness_input_and_witness(outpoint, sequence, data_list):
+    '''
+    Outpoint, int, list(bytearray) -> (Input, InputWitness)
+    '''
+    return (make_witness_input(outpoint, sequence),
+            make_witness(data_list))
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
             tx_witnesses=None, make_immutable=True):
 
     '''
-    int, list(TxIn), list(TxOut), int, list(TxWitness) -> Tx
+    int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
     flag = multicoin.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None

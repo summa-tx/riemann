@@ -112,7 +112,7 @@ class TestTx(unittest.TestCase):
                 pk_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
         ]
         tx_witnesses = [
-            tx.TxWitness(
+            tx.InputWitness(
                 [
                     tx.WitnessStackItem(bytearray([0x88] * 18)),
                     tx.WitnessStackItem(bytearray([0x99] * 18))

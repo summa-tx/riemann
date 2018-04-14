@@ -188,7 +188,7 @@ class WitnessStackItem(ByteData):
             self.make_immutable()
 
 
-class TxWitness(ByteData):
+class InputWitness(ByteData):
 
     def __init__(self, stack, make_immutable=True):
         super().__init__()
@@ -238,10 +238,10 @@ class Tx(ByteData):
                     'Got {} inputs and {} witnesses.'
                     .format(len(tx_ins), len(tx_witnesses)))
             for witness in tx_witnesses:
-                if not isinstance(witness, TxWitness):
+                if not isinstance(witness, InputWitness):
                     raise ValueError(
-                        'Invalid TxWitness.'
-                        'Expected instance of TxWitness. Got {}'
+                        'Invalid InputWitness.'
+                        'Expected instance of InputWitness. Got {}'
                         .format(type(witness)))
 
         if max(len(tx_ins), len(tx_outs)) > 255:
