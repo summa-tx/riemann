@@ -19,7 +19,7 @@ def serialize_from_string(script_string):
 
         if len(token_bytes) > 76:
             # TODO
-            raise NotImplementedError('PUSHDATA ops not supported')
+            raise NotImplementedError('OP_PUSHDATA1-4 not supported yet.')
 
         op = 'OP_PUSH_{}'.format(len(token_bytes))
         serialized_script.extend([CODE_TO_INT[op]])
@@ -53,7 +53,7 @@ def deserialize_script(serialized_script):
             i += 1 + current_byte
             if i > len(serialized_script):
                 raise IndexError(
-                    'Pushdata {} caused out of bounds exception'
+                    'Push {} caused out of bounds exception'
                     .format(current_byte))
 
         else:

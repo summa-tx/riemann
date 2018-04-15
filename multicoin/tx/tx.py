@@ -415,10 +415,11 @@ class Tx(ByteData):
             sum(input_values) \
             - sum([utils.le2i(o.value) for o in self.tx_outs])
 
-    def _make_copy_tx(self):
+    def _sighash_prep(self):
         '''
         Tx -> Tx
         Sighashes suck
+        https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         '''
         pass
 

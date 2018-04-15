@@ -1,12 +1,21 @@
 import multicoin
-from ..tx import tx_builder as tb
+from .. import utils
+from ..script import serialization as script_ser
 
 
 def make_sh_address(script_string, witness=False):
-    script_bytes = tb.make_sh_output_script(script_string, witness)
+    addr_bytes = bytearray()
+    script_bytes = script_ser.serialize_from_string(script_string)
     if witness:
-        return multicoin.network.SEGWIT_ENCODER.encode(script_bytes)
-    return multicoin.network.LEGACY_ENCODER.encode(script_bytes)
+        script_hash = utils.sha256(script_bytes)
+        addr_bytes.extend(multicoin.network.P2WSH_PREFIX)
+        addr_bytes.extend(script_hash)
+        return multicoin.network.SEGWIT_ENCODER.encode(addr_bytes)
+    else:
+        script_hash = utils.hash160(script_bytes)
+        addr_bytes.extend(multicoin.network.P2SH_PREFIX)
+        addr_bytes.extend(script_hash)
+        return multicoin.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
 def make_p2wsh_address(script_string):
@@ -18,10 +27,16 @@ def make_p2sh_address(script_string):
 
 
 def make_pkh_address(pubkey, witness=False):
-    script_bytes = tb.make_pkh_output_script(pubkey)
+    addr_bytes = bytearray()
+    pubkey_hash = utils.hash160(pubkey)
     if witness:
-        return multicoin.network.SEGWIT_ENCODER.encode(script_bytes)
-    return multicoin.network.LEGACY_ENCODER.encode(script_bytes)
+        addr_bytes.extend(multicoin.network.P2WPKH_PREFIX)
+        addr_bytes.extend(pubkey_hash)
+        return multicoin.network.SEGWIT_ENCODER.encode(addr_bytes)
+    else:
+        addr_bytes.extend(multicoin.network.P2PKH_PREFIX)
+        addr_bytes.extend(pubkey_hash)
+        return multicoin.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
 def make_p2wpkh_address(pubkey):

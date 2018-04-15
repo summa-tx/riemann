@@ -22,13 +22,15 @@ from ..script import serialization
 #   - Witness only
 #   - Contains a length-prefixed stack item
 # InputWitness -> Goes in Witness
+#   - A stack associated with a specific input
+#   - If spending from p2wsh, the last item is a serialzed script
+#   - If spending from p2wpkh, consists of [signature, pubkey]
 
 
 def make_sh_output_script(script_string, witness=False):
     '''
     str -> bytearray
     '''
-
     if witness and not multicoin.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
@@ -37,16 +39,16 @@ def make_sh_output_script(script_string, witness=False):
     output_script = bytearray()
 
     script_bytes = serialization.serialize_from_string(script_string)
-    script_hash = \
-        utils.hash160(script_bytes) if not witness \
-        else utils.sha256(script_bytes)
 
-    prefix = \
-        multicoin.network.P2SH_PREFIX if not witness \
-        else multicoin.network.P2WSH_PREFIX
-
-    output_script.extend(prefix)
-    output_script.extend(script_hash)
+    if witness:
+        script_hash = utils.sha256(script_bytes)
+        output_script.extend(multicoin.network.P2WSH_PREFIX)
+        output_script.extend(script_hash)
+    else:
+        script_hash = utils.hash160(script_bytes)
+        output_script.extend(b'\xa9')  # OP_HASH160
+        output_script.extend(script_hash)
+        output_script.extend(b'\87')  # OP_EQUAL
 
     return output_script
 
@@ -68,13 +70,13 @@ def make_pkh_output_script(pubkey, witness=False):
 
     pubkey_hash = utils.hash160(pubkey)
 
-    prefix = \
-        multicoin.network.P2PKH_PREFIX if not witness \
-        else multicoin.network.P2WPKH_PREFIX
-
-    output_script.extend(prefix)
-    output_script.extend(pubkey_hash)
-
+    if witness:
+        output_script.extend(multicoin.network.P2WPKH_PREFIX)
+        output_script.extend(pubkey_hash)
+    else:
+        output_script.extend(b'\x76\xa9\x14')  # OP_DUP OP_HASH160 PUSH14
+        output_script.extend(pubkey_hash)
+        output_script.extend(b'\x88\xac')  # OP_EQUALVERIFY OP_CHECKSIG
     return output_script
 
 
