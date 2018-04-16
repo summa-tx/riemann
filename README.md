@@ -10,9 +10,15 @@ Multicoin is NOT a wallet. It does NOT handle keys or create signatures. Multico
 
 Multicoin is _almost_ stateless. Before calling functions, you select a network. TODO: alternate API where the network object is passed to functions.
 
-### Installation
+### Installation, Development & Running Tests
 
-`pip install -e $PATH_TO_LIB`
+`$ git clone $LIB_URL`
+`$ cd python-multicoin`
+`$ virtualenv -p python3 venv`
+`$ source venv/bin/activate`
+`$ pip install -r requirements-test.txt`
+`$ pip install -e .`
+`$ tox`
 
 ### Usage
 
@@ -44,7 +50,7 @@ When relevant, segwit is enabled by passing `witness=True`. Example: `make_sh_ou
 
 Data structures are IMMUTABLE. You can not (and definitely should not!) edit an instance of any of the underlying classes. Instead, make a new instance, or use the `copy` method. The `copy` method allows you to make a copy, and takes arguments to override any specific attribute.
 
-### Weird little transaction rules:
+### Notes and weird little transaction rules:
 
 * If there are any witnesses, all inputs must have a witness. Use `tx_builder.make_legacy_input_and_empty_witness()` when building your input to also generate a blank witness for your input. It returns `(TxIn, InputWitness)`.
 
@@ -52,7 +58,6 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 
 * `lock_time` and `sequence` use different encodings for time.
 
-### Notes
 ```Python
 # NB:
 # script_sig -> Goes in TxIn.
