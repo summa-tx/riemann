@@ -192,6 +192,8 @@ class Outpoint(ByteData):
 
 class TxIn(ByteData):
     '''
+    Outpoint, bytes-like, bytes-like, bytes-like -> TxIn
+    stack_script and redeem_script should already be serialized
     NB: sequence must be little-endian
     '''
 

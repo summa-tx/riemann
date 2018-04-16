@@ -168,17 +168,47 @@ class TestWitnessStackItem(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_create_stack_item(self):
+        pass
+
 
 class TestInputWitness(unittest.TestCase):
 
     def setUp(self):
         pass
 
+    def test_create_witness(self):
+        pass
+
 
 class TestTx(unittest.TestCase):
 
     def setUp(self):
-        pass
+        self.outpoint_index = helpers.outpoint_index
+        self.outpoint_tx_id = helpers.outpoint_tx_id
+
+        self.stack_script = helpers.stack_script
+        self.redeem_script = helpers.redeem_script
+        self.sequence = helpers.sequence
+        self.outpoint = tx.Outpoint(self.outpoint_tx_id, self.outpoint_index)
+
+        self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
+                             self.redeem_script, self.sequence)
+
+        self.value_0 = helpers.output_value_0
+        self.output_script_0 = helpers.output_script_0
+        self.value_1 = helpers.output_value_1
+        self.output_script_1 = helpers.output_script_1
+
+        self.tx_out_0 = tx.TxOut(self.value_0, self.output_script_0)
+        self.tx_out_1 = tx.TxOut(self.value_1, self.output_script_1)
+
+        self.version = helpers.version
+        self.flag = None
+        self.tx_ins = [self.tx_in]
+        self.tx_outs = [self.tx_out_0, self.tx_out_1]
+        self.tx_witnesses = None
+        self.lock_time = helpers.lock_time
 
     # Convenience monotest
     def test_everything_witness(self):
@@ -212,16 +242,9 @@ class TestTx(unittest.TestCase):
         ]
         lock_time = bytearray([0xff] * 4)
 
-        res = tx.Tx(version, flag, tx_ins, tx_outs, tx_witnesses, lock_time)
-        print('')
-        print('printing witness tx hex')
-        print(res.hex())
-        print('')
-        print('print witness tx_id hex')
-        print(res.tx_id.hex())
-        print('')
-        print('printing witness wtx_id hex')
-        print(res.wtx_id.hex())
+        tx.Tx(version, flag, tx_ins, tx_outs, tx_witnesses, lock_time)
+
+        # TODO: needs assertions
 
     def test_everything(self):
         version = utils.i2le_padded(1, 4)
@@ -249,9 +272,11 @@ class TestTx(unittest.TestCase):
         res = tx.Tx(version, None, tx_ins, tx_outs, None, lock_time)
 
         self.assertEqual(res.hex(), helpers.RAW_P2SH_TO_P2PKH)
-        print('')
-        print('printing legacy tx hex')
-        print(res.hex())
-        print('')
-        print('print legacy tx_id hex')
-        print(res.tx_id.hex())
+
+    def test_create_tx(self):
+        t = tx.Tx(self.version, self.flag, self.tx_ins, self.tx_outs,
+                  self.tx_witnesses, self.lock_time)
+
+        print(' ', t.hex(), helpers.P2PKH_SPEND.hex())
+
+        self.assertEqual(t, helpers.P2PKH_SPEND)
