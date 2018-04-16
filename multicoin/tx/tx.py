@@ -56,7 +56,7 @@ class ByteData():
         if isinstance(other, bytes) or isinstance(other, bytearray):
             return self._bytes != other
         elif isinstance(other, ByteData):
-            return self._bytes != other.bytearray
+            return self._bytes != other._bytes
 
     def __eq__(self, other):
         '''
@@ -121,7 +121,7 @@ class ByteData():
         if (not isinstance(data, ByteData)
                 and not isinstance(data, bytes)
                 and not isinstance(data, bytearray)):
-            raise ValueError('Expected byte-like object. '
+            raise ValueError('Expected bytes-like object. '
                              'Got: {}'.format(type(data)))
 
         if length is None:
@@ -162,6 +162,9 @@ class VarInt(ByteData):
 
         self._make_immutable()
 
+    def copy(self):
+        return VarInt(self.number)
+
 
 class Outpoint(ByteData):
     '''
@@ -181,6 +184,10 @@ class Outpoint(ByteData):
         self.index = index
 
         self._make_immutable()
+
+    def copy(self):
+        raise NotImplementedError('Copying outpoints not currently supported.'
+                                  'Please make a new instance.')
 
 
 class TxIn(ByteData):
@@ -256,6 +263,12 @@ class TxOut(ByteData):
         self.output_script = output_script
 
         self._make_immutable()
+
+    def copy(self, value=None, output_script=None):
+        return TxOut(
+            value=value if value is not None else self.value,
+            output_script=(output_script if output_script is not None
+                           else self.output_script))
 
 
 class WitnessStackItem(ByteData):

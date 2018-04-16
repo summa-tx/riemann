@@ -1,10 +1,16 @@
 import unittest
+from .. import helpers
 from ...tx import tx
 from ... import utils
 
+
 # On chain legacy tx p2sh -> p2pkh tx
 # https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
-RAW_P2SH_TO_P2PKH = '010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000'
+
+class TestByteData(unittest.TestCase):
+
+    def setUp(self):
+        pass
 
 
 class TestVarInt(unittest.TestCase):
@@ -54,34 +60,119 @@ class TestVarInt(unittest.TestCase):
 
 class TestOutpoint(unittest.TestCase):
 
+    def setUp(self):
+        pass
+
     def test_create_outpoint(self):
-        outpoint_index = utils.i2le_padded(0, 4)
-        outpoint_tx_id = bytearray(bytearray.fromhex(
-            '51b78168d94ec307e2855697209275d4'
-            '77e05d8647caf29cb9e38fb6a4661145'))[::-1]
+        outpoint_index = helpers.outpoint_index
+        outpoint_tx_id = helpers.outpoint_tx_id
+
         outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
-        self.assertEqual(
-            outpoint.hex(),
-            '451166a4b68fe3b99cf2ca47865de077d475'
-            '9220975685e207c34ed96881b75100000000')
+        self.assertEqual(outpoint.tx_id, outpoint_tx_id)
+        self.assertEqual(outpoint.index, outpoint_index)
+        self.assertEqual(outpoint, outpoint_tx_id + outpoint_index)
+
+    def test_create_outpoint_short_tx_id(self):
+        outpoint_index = helpers.outpoint_index
+        outpoint_tx_id = bytearray(b'\xff')
+
+        with self.assertRaises(ValueError) as context:
+            tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+        self.assertIn('Expected bytes-like object with length 32. ',
+                      str(context.exception))
+
+    def test_create_outpoint_str_tx_id(self):
+        outpoint_index = helpers.outpoint_index
+        outpoint_tx_id = 'Hello world'
+
+        with self.assertRaises(ValueError) as context:
+            tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+        self.assertIn('Expected bytes-like object. ',
+                      str(context.exception))
+
+    def test_create_outpoint_long_index(self):
+        outpoint_index = utils.i2le_padded(0, 5)
+        outpoint_tx_id = helpers.outpoint_tx_id
+
+        with self.assertRaises(ValueError) as context:
+            tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+        self.assertIn('Expected bytes-like object with length 4. ',
+                      str(context.exception))
+
+    def test_create_outpoint_no_index(self):
+        outpoint_index = None
+        outpoint_tx_id = helpers.outpoint_tx_id
+
+        with self.assertRaises(ValueError) as context:
+            tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+        self.assertIn('Expected bytes-like object. ',
+                      str(context.exception))
 
 
 class TestTxIn(unittest.TestCase):
 
-    def test_create_input(self):
-        outpoint_index = utils.i2le_padded(0, 4)
-        outpoint_tx_id = bytearray(bytearray.fromhex(
-            '10399b3f20cbdd4b5ac3f823afdba28b'
-            '9f70e21437a59b312a1b62c42c5cd101'))[::-1]
-        outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
+    def setUp(self):
+        outpoint_index = helpers.outpoint_index
+        outpoint_tx_id = helpers.outpoint_tx_id
 
-        sequence = utils.i2le_padded(0, 4)
-        script = bytearray(bytearray.fromhex('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))
-        tx_in = tx.TxIn(outpoint, script, bytearray(), sequence)
-        print('')
-        print('Printing TxIn')
-        print(tx_in.hex())
+        self.stack_script = helpers.stack_script
+        self.redeem_script = helpers.redeem_script
+        self.sequence = helpers.sequence
+        self.outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
+
+    def test_create_input(self):
+        tx_in = tx.TxIn(self.outpoint, self.stack_script,
+                        self.redeem_script, self.sequence)
+
+        self.assertEqual(tx_in.outpoint, self.outpoint)
+        self.assertEqual(tx_in.stack_script, self.stack_script)
+        self.assertEqual(tx_in.redeem_script, self.redeem_script)
+        self.assertEqual(tx_in.sequence, self.sequence)
+        self.assertEqual(tx_in, helpers.tx_in)
+
+    def test_copy(self):
+        tx_in = tx.TxIn(self.outpoint, self.stack_script,
+                        self.redeem_script, self.sequence)
+
+        tx_in_copy = tx_in.copy()
+
+        self.assertEqual(tx_in, tx_in_copy)  # They should be equal
+        self.assertIsNot(tx_in, tx_in_copy)  # But not the same object
+
+
+class TestTxOut(unittest.TestCase):
+
+    def setUp(self):
+        self.value = helpers.output_value_0
+        self.output_script = helpers.output_script_0
+
+    def test_create_output(self):
+        tx_out = tx.TxOut(self.value, self.output_script)
+        self.assertEqual(tx_out, helpers.tx_out_0)
+
+    def test_copy(self):
+        tx_out = tx.TxOut(self.value, self.output_script)
+        tx_out_copy = tx_out.copy()
+
+        self.assertEqual(tx_out, tx_out_copy)  # They should be equal
+        self.assertIsNot(tx_out, tx_out_copy)  # But not the same object
+
+
+class TestWitnessStackItem(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+
+class TestInputWitness(unittest.TestCase):
+
+    def setUp(self):
+        pass
 
 
 class TestTx(unittest.TestCase):
@@ -101,7 +192,7 @@ class TestTx(unittest.TestCase):
 
         sequence = utils.i2le_padded(0, 4)
 
-        script = bytearray(bytearray.fromhex('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))
+        script = bytearray(bytearray.fromhex('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))  # noqa: E501
 
         tx_in = tx.TxIn(outpoint, script, bytearray(), sequence)
         tx_ins = [tx_in]
@@ -109,7 +200,7 @@ class TestTx(unittest.TestCase):
         tx_outs = [
             tx.TxOut(
                 value=bytearray(utils.i2le_padded(2000, 8)),
-                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
+                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))  # noqa: E501
         ]
         tx_witnesses = [
             tx.InputWitness(
@@ -142,7 +233,7 @@ class TestTx(unittest.TestCase):
 
         sequence = utils.i2le_padded(0, 4)
 
-        script = bytearray(bytearray.fromhex('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))
+        script = bytearray(bytearray.fromhex('473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac'))  # noqa: E501
 
         tx_in = tx.TxIn(outpoint, script, bytearray(), sequence)
         tx_ins = [tx_in]
@@ -150,14 +241,14 @@ class TestTx(unittest.TestCase):
         tx_outs = [
             tx.TxOut(
                 value=bytearray(utils.i2le_padded(2000, 8)),
-                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))
+                output_script=bytearray(bytearray.fromhex('76a914f2539f42058da784a9d54615ad074436cf3eb85188ac')))  # noqa: E501
         ]
 
         lock_time = utils.i2le_padded(0, 4)
 
         res = tx.Tx(version, None, tx_ins, tx_outs, None, lock_time)
 
-        self.assertEqual(res.hex(), RAW_P2SH_TO_P2PKH)
+        self.assertEqual(res.hex(), helpers.RAW_P2SH_TO_P2PKH)
         print('')
         print('printing legacy tx hex')
         print(res.hex())
