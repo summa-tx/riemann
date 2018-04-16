@@ -4,6 +4,9 @@ from ..script import serialization as script_ser
 
 
 def make_sh_address(script_string, witness=False):
+    '''
+    str, bool -> str
+    '''
     addr_bytes = bytearray()
     script_bytes = script_ser.serialize_from_string(script_string)
     if witness:
@@ -27,6 +30,9 @@ def make_p2sh_address(script_string):
 
 
 def make_pkh_address(pubkey, witness=False):
+    '''
+    bytes, bool -> str
+    '''
     addr_bytes = bytearray()
     pubkey_hash = utils.hash160(pubkey)
     if witness:

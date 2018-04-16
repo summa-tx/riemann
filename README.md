@@ -1,14 +1,19 @@
 Multi-coin transaction generation toolbox.
 
+### Major TODOs
+
+* Many more tests
+* Alternate API where the network object is passed to functions (real statelessness)
+
 ### Purpose
 
-Multicoin is a dependency-free Python3 library for creating bitcoin-style transactions. It is compatible with many chains and supports SegWit.
+Multicoin is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
 
-Multicoin aims to make it easy to create application-specific Bitcoin transactions. It serializes and unserializes scripts from simple strings. It contains a complete toolbox for transaction construction, as well as built-in support for >20 live networks and >40 testnet or regtest nets.
+Multicoin aims to make it easy to create application-specific Bitcoin transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for >20 live networks and ~40 testnet or regtest nets.
 
 Multicoin is NOT a wallet. It does NOT handle keys or create signatures. Multicoin is NOT a protocol or RPC implementation. Multicoin does NOT communicate with anything. Ever.
 
-Multicoin is _almost_ stateless. Before calling functions, you select a network. TODO: alternate API where the network object is passed to functions.
+Multicoin is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `multicoin/networks/__init__.py`. **No networks have been thoroughly tested.**
 
 ### Installation, Development & Running Tests
 
@@ -52,7 +57,7 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 
 ### Notes and weird little transaction rules:
 
-* If there are any witnesses, all inputs must have a witness. Use `tx_builder.make_legacy_input_and_empty_witness()` when building your input to also generate a blank witness for your input. It returns `(TxIn, InputWitness)`.
+* If there are any witnesses, all inputs must have a witness. The witness list MUST be the same size as the input list. Use `tx_builder.make_legacy_input_and_empty_witness()` when building your input to also generate a blank witness for your input. It returns `(TxIn, InputWitness)`.
 
 * If all sequence numbers are set to max (0xFFFFFFFF), `lock_time` is disregarded by consensus rules.
 
