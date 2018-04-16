@@ -15,9 +15,11 @@ from ..script import serialization
 #   - Legacy only
 #   - Contains script that makes initial stack
 # script_pubkey -> Goes in TxOut
-#   - Legacy only
-#   - Contains the official p2sh or p2pkh script_pubkey
-#   - Contains a hash160 of the script or pubkey
+#   - Also called pk_script, output_script
+#   - P2PKH: OP_DUP OP_HASH160 PUSH14 {pkh} OP_EQUALVERIFY OP_CHECKSIG
+#   - P2SH: OP_HASH160 {script_hash} OP_EQUAL
+#   - P2WPKH: OP_0 PUSH0x14 {pkh}
+#   - P2WSH: OP_0 PUSH0x20 {script_hash}
 # WitnessStackItem -> Goes in InputWitness
 #   - Witness only
 #   - Contains a length-prefixed stack item
