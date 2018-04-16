@@ -1,3 +1,5 @@
+# flake8: noqa
+
 # Needs two pubkeys
 msig_two_two = 'OP_2 {} {} OP_2 OP_CHECKMULTISIG'
 

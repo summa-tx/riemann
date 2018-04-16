@@ -50,10 +50,10 @@ def make_p2pkh_address(pubkey):
 def parse(address):
     try:
         return bytearray(multicoin.network.LEGACY_ENCODER.decode(address))
-    except:
+    except ValueError:
         try:
             return bytearray(multicoin.network.SEGWIT_ENCODER.decode(address))
-        except:
+        except Exception:
             raise ValueError(
                 'Unsupported address format: {}'.format(address))
 
@@ -95,7 +95,7 @@ def parse_hash(address):
             return raw[len(multicoin.network.P2WPKH_PREFIX):]
         if raw.find(multicoin.network.P2WPKH_PREFIX) != -1:
             return raw[len(multicoin.network.P2WPKH_PREFIX):]
-    except:
+    except AttributeError:
         pass
 
     if raw.find(multicoin.network.P2SH_PREFIX) != -1:
@@ -105,4 +105,4 @@ def parse_hash(address):
 
     raise ValueError(
         'Network {} does not support address format: {} '
-        .format(multicoin.get_current_network(), address))
+        .format(multicoin.get_current_network_name(), address))

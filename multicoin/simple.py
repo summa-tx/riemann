@@ -14,7 +14,7 @@ def guess_version():
     We want to signal nSequence enforcement (just in case).
     Unless we're in zcash.
     '''
-    if 'zcash' in multicoin.get_current_network():
+    if 'zcash' in multicoin.get_current_network_name():
         return 1
     else:
         return 2

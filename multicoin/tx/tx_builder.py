@@ -36,7 +36,7 @@ def make_sh_output_script(script_string, witness=False):
     if witness and not multicoin.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
-            .format(multicoin.get_current_network()))
+            .format(multicoin.get_current_network_name()))
 
     output_script = bytearray()
 
@@ -62,7 +62,7 @@ def make_pkh_output_script(pubkey, witness=False):
     if witness and not multicoin.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
-            .format(multicoin.get_current_network()))
+            .format(multicoin.get_current_network_name()))
 
     output_script = bytearray()
 
@@ -98,7 +98,10 @@ def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
 
-def make_output(value, script):
+def _make_output(value, script):
+    '''
+    bytes-like, bytes-like -> TxOut
+    '''
     return tx.TxOut(value, script)
 
 
@@ -106,8 +109,8 @@ def make_sh_output(value, script, witness=False):
     '''
     int, str -> TxOut
     '''
-    return make_output(value=utils.i2le_padded(value),
-                       script=make_sh_output_script(script, witness))
+    return _make_output(value=utils.i2le_padded(value),
+                        script=make_sh_output_script(script, witness))
 
 
 def make_p2sh_output(value, script):
@@ -122,15 +125,15 @@ def make_pkh_output(value, pubkey, witness=False):
     '''
     int, bytearray -> TxOut
     '''
-    return make_output(value=utils.i2le_padded(value),
-                       script=make_pkh_output_script(pubkey, witness))
+    return _make_output(value=utils.i2le_padded(value),
+                        script=make_pkh_output_script(pubkey, witness))
 
 
 def make_p2pkh_output(value, pubkey):
     return make_pkh_output(value, pubkey, witness=False)
 
 
-def make_p2wpkh_output(value, pubkey, witness=False):
+def make_p2wpkh_output(value, pubkey):
     return make_pkh_output(value, pubkey, witness=True)
 
 
@@ -204,7 +207,7 @@ def make_witness_input_and_witness(outpoint, sequence, data_list):
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            tx_witnesses=None, make_immutable=True):
+            tx_witnesses=None):
 
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx

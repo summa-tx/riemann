@@ -29,10 +29,6 @@ BASE58_BASE = len(BASE58_ALPHABET)
 BASE58_LOOKUP = dict((c, i) for i, c in enumerate(BASE58_ALPHABET))
 
 
-class EncodingError(ValueError):
-    pass
-
-
 def encode(data, checksum=True):
     """Convert binary to base58 using BASE58_ALPHABET."""
 
@@ -54,7 +50,7 @@ def decode(s, checksum=True):
         data, the_hash = data[:-4], data[-4:]
         if utils.hash256(data)[:4] == the_hash:
             return data
-        raise EncodingError("hashed base58 has bad checksum %s" % s)
+        raise ValueError("hashed base58 has bad checksum %s" % s)
 
     return data
 
@@ -71,7 +67,7 @@ def encode_with_checksum(data):
 def decode_with_checksum(s):
     """
     If the passed string is hashed_base58, return the binary data.
-    Otherwise raises an EncodingError.
+    Otherwise raises a ValueError.
     """
     return decode(s, checksum=True)
 
@@ -80,7 +76,7 @@ def hash_checksum(base58):
     """Return True if and only if base58 is valid hashed_base58."""
     try:
         decode_with_checksum(base58)
-    except EncodingError:
+    except ValueError:
         return False
     return True
 
@@ -98,7 +94,7 @@ def from_long(v, prefix, base, charset):
             v, mod = divmod(v, base)
             ba.append(charset(mod))
         except Exception:
-            raise EncodingError(
+            raise ValueError(
                 "can't convert to character corresponding to %d" % mod)
     ba.extend([charset(0)] * prefix)
     ba.reverse()
@@ -123,7 +119,7 @@ def to_long(base, lookup_f, s):
         try:
             v += lookup_f(c)
         except Exception:
-            raise EncodingError("bad character %s in string %s" % (c, s))
+            raise ValueError("bad character %s in string %s" % (c, s))
         if v == 0:
             prefix += 1
     return v, prefix

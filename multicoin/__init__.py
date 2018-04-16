@@ -9,4 +9,8 @@ def select_network(name):
 
 
 def get_current_network():
+    return network
+
+
+def get_current_network_name():
     return '{}_{}'.format(network.NETWORK_NAME, network.SUBNET_NAME)
