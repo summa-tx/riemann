@@ -277,6 +277,13 @@ class TestTx(unittest.TestCase):
         t = tx.Tx(self.version, self.flag, self.tx_ins, self.tx_outs,
                   self.tx_witnesses, self.lock_time)
 
-        print(' ', t.hex(), helpers.P2PKH_SPEND.hex())
-
         self.assertEqual(t, helpers.P2PKH_SPEND)
+
+    def test_copy(self):
+        t = tx.Tx(self.version, self.flag, self.tx_ins, self.tx_outs,
+                  self.tx_witnesses, self.lock_time)
+
+        t_copy = t.copy()
+
+        self.assertEqual(t, t_copy)
+        self.assertIsNot(t, t_copy)
