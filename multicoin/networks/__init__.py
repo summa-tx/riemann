@@ -65,7 +65,10 @@ SUPPORTED = {
     'syscoin_reg': SyscoinRegtest,
     'vertcoin_main': VertcoinMain,
     'vertcoin_test': VertcoinTest,
-    'vertcoin_reg': VertcoinRegtest
+    'vertcoin_reg': VertcoinRegtest,
+    'bitcoin_private_main': BitcoinPrivateMain,
+    'bitcoin_private_test': BitcoinPrivateTest,
+    'bitcoin_private_reg': BitcoinPrivateRegtest
 }
 
 

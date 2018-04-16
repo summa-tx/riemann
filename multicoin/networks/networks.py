@@ -664,4 +664,33 @@ class VertcoinRegtest(Network):
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'bcrt'  # That's the same as Bitcoin's reg.
 
+
+class BitcoinPrivateMain(Network):
+    # Bitcoin Private can pay out to segwit/bech32 wallets,
+    # but has no support beyond that. It is upcoming.
+    SYMBOL = 'BCTP'
+    NETWORK_NAME = 'bitcoin_private'
+    SUBNET_NAME = 'main'
+    P2PKH_PREFIX = b'\x13\x25'
+    P2SH_PREFIX = b'\x13\xaf'
+    SEGWIT = False
+
+
+class BitcoinPrivateTest(Network):
+    SYMBOL = 'tBTCP'
+    NETWORK_NAME = 'bitcoin_private'
+    SUBNET_NAME = 'test'
+    P2PKH_PREFIX = b'\x19\x57'
+    P2SH_PREFIX = b'\x19\xe0'
+    SEGWIT = False
+
+
+class BitcoinPrivateRegtest(Network):
+    SYMBOL = 'rBCTP'
+    NETWORK_NAME = 'bitcoin_private'
+    SUBNET_NAME = 'reg'
+    P2PKH_PREFIX = b'\x19\x57'
+    P2SH_PREFIX = b'\x19\xe0'
+    SEGWIT = False
+
 # Well kids, that's a bundle.
