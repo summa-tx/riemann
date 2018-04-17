@@ -504,7 +504,7 @@ class GroestlcoinMain(Network):
 
 class GroestlcoinTest(Network):
     SYMBOL = 'tGRS'
-    NETWORK_NAME = 'groestl'
+    NETWORK_NAME = 'groestlcoin'
     SUBNET_NAME = 'test'
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
@@ -515,7 +515,7 @@ class GroestlcoinTest(Network):
 
 class GroestlcoinRegtest(Network):
     SYMBOL = 'rGRS'
-    NETWORK_NAME = 'groestl'
+    NETWORK_NAME = 'groestlcoin'
     SUBNET_NAME = 'reg'
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
@@ -551,7 +551,7 @@ class MonacoinTest(Network):
 
 class MonacoinRegtest(Network):
     SYMBOL = 'rMONA'
-    NETWORK_NAME = 'digibyte'
+    NETWORK_NAME = 'monacoin'
     SUBNET_NAME = 'reg'
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'

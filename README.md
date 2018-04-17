@@ -4,6 +4,7 @@ Multi-coin transaction generation toolbox.
 
 * Many more tests
 * Alternate API where the network object is passed to functions (real statelessness)
+* Support OP_PUSHDATA1-4
 
 ### Purpose
 

@@ -17,7 +17,7 @@ from ...encoding import addresses as addr
 # P2PKHBitcoinAddress.from_pubkey(PUBKEY_BYTES, accept_invalid=True)
 
 
-class TestAddresse(unittest.TestCase):
+class TestAddresses(unittest.TestCase):
 
     def test_make_p2sh_address(self):
         a = addr.make_p2sh_address('OP_IF')
