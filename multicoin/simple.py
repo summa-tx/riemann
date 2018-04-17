@@ -48,7 +48,7 @@ def guess_locktime(redeem_script):
     return int(script_array[loc - 1], 16)
 
 
-def simple_output(value, address):
+def output(value, address):
     '''
     int, str -> TxOut
     accepts base58 or bech32
@@ -57,7 +57,7 @@ def simple_output(value, address):
     return tb.make_output(value, script)
 
 
-def simple_p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
+def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     OutPoint, hex_string, hex_string, int -> TxIn
     '''
@@ -65,7 +65,7 @@ def simple_p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     return tb.make_legacy_input(outpoint, script_sig, None, sequence)
 
 
-def simple_p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
+def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     OutPoint, hex_string, hex_string, int -> (TxIn, InputWitness)
     '''
@@ -74,7 +74,7 @@ def simple_p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
         outpoint, script_sig, None, sequence)
 
 
-def simple_p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
+def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
     '''
     OutPoint, str, str, int -> TxIn
     '''
@@ -85,8 +85,8 @@ def simple_p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
                                 redeem_script, sequence)
 
 
-def simple_p2sh_input_and_witness(outpoint, stack_script,
-                                  redeem_script, sequence=None):
+def p2sh_input_and_witness(outpoint, stack_script,
+                           redeem_script, sequence=None):
     '''
     OutPoint, str, str, int -> (TxIn, InputWitness)
     '''
@@ -97,16 +97,14 @@ def simple_p2sh_input_and_witness(outpoint, stack_script,
         outpoint, stack_script, redeem_script, sequence)
 
 
-def simple_p2wpkh_input_and_witness(outpoint, sig,
-                                    pubkey, sequence=0xFFFFFFFE):
+def p2wpkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     Outpoint, hex_string, hex_string, int -> (TxIn, InputWitness)
     '''
     return tb.make_witness_input_and_witness(outpoint, sequence, [sig, pubkey])
 
 
-def simple_p2wsh_input_and_witness(outpoint, stack,
-                                   witness_script, sequence=None):
+def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
     '''
     Outpoint, str, str, int -> (TxIn, InputWitness)
     '''
@@ -119,7 +117,7 @@ def simple_p2wsh_input_and_witness(outpoint, stack,
     return tb.make_witness_input_and_witness(outpoint, sequence, stack)
 
 
-def simple_legacy_tx(tx_ins, tx_outs):
+def legacy_tx(tx_ins, tx_outs):
     '''
     list(TxIn), list(TxOut) -> Tx
     '''
@@ -137,7 +135,7 @@ def simple_legacy_tx(tx_ins, tx_outs):
                       make_immutable=True)
 
 
-def simple_witness_tx(tx_ins, tx_outs, tx_witnesses):
+def witness_tx(tx_ins, tx_outs, tx_witnesses):
     '''
     list(TxIn), list(TxOut), list(InputWitness) -> Tx
     '''

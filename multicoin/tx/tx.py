@@ -197,8 +197,7 @@ class TxIn(ByteData):
     NB: sequence must be little-endian
     '''
 
-    def __init__(self, outpoint, stack_script, redeem_script,
-                 sequence):
+    def __init__(self, outpoint, stack_script, redeem_script, sequence):
         super().__init__()
 
         self.validate_bytes(outpoint, 36)
