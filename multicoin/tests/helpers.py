@@ -39,10 +39,20 @@ OP_IF_OUTPUT_SCRIPT = b'\xa9' + OP_IF_SCRIPT_HASH + b'\x87'
 # Use '00' * 65 and '11' * 65 as pubkeys
 PK_0 = '00' * 65
 PK_1 = '11' * 65
+P2PKH_0 = '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV'
+P2PKH_1 = '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
+
 MSIG_TWO_TWO_SCRIPT = examples.msig_two_two.format(PK_0, PK_1)
 MSIG_TWO_TWO_P2SH = '3R23EEkAzy7HPWKN8rcL4ZzSjEWNsipxWV'
 MSIG_TWO_TWO_SCRIPT_HASH = bytes.fromhex('ffe3e2be6ba8d465041d3da1cdfe472b901b215a')  # noqa: E501
 MSIG_TWO_TWO_OUTPUT_SCRIPT = b'\xa9' + MSIG_TWO_TWO_SCRIPT_HASH + b'\x87'
 
-P2PKH_0 = '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV'
-P2PKH_1 = '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
+
+# https://blockchain.info/rawtx/264814c57c76694c752bcb800d7edaf210ef3a2c199c4db44485a15eb3429691
+P2WSH_SCRIPT = 'OP_2 0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c 03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff 03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880 OP_3 OP_CHECKMULTISIG'  # noqa: E501
+P2WSH_ADDRESS = 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej'  # noqa: E501
+
+# https://blockchain.info/rawtx/2b6d004f685cf6515faf5d5a508853a5d9cda2c589fcf49a5781cb38be06029b
+P2WPKH_ADDRESS = 'bc1q8cqttds2dej9zht7vupd3467ndhur92fudlyql'
+P2WPKH_PUBKEY = bytes.fromhex('03dc3dbabbf8c5e15d1eb3606a6a42c6d3a8c546f2a196a80a08b9a9021e2be33d')  # noqa: E501
+P2WPKH_PKH = bytes.fromhex('3e00b5b60a6e64515d7e6702d8d75e9b6fc19549')

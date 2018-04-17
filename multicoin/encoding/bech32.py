@@ -33,13 +33,20 @@ def encode(data):
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
             .format(multicoin.get_current_network_name()))
-    return bech32_encode(multicoin.network.BECH32_HRP, convertbits(data, 8, 5))
+    return segwit_encode(multicoin.network.BECH32_HRP, data[0], data[2:])
 
 
 def decode(bech):
     if multicoin.network.BECH32_HRP is None:
         raise ValueError('Network does not support bech32 encoding.')
-    return segwit_decode(multicoin.network.BECH32_HRP, bech)
+
+    (version_prefix, hash_int_array) = \
+        segwit_decode(multicoin.network.BECH32_HRP, bech)
+    ret = bytearray()
+    ret.extend([version_prefix])
+    ret.extend([len(hash_int_array)])
+    ret.extend(hash_int_array)
+    return bytes(ret)
 
 
 def segwit_decode(hrp, addr):

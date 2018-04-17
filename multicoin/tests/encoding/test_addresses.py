@@ -28,10 +28,15 @@ class TestAddresse(unittest.TestCase):
         self.assertEqual(a, helpers.MSIG_TWO_TWO_P2SH)
 
     def test_make_p2wsh_address(self):
-        pass
+        a = addr.make_p2wsh_address(helpers.P2WSH_SCRIPT)
+        self.assertEqual(a, helpers.P2WSH_ADDRESS)
 
     def test_make_p2pkh_address(self):
         a = addr.make_p2pkh_address(b'\x00' * 65)
         self.assertEqual(a, helpers.P2PKH_0)
         b = addr.make_p2pkh_address(b'\x11' * 65)
         self.assertEqual(b, helpers.P2PKH_1)
+
+    def test_make_p2wpkh_address(self):
+        a = addr.make_p2wpkh_address(helpers.P2WPKH_PUBKEY)
+        self.assertEqual(a, helpers.P2WPKH_ADDRESS)
