@@ -38,7 +38,9 @@ def encode(data):
 
 def decode(bech):
     if multicoin.network.BECH32_HRP is None:
-        raise ValueError('Network does not support bech32 encoding.')
+        raise ValueError(
+            'Network ({}) does not support bech32 encoding.'
+            .format(multicoin.get_current_network_name()))
 
     (version_prefix, hash_int_array) = \
         segwit_decode(multicoin.network.BECH32_HRP, bech)

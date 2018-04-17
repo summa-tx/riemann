@@ -1,10 +1,10 @@
 [run]
 source = multicoin/
-omit = mutlicoin/tests/
+omit = mutlicoin/tests/*
 
 [report]
 show_missing = True
-sort = Name
+sort = Miss
 omit = multicoin/tests/*
 
 [html]

@@ -24,6 +24,7 @@
 """Reference tests for segwit adresses"""
 
 import unittest
+import multicoin
 from ...encoding import bech32
 
 
@@ -91,6 +92,9 @@ INVALID_ADDRESS_ENC = [
 class TestBech32(unittest.TestCase):
     """Unit test class for segwit addressess."""
 
+    def tearDown(self):
+        multicoin.select_network('bitcoin_main')
+
     def test_valid_checksum(self):
         """Test checksum creation and validation."""
         for t in VALID_CHECKSUM:
@@ -134,3 +138,24 @@ class TestBech32(unittest.TestCase):
         for hrp, version, length in INVALID_ADDRESS_ENC:
             code = bech32.segwit_encode(hrp, version, [0] * length)
             self.assertIsNone(code)
+
+    def test_encode_error(self):
+        multicoin.select_network('zcash_main')
+        with self.assertRaises(ValueError) as context:
+            bech32.encode(bytearray([0] * 32))
+
+        self.assertIn(
+            'Network (zcash_main) does not support bech32 encoding.',
+            str(context.exception))
+
+    def test_decode_error(self):
+        multicoin.select_network('zcash_main')
+        with self.assertRaises(ValueError) as context:
+            bech32.decode(bytearray([0] * 32))
+
+        self.assertIn(
+            'Network (zcash_main) does not support bech32 encoding.',
+            str(context.exception))
+
+    def test_convert_bits_error(self):
+        self.assertIsNone(bech32.convertbits([2 ** 5 + 1], 5, 8))
