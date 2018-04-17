@@ -288,6 +288,11 @@ class WitnessStackItem(ByteData):
 
         self._make_immutable()
 
+    @classmethod
+    def from_bytes(WitnessStackItem, byte_string):
+        WitnessStackItem.validate_bytes(byte_string, None)
+        return WitnessStackItem(byte_string[0], byte_string[1:])
+
 
 class InputWitness(ByteData):
 
@@ -307,6 +312,19 @@ class InputWitness(ByteData):
         self.stack = [item for item in stack]
 
         self._make_immutable()
+
+    @classmethod
+    def from_bytes(InputWitness, byte_string):
+        WitnessStackItem.validate_bytes(byte_string, None)
+        stack_len = byte_string[0]
+        current = 1
+        items = []
+        while len(items) < stack_len:
+            item_len = byte_string[current]
+            item = byte_string[current + 1: current + 1 + item_len]
+            items += [WitnessStackItem(item)]
+            current += item_len + 1
+        return InputWitness(items)
 
 
 class Tx(ByteData):

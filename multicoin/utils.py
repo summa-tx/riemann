@@ -5,6 +5,8 @@ def i2le(number):
     '''
     int -> bytearray
     '''
+    if number == 0:
+        return b'\x00'
     return number.to_bytes((number.bit_length() + 7) // 8, 'little')
 
 
