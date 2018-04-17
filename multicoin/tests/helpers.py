@@ -39,6 +39,8 @@ OP_IF_OUTPUT_SCRIPT = b'\xa9' + OP_IF_SCRIPT_HASH + b'\x87'
 # Use '00' * 65 and '11' * 65 as pubkeys
 PK_0 = '00' * 65
 PK_1 = '11' * 65
+PKH_0 = bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3')
+PKH_1 = bytes.fromhex('e723a0f62396b8b03dbd9e48e9b9efe2eb704aab')
 P2PKH_0 = '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV'
 P2PKH_1 = '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
 
@@ -50,6 +52,7 @@ MSIG_TWO_TWO_OUTPUT_SCRIPT = b'\xa9' + MSIG_TWO_TWO_SCRIPT_HASH + b'\x87'
 
 # https://blockchain.info/rawtx/264814c57c76694c752bcb800d7edaf210ef3a2c199c4db44485a15eb3429691
 P2WSH_SCRIPT = 'OP_2 0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c 03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff 03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880 OP_3 OP_CHECKMULTISIG'  # noqa: E501
+P2WSH_SCRIPT_HASH = bytes.fromhex('701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d')  # noqa: E501
 P2WSH_ADDRESS = 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej'  # noqa: E501
 
 # https://blockchain.info/rawtx/2b6d004f685cf6515faf5d5a508853a5d9cda2c589fcf49a5781cb38be06029b

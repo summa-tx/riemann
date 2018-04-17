@@ -61,7 +61,7 @@ def parse(address):
             return bytearray(multicoin.network.SEGWIT_ENCODER.decode(address))
         except Exception:
             raise ValueError(
-                'Unsupported address format: {}'.format(address))
+                'Unsupported address format. Got: {}'.format(address))
 
 
 def parse_pkh_address(address):
@@ -93,22 +93,15 @@ def parse_hash(address):
     There's probably a better way to do this.
     '''
 
-    raw = parse_sh_address(address)
+    raw = parse(address)
 
-    try:
-        address.find(multicoin.network.BECH32_HRP)  # errors on NoneType
-        if raw.find(multicoin.network.P2WPKH_PREFIX) != -1:
+    if address.find(multicoin.network.BECH32_HRP) == 0:
+        if raw.find(multicoin.network.P2WSH_PREFIX) == 0:
+            return raw[len(multicoin.network.P2WSH_PREFIX):]
+        if raw.find(multicoin.network.P2WPKH_PREFIX) == 0:
             return raw[len(multicoin.network.P2WPKH_PREFIX):]
-        if raw.find(multicoin.network.P2WPKH_PREFIX) != -1:
-            return raw[len(multicoin.network.P2WPKH_PREFIX):]
-    except AttributeError:
-        pass
-
-    if raw.find(multicoin.network.P2SH_PREFIX) != -1:
-        return raw[len(multicoin.network.P2SH_PREFIX):]
-    if raw.find(multicoin.network.P2PKH_PREFIX) != -1:
-        return raw[len(multicoin.network.P2PKH_PREFIX)]
-
-    raise ValueError(
-        'Network {} does not support address format: {} '
-        .format(multicoin.get_current_network_name(), address))
+    else:
+        if raw.find(multicoin.network.P2SH_PREFIX) == 0:
+            return raw[len(multicoin.network.P2SH_PREFIX):]
+        if raw.find(multicoin.network.P2PKH_PREFIX) == 0:
+            return raw[len(multicoin.network.P2PKH_PREFIX):]
