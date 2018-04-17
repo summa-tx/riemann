@@ -40,7 +40,7 @@ def make_sh_output_script(script_string, witness=False):
 
     output_script = bytearray()
 
-    script_bytes = serialization.serialize_from_string(script_string)
+    script_bytes = serialization.serialize(script_string)
 
     if witness:
         script_hash = utils.sha256(script_bytes)
@@ -165,8 +165,8 @@ def make_script_sig(stack_script, redeem_script):
     str, str -> bytearray
     '''
     stack_script += ' {}'.format(
-        serialization.hex_serialize_from_string(redeem_script))
-    return serialization.serialize_from_string(stack_script)
+        serialization.hex_serialize(redeem_script))
+    return serialization.serialize(stack_script)
 
 
 def make_legacy_input(outpoint, stack_script, redeem_script, sequence):

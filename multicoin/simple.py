@@ -112,7 +112,7 @@ def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
         sequence = guess_sequence(witness_script)
 
     stack = [item for item in stack]
-    stack.append(script_ser.serialize_from_string(witness_script))
+    stack.append(script_ser.serialize(witness_script))
 
     return tb.make_witness_input_and_witness(outpoint, sequence, stack)
 
@@ -124,7 +124,7 @@ def legacy_tx(tx_ins, tx_outs):
     version = guess_version()
     # Look at each input to guess lock_time
     lock_time = max(
-        [guess_locktime(script_ser.deserialize_script(txin.script))
+        [guess_locktime(script_ser.deserialize(txin.script))
          for txin in tx_ins])
 
     return tb.make_tx(version=version,
@@ -143,9 +143,9 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     version = guess_version()
 
     # Parse legacy scripts AND witness scripts for OP_CLTV
-    times = [guess_locktime(script_ser.deserialize_script(txin.script))
+    times = [guess_locktime(script_ser.deserialize(txin.script))
              for txin in tx_ins if txin.script is not None]
-    times.extend([guess_locktime(script_ser.deserialize_script(wit[::-1]))
+    times.extend([guess_locktime(script_ser.deserialize(wit[::-1]))
                   for wit in tx_witnesses])
     lock_time = max(times)
 

@@ -72,7 +72,7 @@ def decode_with_checksum(s):
     return decode(s, checksum=True)
 
 
-def hash_checksum(base58):
+def has_checksum(base58):
     """Return True if and only if base58 is valid hashed_base58."""
     try:
         decode_with_checksum(base58)

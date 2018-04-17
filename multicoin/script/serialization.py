@@ -1,7 +1,7 @@
 from .opcodes import CODE_TO_INT, INT_TO_CODE
 
 
-def serialize_from_string(script_string):
+def serialize(script_string):
     '''
     str -> bytearray
     '''
@@ -28,14 +28,14 @@ def serialize_from_string(script_string):
     return serialized_script
 
 
-def hex_serialize_from_string(script_string):
+def hex_serialize(script_string):
     '''
     str -> hex_str
     '''
-    return serialize_from_string(script_string).hex()
+    return serialize(script_string).hex()
 
 
-def deserialize_script(serialized_script):
+def deserialize(serialized_script):
     '''
     bytearray -> str
     '''
@@ -68,8 +68,8 @@ def deserialize_script(serialized_script):
     return ' '.join(deserialized)
 
 
-def deserialize_script_hex(script_hex):
+def hex_deserialize(script_hex):
     '''
     bytearray -> hex_str
     '''
-    return deserialize_script(bytes.fromhex(script_hex))
+    return deserialize(bytes.fromhex(script_hex))

@@ -8,7 +8,7 @@ def make_sh_address(script_string, witness=False):
     str, bool -> str
     '''
     addr_bytes = bytearray()
-    script_bytes = script_ser.serialize_from_string(script_string)
+    script_bytes = script_ser.serialize(script_string)
     if witness:
         script_hash = utils.sha256(script_bytes)
         addr_bytes.extend(multicoin.network.P2WSH_PREFIX)
