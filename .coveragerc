@@ -1,7 +1,11 @@
 [run]
 source = multicoin/
-omit = tests/*
+omit = mutlicoin/tests/
 
 [report]
 show_missing = True
-sort = Miss
+sort = Name
+omit = multicoin/tests/*
+
+[html]
+directory = coverage/html/
