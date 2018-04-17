@@ -89,3 +89,6 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(
             utils.hash256('abc'.encode('utf-8')),
             bytes.fromhex('4f8b42c22dd3729b519ba6f68d2da7cc5b2d606d05daed5ad5128cc03e6c6358'))  # noqa: E501
+        self.assertEqual(
+            utils.hash256('The quick brown fox jumps over the lazy dog'.encode('utf-8')),  # noqa: E501
+            bytes.fromhex('6d37795021e544d82b41850edf7aabab9a0ebe274e54a519840c4666f35b3937'))  # noqa: E501
