@@ -1,77 +1,79 @@
+# flake8: noqa
+
 # To add a new coin
 # 1. define a class in networks.py
 # 2. add it to SUPPORTED
 
-from .networks import *  # noqa: F403
+from .networks import *
 
 
 SUPPORTED = {
-    'bitcoin_main': BitcoinMain,  # noqa: F405
-    'bitcoin_test': BitcoinTest,  # noqa: F405
-    'bitcoin_reg': BitcoinRegtest,  # noqa: F405
-    'litecoin_main': LitecoinMain,  # noqa: F405
-    'litecoin_test': LitecoinTest,  # noqa: F405
-    'litecoin_reg': LitecoinRegtest,  # noqa: F405
-    'bitcoin_cash_main': BitcoinCashMain,  # noqa: F405
-    'bitcoin_cash_test': BitcoinCashTest,  # noqa: F405
-    'bitcoin_cash_reg': BitcoinCashRegtest,  # noqa: F405
-    'bitcoin_gold_main': BitcoinGoldMain,  # noqa: F405
-    'bitcoin_gold_test': BitcoinGoldTest,  # noqa: F405
-    'bitcoin_gold_reg': BitcoinGoldRegtest,  # noqa: F405
-    'dogecoin_main': DogecoinMain,  # noqa: F405
-    'dogecoin_test': DogecoinTest,  # noqa: F405
-    'dogecoin_reg': DogecoinRegtest,  # noqa: F405
-    'dash_main': DashMain,  # noqa: F405
-    'dash_test': DashTest,  # noqa: F405
-    'dash_reg': DashRegtest,  # noqa: F405
-    'zcash_main': ZcashMain,  # noqa: F405
-    'zcash_test': ZcashTest,  # noqa: F405
-    'zcash_reg': ZcashRegtest,  # noqa: F405
-    'decred_main': DecredMain,  # noqa: F405
-    'decred_test': DecredTest,  # noqa: F405
-    'decred_simnet': DecredSimnet,  # noqa: F405
-    'pivx_main': PivxMain,  # noqa: F405
-    'pivx_test': PivxTest,  # noqa: F405
-    'pivx_reg': PivxRegtest,  # noqa: F405
-    'viacoin_main': ViacoinMain,  # noqa: F405
-    'viacoin_test': ViacoinTest,  # noqa: F405
-    'viacoin_simnet': ViacoinSimnet,  # noqa: F405
-    'feathercoin_main': FeathercoinMain,  # noqa: F405
-    'feathercoin_test': FeathercoinTest,  # noqa: F405
-    'feathercoin_reg': FeathercoinRegtest,  # noqa: F405
-    'bitcoin_dark_main': BitcoinDarkMain,  # noqa: F405
-    'bitcoin_dark_test': BitcoinDarkTest,  # noqa: F405
-    'bitcoin_dark_reg': BitcoinDarkRegtest,  # noqa: F405
-    'axe_main': AxeMain,  # noqa: F405
-    'axe_test': AxeTest,  # noqa: F405
-    'axe_reg': AxeRegtest,  # noqa: F405
-    'bitcore_main': BitcoreMain,  # noqa: F405
-    'bitcore_test': BitcoreTest,  # noqa: F405
-    'bitcore_reg': BitcoreRegtest,  # noqa: F405
-    'digibyte_main': DigibyteMain,  # noqa: F405
-    'digibyte_test': DigibyteTest,  # noqa: F405
-    'digibyte_reg': DigibyteRegtest,  # noqa: F405
-    'groestlcoin_main': GroestlcoinMain,  # noqa: F405
-    'groestlcoin_test': GroestlcoinTest,  # noqa: F405
-    'groestlcoin_reg': GroestlcoinRegtest,  # noqa: F405
-    'monacoin_main': MonacoinMain,  # noqa: F405
-    'monacoin_test': MonacoinTest,  # noqa: F405
-    'monacoin_reg': MonacoinRegtest,  # noqa: F405
-    'navcoin_main': NavcoinMain,  # noqa: F405
-    'navcoin_test': NavcoinTest,  # noqa: F405
-    'navcoin_reg': NavcoinRegtest,  # noqa: F405
-    'syscoin_main': SyscoinMain,  # noqa: F405
-    'syscoin_test': SyscoinTest,  # noqa: F405
-    'syscoin_reg': SyscoinRegtest,  # noqa: F405
-    'vertcoin_main': VertcoinMain,  # noqa: F405
-    'vertcoin_test': VertcoinTest,  # noqa: F405
-    'vertcoin_reg': VertcoinRegtest,  # noqa: F405
-    'bitcoin_private_main': BitcoinPrivateMain,  # noqa: F405
-    'bitcoin_private_test': BitcoinPrivateTest,  # noqa: F405
-    'bitcoin_private_reg': BitcoinPrivateRegtest,  # noqa: F405
-    'verge_main': VergeMain,  # noqa: F405
-    'verge_test': VergeTest,  # noqa: F405
-    'verge_reg': VergeRegtest  # noqa: F405
+    'bitcoin_main': BitcoinMain,
+    'bitcoin_test': BitcoinTest,
+    'bitcoin_reg': BitcoinRegtest,
+    'litecoin_main': LitecoinMain,
+    'litecoin_test': LitecoinTest,
+    'litecoin_reg': LitecoinRegtest,
+    'bitcoin_cash_main': BitcoinCashMain,
+    'bitcoin_cash_test': BitcoinCashTest,
+    'bitcoin_cash_reg': BitcoinCashRegtest,
+    'bitcoin_gold_main': BitcoinGoldMain,
+    'bitcoin_gold_test': BitcoinGoldTest,
+    'bitcoin_gold_reg': BitcoinGoldRegtest,
+    'dogecoin_main': DogecoinMain,
+    'dogecoin_test': DogecoinTest,
+    'dogecoin_reg': DogecoinRegtest,
+    'dash_main': DashMain,
+    'dash_test': DashTest,
+    'dash_reg': DashRegtest,
+    'zcash_main': ZcashMain,
+    'zcash_test': ZcashTest,
+    'zcash_reg': ZcashRegtest,
+    'decred_main': DecredMain,
+    'decred_test': DecredTest,
+    'decred_simnet': DecredSimnet,
+    'pivx_main': PivxMain,
+    'pivx_test': PivxTest,
+    'pivx_reg': PivxRegtest,
+    'viacoin_main': ViacoinMain,
+    'viacoin_test': ViacoinTest,
+    'viacoin_simnet': ViacoinSimnet,
+    'feathercoin_main': FeathercoinMain,
+    'feathercoin_test': FeathercoinTest,
+    'feathercoin_reg': FeathercoinRegtest,
+    'bitcoin_dark_main': BitcoinDarkMain,
+    'bitcoin_dark_test': BitcoinDarkTest,
+    'bitcoin_dark_reg': BitcoinDarkRegtest,
+    'axe_main': AxeMain,
+    'axe_test': AxeTest,
+    'axe_reg': AxeRegtest,
+    'bitcore_main': BitcoreMain,
+    'bitcore_test': BitcoreTest,
+    'bitcore_reg': BitcoreRegtest,
+    'digibyte_main': DigibyteMain,
+    'digibyte_test': DigibyteTest,
+    'digibyte_reg': DigibyteRegtest,
+    'groestlcoin_main': GroestlcoinMain,
+    'groestlcoin_test': GroestlcoinTest,
+    'groestlcoin_reg': GroestlcoinRegtest,
+    'monacoin_main': MonacoinMain,
+    'monacoin_test': MonacoinTest,
+    'monacoin_reg': MonacoinRegtest,
+    'navcoin_main': NavcoinMain,
+    'navcoin_test': NavcoinTest,
+    'navcoin_reg': NavcoinRegtest,
+    'syscoin_main': SyscoinMain,
+    'syscoin_test': SyscoinTest,
+    'syscoin_reg': SyscoinRegtest,
+    'vertcoin_main': VertcoinMain,
+    'vertcoin_test': VertcoinTest,
+    'vertcoin_reg': VertcoinRegtest,
+    'bitcoin_private_main': BitcoinPrivateMain,
+    'bitcoin_private_test': BitcoinPrivateTest,
+    'bitcoin_private_reg': BitcoinPrivateRegtest,
+    'verge_main': VergeMain,
+    'verge_test': VergeTest,
+    'verge_reg': VergeRegtest
 }
 
 

@@ -134,8 +134,7 @@ def legacy_tx(tx_ins, tx_outs):
                       tx_ins=tx_ins,
                       tx_outs=tx_outs,
                       lock_time=lock_time,
-                      tx_witnesses=None,
-                      make_immutable=True)
+                      tx_witnesses=None)
 
 
 def witness_tx(tx_ins, tx_outs, tx_witnesses):
@@ -153,5 +152,4 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
                       tx_ins=tx_ins,
                       tx_outs=tx_outs,
                       lock_time=lock_time,
-                      tx_witnesses=tx_witnesses,
-                      make_immutable=True)
+                      tx_witnesses=tx_witnesses)
