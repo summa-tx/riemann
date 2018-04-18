@@ -53,7 +53,7 @@ def deserialize(serialized_script):
             i += 1 + current_byte
             if i > len(serialized_script):
                 raise IndexError(
-                    'Push {} caused out of bounds exception'
+                    'Push {} caused out of bounds exception.'
                     .format(current_byte))
 
         else:
@@ -62,7 +62,7 @@ def deserialize(serialized_script):
             except KeyError:
                 raise ValueError(
                     'Unsupported opcode. '
-                    'Got 0x%X' % serialized_script[i])
+                    'Got 0x%x' % serialized_script[i])
             i += 1
 
     return ' '.join(deserialized)
