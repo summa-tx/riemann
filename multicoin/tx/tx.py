@@ -24,13 +24,7 @@ class ByteData():
         self._current = 0
 
     def __iter__(self):
-        return self._bytes
-
-    def __next__(self):
-        if self._current > len(self._bytes):
-            raise StopIteration
-        self._current += 1
-        return self._bytes[self._current - 1]
+        return iter(self._bytes)
 
     def __iadd__(self, other):
         '''
@@ -44,7 +38,8 @@ class ByteData():
             self._bytes.extend(other._bytes)
         else:
             raise TypeError('unsupported operand type(s) for +=: '
-                            '{} and {}'.format(type(self), type(other)))
+                            '{} and {}'.format(type(self).__name__,
+                                               type(other).__name__))
         return self
 
     def __ne__(self, other):
@@ -107,7 +102,7 @@ class ByteData():
         Finds the index of substring
         '''
         if isinstance(substring, ByteData):
-            substring = ByteData.to_bytes
+            substring = substring.to_bytes()
         return self._bytes.find(substring)
 
     @staticmethod
@@ -155,6 +150,8 @@ class VarInt(ByteData):
         elif number <= 0xffffffffffffffff:
             self += bytes([0xff])
         self += utils.i2le(number)
+
+        # This pads out to the next 2/4/8 bytes.
         while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
             self += bytes([0x00])
 
@@ -164,6 +161,19 @@ class VarInt(ByteData):
 
     def copy(self):
         return VarInt(self.number)
+
+    @classmethod
+    def from_bytes(VarInt, byte_string):
+        '''
+        byte-like -> VarInt
+        '''
+        num = byte_string
+        if num[0] >= 0xfd:
+            num = num[1:]
+            if len(num) == 0:
+                raise ValueError('Malformed VarInt. Got: {}'
+                                 .format(byte_string.hex()))
+        return VarInt(utils.le2i(num))
 
 
 class Outpoint(ByteData):
@@ -185,9 +195,10 @@ class Outpoint(ByteData):
 
         self._make_immutable()
 
-    def copy(self):
-        raise NotImplementedError('Copying outpoints not currently supported.'
-                                  'Please make a new instance.')
+    def copy(self, tx_id=None, index=None):
+        return Outpoint(
+            tx_id=tx_id if tx_id is not None else self.tx_id,
+            index=index if index is not None else self.index)
 
 
 class TxIn(ByteData):
@@ -221,6 +232,7 @@ class TxIn(ByteData):
         self.script_len = len(stack_script + redeem_script)
         self.stack_script = stack_script
         self.redeem_script = redeem_script
+        self.script_sig = self.stack_script + self.redeem_script
         self.sequence = sequence
 
         self._make_immutable()
@@ -290,12 +302,15 @@ class WitnessStackItem(ByteData):
     @classmethod
     def from_bytes(WitnessStackItem, byte_string):
         WitnessStackItem.validate_bytes(byte_string, None)
-        return WitnessStackItem(byte_string[0], byte_string[1:])
+        return WitnessStackItem(byte_string[1:])
 
 
 class InputWitness(ByteData):
 
     def __init__(self, stack):
+        '''
+        list(WitnessStackItem) -> InputWitness
+        '''
         super().__init__()
         for item in stack:
             if not isinstance(item, WitnessStackItem):
@@ -314,14 +329,15 @@ class InputWitness(ByteData):
 
     @classmethod
     def from_bytes(InputWitness, byte_string):
+        # TODO: This assumes <=255 bytes in each witness stack item
         WitnessStackItem.validate_bytes(byte_string, None)
         stack_len = byte_string[0]
         current = 1
         items = []
         while len(items) < stack_len:
             item_len = byte_string[current]
-            item = byte_string[current + 1: current + 1 + item_len]
-            items += [WitnessStackItem(item)]
+            prefixed_item = byte_string[current: current + 1 + item_len]
+            items += [WitnessStackItem.from_bytes(prefixed_item)]
             current += item_len + 1
         return InputWitness(items)
 
@@ -346,9 +362,9 @@ class Tx(ByteData):
                 raise ValueError(
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
-                    .format(multicoin.networkself.SEGWIT_TX_FLAG, flag))
-            if tx_witnesses is None:
-                raise ValueError('Got segwit flag but no witnesses')
+                    .format(multicoin.network.SEGWIT_TX_FLAG, flag))
+            if tx_witnesses is None or len(tx_witnesses) is 0:
+                raise ValueError('Got segwit flag but no witnesses.')
 
         if tx_witnesses is not None:
             if flag is None:
@@ -361,7 +377,7 @@ class Tx(ByteData):
             for witness in tx_witnesses:
                 if not isinstance(witness, InputWitness):
                     raise ValueError(
-                        'Invalid InputWitness.'
+                        'Invalid InputWitness. '
                         'Expected instance of InputWitness. Got {}'
                         .format(type(witness)))
 
@@ -374,16 +390,16 @@ class Tx(ByteData):
         for tx_in in tx_ins:
             if not isinstance(tx_in, TxIn):
                 raise ValueError(
-                    'Invalid TxIn.'
+                    'Invalid TxIn. '
                     'Expected instance of TxIn. Got {}'
-                    .format(type(tx_in)))
+                    .format(type(tx_in).__name__))
 
         for tx_out in tx_outs:
             if not isinstance(tx_out, TxOut):
                 raise ValueError(
-                    'Invalid TxOut.'
+                    'Invalid TxOut. '
                     'Expected instance of TxOut. Got {}'
-                    .format(type(tx_out)))
+                    .format(type(tx_out).__name__))
 
         self += version
         if flag is not None:
