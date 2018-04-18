@@ -499,6 +499,18 @@ class TestTx(unittest.TestCase):
             'Invalid TxOut. Expected instance of TxOut. Got int',
             str(context.exception))
 
+        with self.assertRaises(ValueError) as context:
+            tx_in = self.tx_ins[0].copy(stack_script=b'\x00' * 1616,
+                                        redeem_script=None)
+            tx_ins = [tx_in for _ in range(255)]
+            tx_outs = [self.tx_outs[0] for _ in range(255)]
+            tx.Tx(self.version, self.none_flag, tx_ins, tx_outs,
+                  None, self.lock_time)
+
+        self.assertIn(
+            'Tx is too large. Expect less than 100kB. Got: 440397 bytes',
+            str(context.exception))
+
     def test_copy(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)

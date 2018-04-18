@@ -442,7 +442,7 @@ class Tx(ByteData):
 
         if len(self) > 100000:
             raise ValueError(
-                'Tx is too large.'
+                'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
     def no_witness(self):
