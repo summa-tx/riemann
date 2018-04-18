@@ -1,5 +1,5 @@
 import unittest
-import multicoin.networks as networks
+import riemann.networks as networks
 
 
 class TestNetworks(unittest.TestCase):

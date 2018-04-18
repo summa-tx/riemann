@@ -1,4 +1,4 @@
-import multicoin
+import riemann
 import math
 from .. import utils
 
@@ -358,11 +358,11 @@ class Tx(ByteData):
         self.validate_bytes(lock_time, 4)
 
         if flag is not None:
-            if flag != multicoin.network.SEGWIT_TX_FLAG:
+            if flag != riemann.network.SEGWIT_TX_FLAG:
                 raise ValueError(
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
-                    .format(multicoin.network.SEGWIT_TX_FLAG, flag))
+                    .format(riemann.network.SEGWIT_TX_FLAG, flag))
             if tx_witnesses is None or len(tx_witnesses) is 0:
                 raise ValueError('Got segwit flag but no witnesses.')
 

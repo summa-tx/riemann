@@ -22,28 +22,28 @@
 
 """Reference implementation for Bech32 and segwit addresses."""
 
-import multicoin
+import riemann
 
 
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
 
 def encode(data):
-    if multicoin.network.BECH32_HRP is None:
+    if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
-            .format(multicoin.get_current_network_name()))
-    return segwit_encode(multicoin.network.BECH32_HRP, data[0], data[2:])
+            .format(riemann.get_current_network_name()))
+    return segwit_encode(riemann.network.BECH32_HRP, data[0], data[2:])
 
 
 def decode(bech):
-    if multicoin.network.BECH32_HRP is None:
+    if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
-            .format(multicoin.get_current_network_name()))
+            .format(riemann.get_current_network_name()))
 
     (version_prefix, hash_int_array) = \
-        segwit_decode(multicoin.network.BECH32_HRP, bech)
+        segwit_decode(riemann.network.BECH32_HRP, bech)
     ret = bytearray()
     ret.extend([version_prefix])
     ret.extend([len(hash_int_array)])

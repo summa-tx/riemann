@@ -1,4 +1,4 @@
-import multicoin
+import riemann
 from .script import examples
 from .script import serialization as script_ser
 from .tx import tx_builder as tb
@@ -14,7 +14,7 @@ def guess_version(redeem_script):
     We want to signal nSequence enforcement (just in case).
     Unless we're in zcash.
     '''
-    if 'zcash' in multicoin.get_current_network_name():
+    if 'zcash' in riemann.get_current_network_name():
         return 1
     script_array = redeem_script.split()
     loc = script_array.find('OP_CHECKSEQUENCEVERIFY')

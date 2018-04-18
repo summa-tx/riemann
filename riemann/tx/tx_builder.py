@@ -1,4 +1,4 @@
-import multicoin
+import riemann
 from . import tx
 from .. import utils
 from ..script import serialization
@@ -33,10 +33,10 @@ def make_sh_output_script(script_string, witness=False):
     '''
     str -> bytearray
     '''
-    if witness and not multicoin.network.SEGWIT:
+    if witness and not riemann.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
-            .format(multicoin.get_current_network_name()))
+            .format(riemann.get_current_network_name()))
 
     output_script = bytearray()
 
@@ -44,7 +44,7 @@ def make_sh_output_script(script_string, witness=False):
 
     if witness:
         script_hash = utils.sha256(script_bytes)
-        output_script.extend(multicoin.network.P2WSH_PREFIX)
+        output_script.extend(riemann.network.P2WSH_PREFIX)
         output_script.extend(script_hash)
     else:
         script_hash = utils.hash160(script_bytes)
@@ -59,10 +59,10 @@ def make_pkh_output_script(pubkey, witness=False):
     '''
     bytearray -> bytearray
     '''
-    if witness and not multicoin.network.SEGWIT:
+    if witness and not riemann.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
-            .format(multicoin.get_current_network_name()))
+            .format(riemann.get_current_network_name()))
 
     output_script = bytearray()
 
@@ -73,7 +73,7 @@ def make_pkh_output_script(pubkey, witness=False):
     pubkey_hash = utils.hash160(pubkey)
 
     if witness:
-        output_script.extend(multicoin.network.P2WPKH_PREFIX)
+        output_script.extend(riemann.network.P2WPKH_PREFIX)
         output_script.extend(pubkey_hash)
     else:
         output_script.extend(b'\x76\xa9\x14')  # OP_DUP OP_HASH160 PUSH14
@@ -212,7 +212,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
-    flag = multicoin.network.SEGWIT_TX_FLAG \
+    flag = riemann.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None
     return tx.Tx(version=utils.i2le_padded(version, 4),
                  flag=flag,
