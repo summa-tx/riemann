@@ -460,14 +460,6 @@ class Tx(ByteData):
         tx += self.lock_time
         return bytes(tx)
 
-    @property
-    def size(self):
-        '''
-        Tx -> int
-        size in bytes
-        '''
-        return len(self._bytes)
-
     def calc_fee(self, input_values):
         '''
         Tx, list(int) -> int
@@ -509,15 +501,19 @@ class Tx(ByteData):
         '''
         return self.copy(tx_outs=[o for o in self.tx_outs] + new_tx_outs)
 
-    def with_new_inputs_and_witnesses(self, new_tx_ins, new_witnesses):
+    def with_new_inputs_and_witnesses(self, new_tx_ins_and_witnesses):
         '''
-        Tx, list(TxIn), list(InputWitness) -> Tx
+        Tx, list(tuple(Txin, InputWitness)) -> Tx
 
         NB: must have a one-to-one correspondance
         '''
         return self.copy(
-            tx_is=[i for i in self.tx_ins] + new_tx_ins,
-            tx_witnesses=[w for w in self.tx_witnesses] + new_witnesses)
+            tx_ins=(
+                [i for i in self.tx_ins]
+                + [i[0] for i in new_tx_ins_and_witnesses]),
+            tx_witnesses=(
+                [w for w in self.tx_witnesses]
+                + [i[1] for i in new_tx_ins_and_witnesses]))
 
     def _sighash_prep(self, current, prevout_pk_script):
         '''

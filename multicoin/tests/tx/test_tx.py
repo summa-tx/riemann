@@ -511,6 +511,21 @@ class TestTx(unittest.TestCase):
             'Tx is too large. Expect less than 100kB. Got: 440397 bytes',
             str(context.exception))
 
+    def test_calc_fee(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        self.assertEqual(t.calc_fee([10 ** 8]), 57534406)
+
+    def test_sighash_none(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        with self.assertRaises(NotImplementedError) as context:
+            t.sighash_none()
+
+        self.assertIn('SIGHASH_NONE is a bad idea.', str(context.exception))
+
     def test_copy(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
@@ -519,3 +534,47 @@ class TestTx(unittest.TestCase):
 
         self.assertEqual(t, t_copy)
         self.assertIsNot(t, t_copy)
+
+    def test_with_new_inputs(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        t_with_new_inputs = t.with_new_inputs([self.tx_ins[0]])
+        t_copy = t.copy(tx_ins=self.tx_ins + [self.tx_ins[0]])
+
+        self.assertEqual(t_copy, t_with_new_inputs)
+        self.assertIsNot(t_copy, t_with_new_inputs)
+
+    def test_with_new_outputs(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        t_with_new_outputs = t.with_new_outputs([self.tx_outs[0]])
+        t_copy = t.copy(tx_outs=self.tx_outs + [self.tx_outs[0]])
+
+        self.assertEqual(t_copy, t_with_new_outputs)
+        self.assertIsNot(t_copy, t_with_new_outputs)
+
+    def test_with_new_inputs_and_witnesses(self):
+        new = (self.tx_ins[0], self.tx_witnesses[0])
+        t = tx.Tx(self.version, self.segwit_flag, self.tx_ins, self.tx_outs,
+                  self.tx_witnesses, self.lock_time)
+
+        t_with_new = t.with_new_inputs_and_witnesses([new])
+        t_copy = t.copy(tx_ins=self.tx_ins + [new[0]],
+                        tx_witnesses=self.tx_witnesses + [new[1]])
+
+        self.assertEqual(t_copy, t_with_new)
+        self.assertIsNot(t_copy, t_with_new)
+
+    def test_sighash_all(self):
+        pass
+
+    def test_sighash_all_anyone_can_pay(self):
+        pass
+
+    def test_sighash_single(self):
+        pass
+
+    def test_sighash_single_anyone_can_pay(self):
+        pass
