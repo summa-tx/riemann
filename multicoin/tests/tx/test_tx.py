@@ -568,13 +568,28 @@ class TestTx(unittest.TestCase):
         self.assertIsNot(t_copy, t_with_new)
 
     def test_sighash_all(self):
-        pass
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+        self.assertEqual(t.sighash_all(0, helpers.prevout_pk_script),
+                         helpers.sighash_all)
 
     def test_sighash_all_anyone_can_pay(self):
-        pass
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+        self.assertEqual(
+            t.sighash_all(0, helpers.prevout_pk_script, anyone_can_pay=True),
+            helpers.sighash_all_anyonecanpay)
 
     def test_sighash_single(self):
-        pass
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+        self.assertEqual(t.sighash_single(0, helpers.prevout_pk_script),
+                         helpers.sighash_single)
 
     def test_sighash_single_anyone_can_pay(self):
-        pass
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+        self.assertEqual(
+            t.sighash_single(
+                0, helpers.prevout_pk_script, anyone_can_pay=True),
+            helpers.sighash_single_anyonecanpay)

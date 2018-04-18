@@ -515,7 +515,7 @@ class Tx(ByteData):
                 [w for w in self.tx_witnesses]
                 + [i[1] for i in new_tx_ins_and_witnesses]))
 
-    def _sighash_prep(self, current, prevout_pk_script):
+    def _sighash_prep(self, index, prevout_pk_script):
         '''
         Tx, byte-like -> Tx
         Sighashes suck
@@ -527,51 +527,52 @@ class Tx(ByteData):
         sub_script = prevout_pk_script  # Follow wiki naming convention
         # NB: The scripts for all transaction inputs in txCopy are set
         #     to empty scripts (exactly 1 byte 0x00)
-        copy_tx_ins = [tx_in.copy(stack_script=None, redeem_script=None)
+        copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
                        for tx_in in self.tx_ins]
 
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
-        copy_tx_ins[current] = \
-            copy_tx_ins[current].copy(redeem_script=sub_script)
+        copy_tx_ins[index] = \
+            copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_single(self, current, prevout_pk_script, anyone_can_pay=False):
+    def sighash_single(self, index, prevout_pk_script, anyone_can_pay=False):
         '''
         Tx, int, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_SINGLE
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
         https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
+        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
         '''
-        copy_tx = self._sighash_prep(current, prevout_pk_script)
+        copy_tx = self._sighash_prep(index, prevout_pk_script)
         # NB: The output of txCopy is resized
         #     to the size of the current input index+1.
-        copy_tx_outs = copy_tx.tx_outs[:current + 1]
+        copy_tx_outs = copy_tx.tx_outs[:index + 1]
 
         # NB: All other txCopy outputs
         #     aside from the output that is the same as the current input index
         #     are set to a blank script and a value of (long) -1.
-        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=None)
+        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
                         for _ in copy_tx.tx_ins]  # Null them all
-        copy_tx_outs[current] = copy_tx.tx_outs[current]  # Fix the current one
+        copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
 
         # NB: All other txCopy inputs aside from the current input
         #     are set to have an nSequence index of zero.
         copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
                        for tx_in in copy_tx.tx_ins]  # Set all to 0
-        copy_tx_ins[current] = copy_tx.tx_ins[current]  # Fix the current one
+        copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
 
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
 
         if anyone_can_pay:  # Forward onwards
-            return Tx._sighash_anyone_can_pay(prevout_pk_script,
+            return Tx._sighash_anyone_can_pay(index, prevout_pk_script,
                                               copy_tx, SIGHASH_SINGLE)
 
         return Tx._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
 
-    def sighash_all(self, current, prevout_pk_script, anyone_can_pay=False):
+    def sighash_all(self, index, prevout_pk_script, anyone_can_pay=False):
         '''
         Tx, int, byte-like, bool -> bytearray
         Sighashes suck
@@ -579,15 +580,16 @@ class Tx(ByteData):
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
         '''
 
-        copy_tx = self._sighash_prep(current, prevout_pk_script)
+        copy_tx = self._sighash_prep(index, prevout_pk_script)
         if anyone_can_pay:
-            return Tx._sighash_anyone_can_pay(prevout_pk_script,
+            return Tx._sighash_anyone_can_pay(index, prevout_pk_script,
                                               copy_tx, SIGHASH_ALL)
 
         return Tx._sighash_final_hashing(copy_tx, SIGHASH_ALL)
 
     @staticmethod
-    def _sighash_anyone_can_pay(prevout_pk_script, copy_tx, sighash_type):
+    def _sighash_anyone_can_pay(index, prevout_pk_script,
+                                copy_tx, sighash_type):
         '''
         byte-like, Tx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
@@ -596,11 +598,11 @@ class Tx(ByteData):
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
         # The txCopy input vector is resized to a length of one.
-        copy_tx_ins = [prevout_pk_script]
+        copy_tx_ins = [copy_tx.tx_ins[index]]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
 
-        return Tx._sighash_final_hashing(copy_tx,
-                                         sighash_type & SIGHASH_ANYONECANPAY)
+        return Tx._sighash_final_hashing(
+            copy_tx, sighash_type | SIGHASH_ANYONECANPAY)
 
     @staticmethod
     def _sighash_final_hashing(copy_tx, sighash_type):

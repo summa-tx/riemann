@@ -6,6 +6,8 @@ Multi-coin transaction generation toolbox.
 * Alternate API where the network object is passed to functions (real statelessness)
 * Support OP_PUSHDATA1-4
 * Fix bug in InputWitness.from_bytes
+* Support SIGHASH_FORKID
+* More Sighash tests (witness transactions, etc.)
 
 ### Purpose
 
@@ -88,3 +90,37 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 #   - If spending from p2wsh, the last item is a serialzed script
 #   - If spending from p2wpkh, consists of [signature, pubkey]
 ```
+
+# Notes
+To make more sighash tests:
+
+1. install python-bitcoinlib
+2. As follows:
+
+```Python
+import binascii
+from io import BytesIO
+from bitcoin.core import CMutableTransaction
+from bitcoin.core.script import SIGHASH_ANYONECANPAY, CScript
+from bitcoin.core.script import SignatureHash, SIGHASH_ALL, SIGHASH_SINGLE
+
+def parse_tx(hex_tx):
+     # NB: The deserialize function reads from a stream.
+     raw_tx = BytesIO(binascii.unhexlify(hex_tx))
+     tx = CMutableTransaction.stream_deserialize(raw_tx)
+     return tx
+
+prevout_pk_script = CScript(bytes.fromhex(HEX_ENCODED_PK_SCRIPT))
+tx_hex = 'SOME HEX ENCODED TX'
+index = THE_INDEX_OF_THE_INPUT
+a = parse_tx(HEX_ENCODED_TX)
+
+print(SignatureHash(prevout_pk_script, a, index, SIGHASH_ALL))
+print(SignatureHash(prevout_pk_script, a, index,
+                    SIGHASH_ALL | SIGHASH_ANYONECANPAY))
+print(SignatureHash(prevout_pk_script, a, index, SIGHASH_SINGLE))
+print(SignatureHash(prevout_pk_script, a, index,
+                    SIGHASH_SINGLE | SIGHASH_ANYONECANPAY))
+```
+
+Unsure if python-bitcoinlib supports witness txns yet.
