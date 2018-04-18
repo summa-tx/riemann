@@ -17,6 +17,7 @@ class Network:
     SEGWIT_ENCODER = bech32
     LEGACY_ENCODER = base58
     SEGWIT_TX_FLAG = b'\x00\x01'
+    SIGHASH_FORKID = 0
 
 
 class BitcoinMain(Network):
@@ -98,6 +99,7 @@ class BitcoinCashMain(Network):
     P2PKH_PREFIX = b'\x00'
     P2SH_PREFIX = b'\x05'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinCashTest(Network):
@@ -107,6 +109,7 @@ class BitcoinCashTest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinCashRegtest(Network):
@@ -116,6 +119,7 @@ class BitcoinCashRegtest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinGoldMain(Network):
@@ -128,6 +132,7 @@ class BitcoinGoldMain(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'btg'
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinGoldTest(Network):
@@ -140,6 +145,7 @@ class BitcoinGoldTest(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'tbtg'
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinGoldRegtest(Network):
@@ -152,6 +158,7 @@ class BitcoinGoldRegtest(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'tbtg'  # no specific reg bech32 hrp specifed
+    SIGHASH_FORKID = b'\x40'
 
 
 class DogecoinMain(Network):
@@ -674,6 +681,7 @@ class BitcoinPrivateMain(Network):
     P2PKH_PREFIX = b'\x13\x25'
     P2SH_PREFIX = b'\x13\xaf'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinPrivateTest(Network):
@@ -683,6 +691,7 @@ class BitcoinPrivateTest(Network):
     P2PKH_PREFIX = b'\x19\x57'
     P2SH_PREFIX = b'\x19\xe0'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
 
 class BitcoinPrivateRegtest(Network):
@@ -692,5 +701,34 @@ class BitcoinPrivateRegtest(Network):
     P2PKH_PREFIX = b'\x19\x57'
     P2SH_PREFIX = b'\x19\xe0'
     SEGWIT = False
+    SIGHASH_FORKID = b'\x40'
 
+
+class VergeMain(Network):
+    SYMBOL = 'XVG'
+    NETWORK_NAME = 'verge'
+    SUBNET_NAME = 'main'
+    P2PKH_PREFIX = b'\x1e'
+    P2SH_PREFIX = b'\x21'
+    SEGWIT = False
+
+
+class VergeTest(Network):
+    SYMBOL = 'tXVG'
+    NETWORK_NAME = 'verge'
+    SUBNET_NAME = 'test'
+    P2PKH_PREFIX = b'\x73'
+    P2SH_PREFIX = b'\xc6'
+    SEGWIT = False
+
+
+class VergeRegtest(Network):
+    ''' I can detect no sign of a Verge reg network;
+    for most coins, the reg values are the same as test'''
+    SYMBOL = 'rXVG'
+    NETWORK_NAME = 'verge'
+    SUBNET_NAME = 'reg'
+    P2PKH_PREFIX = b'\x73'
+    P2SH_PREFIX = b'\xc6'
+    SEGWIT = False
 # Well kids, that's a bundle.

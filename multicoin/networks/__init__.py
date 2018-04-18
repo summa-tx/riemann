@@ -68,7 +68,10 @@ SUPPORTED = {
     'vertcoin_reg': VertcoinRegtest,  # noqa: F405
     'bitcoin_private_main': BitcoinPrivateMain,  # noqa: F405
     'bitcoin_private_test': BitcoinPrivateTest,  # noqa: F405
-    'bitcoin_private_reg': BitcoinPrivateRegtest  # noqa: F405
+    'bitcoin_private_reg': BitcoinPrivateRegtest,  # noqa: F405
+    'verge_main': VergeMain,  # noqa: F405
+    'verge_test': VergeTest,  # noqa: F405
+    'verge_reg': VergeRegtest  # noqa: F405
 }
 
 
