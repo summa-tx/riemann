@@ -24,7 +24,7 @@
 """Reference tests for segwit adresses"""
 
 import unittest
-import multicoin
+import riemann
 from ...encoding import bech32
 
 
@@ -93,7 +93,7 @@ class TestBech32(unittest.TestCase):
     """Unit test class for segwit addressess."""
 
     def tearDown(self):
-        multicoin.select_network('bitcoin_main')
+        riemann.select_network('bitcoin_main')
 
     def test_valid_checksum(self):
         """Test checksum creation and validation."""
@@ -140,7 +140,7 @@ class TestBech32(unittest.TestCase):
             self.assertIsNone(code)
 
     def test_encode_error(self):
-        multicoin.select_network('zcash_main')
+        riemann.select_network('zcash_main')
         with self.assertRaises(ValueError) as context:
             bech32.encode(bytearray([0] * 32))
 
@@ -149,7 +149,7 @@ class TestBech32(unittest.TestCase):
             str(context.exception))
 
     def test_decode_error(self):
-        multicoin.select_network('zcash_main')
+        riemann.select_network('zcash_main')
         with self.assertRaises(ValueError) as context:
             bech32.decode(bytearray([0] * 32))
 

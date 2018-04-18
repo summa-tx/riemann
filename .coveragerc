@@ -1,11 +1,11 @@
 [run]
-source = multicoin/
-omit = mutlicoin/tests/*
+source = riemann/
+omit = reimann/tests/*
 
 [report]
 show_missing = True
 sort = Miss
-omit = multicoin/tests/*
+omit = riemann/tests/*
 
 [html]
 directory = coverage/html/

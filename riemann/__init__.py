@@ -1,4 +1,4 @@
-import multicoin.networks as networks
+import riemann.networks as networks
 
 network = networks.get_network('bitcoin_main')
 

@@ -1,6 +1,6 @@
 import unittest
-from multicoin.tests import helpers
-from multicoin.script import serialization as ser
+from riemann.tests import helpers
+from riemann.script import serialization as ser
 
 
 class TestSerialization(unittest.TestCase):
