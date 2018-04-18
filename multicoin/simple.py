@@ -5,7 +5,7 @@ from .tx import tx_builder as tb
 from .encoding import addr
 
 
-def guess_version():
+def guess_version(redeem_script):
     '''
     -> int
     Bitcoin uses tx type 2 for nSequence signaling.
@@ -16,8 +16,11 @@ def guess_version():
     '''
     if 'zcash' in multicoin.get_current_network_name():
         return 1
-    else:
-        return 2
+    script_array = redeem_script.split()
+    loc = script_array.find('OP_CHECKSEQUENCEVERIFY')
+    if loc == -1:
+        return 1  # Enable lock_time, disable RBF
+    return 2
 
 
 def guess_sequence(redeem_script):
@@ -121,11 +124,11 @@ def legacy_tx(tx_ins, tx_outs):
     '''
     list(TxIn), list(TxOut) -> Tx
     '''
-    version = guess_version()
-    # Look at each input to guess lock_time
-    lock_time = max(
-        [guess_locktime(script_ser.deserialize(txin.script))
-         for txin in tx_ins])
+
+    # Look at each input to guess lock_time and version
+    deser = [script_ser.deserialize(txin.script) for txin in tx_ins]
+    version = max([guess_version(d) for d in deser])
+    lock_time = max([guess_locktime(d) for d in deser])
 
     return tb.make_tx(version=version,
                       tx_ins=tx_ins,
@@ -139,15 +142,12 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     '''
     list(TxIn), list(TxOut), list(InputWitness) -> Tx
     '''
-
-    version = guess_version()
-
     # Parse legacy scripts AND witness scripts for OP_CLTV
-    times = [guess_locktime(script_ser.deserialize(txin.script))
-             for txin in tx_ins if txin.script is not None]
-    times.extend([guess_locktime(script_ser.deserialize(wit[::-1]))
-                  for wit in tx_witnesses])
-    lock_time = max(times)
+    deser = [script_ser.deserialize(txin.script) for txin in tx_ins
+             if txin is not None]
+    deser += [script_ser.deserialize(wit[::-1]) for wit in tx_witnesses]
+    version = max([guess_version(d) for d in deser])
+    lock_time = max([guess_locktime(d) for d in deser])
 
     return tb.make_tx(version=version,
                       tx_ins=tx_ins,
