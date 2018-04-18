@@ -2,12 +2,13 @@ Multi-coin transaction generation toolbox.
 
 ### Major TODOs
 
-* Many more tests
+* ~~Many~~ more tests
 * Alternate API where the network object is passed to functions (real statelessness)
 * Support OP_PUSHDATA1-4
 * Fix bug in InputWitness.from_bytes
 * Support SIGHASH_FORKID
 * More Sighash tests (witness transactions, etc.)
+* Build out simple interface more
 
 ### Purpose
 
@@ -17,12 +18,12 @@ Multicoin aims to make it easy to create application-specific Bitcoin transactio
 
 Multicoin is NOT a wallet. It does NOT handle keys or create signatures. Multicoin is NOT a protocol or RPC implementation. Multicoin does NOT communicate with anything. Ever.
 
-Multicoin is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `multicoin/networks/__init__.py`. **No networks have been thoroughly tested.**
+Multicoin is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. **No networks have been thoroughly tested.**
 
 ### Installation, Development & Running Tests
 
 `$ git clone $LIB_URL`
-`$ cd python-multicoin`
+`$ cd riemann-tx`
 `$ virtualenv -p python3 venv`
 `$ source venv/bin/activate`
 `$ pip install -r requirements-test.txt`
@@ -42,8 +43,8 @@ All objects are immutable
 Bitcoin mainnet is the default network. Select a network as follows:
 
 ```Python
-import multicoin
-multicoin.select_network('network_name')
+import riemann
+riemann.select_network('network_name')
 ```
 
 At a low level, Multicoin deals in byte-like objects. However, it provides layers of abstractions on top of this. Notably, scripts are commonly expresses as strings. In script strings, data (like pubkeys) is expressed in unprefixed hex. For example, a P2PKH output script_pubkey might be expressed as follows:
