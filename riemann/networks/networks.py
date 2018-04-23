@@ -99,7 +99,7 @@ class BitcoinCashMain(Network):
     P2PKH_PREFIX = b'\x00'
     P2SH_PREFIX = b'\x05'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x00'
 
 
 class BitcoinCashTest(Network):
@@ -109,7 +109,7 @@ class BitcoinCashTest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x00'
 
 
 class BitcoinCashRegtest(Network):
@@ -119,7 +119,7 @@ class BitcoinCashRegtest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x00'
 
 
 class BitcoinGoldMain(Network):
@@ -132,7 +132,7 @@ class BitcoinGoldMain(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'btg'
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x4f'
 
 
 class BitcoinGoldTest(Network):
@@ -145,7 +145,7 @@ class BitcoinGoldTest(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'tbtg'
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x4f'
 
 
 class BitcoinGoldRegtest(Network):
@@ -158,7 +158,7 @@ class BitcoinGoldRegtest(Network):
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     BECH32_HRP = 'tbtg'  # no specific reg bech32 hrp specifed
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x4f'
 
 
 class DogecoinMain(Network):
@@ -681,7 +681,7 @@ class BitcoinPrivateMain(Network):
     P2PKH_PREFIX = b'\x13\x25'
     P2SH_PREFIX = b'\x13\xaf'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x2a'
 
 
 class BitcoinPrivateTest(Network):
@@ -691,7 +691,7 @@ class BitcoinPrivateTest(Network):
     P2PKH_PREFIX = b'\x19\x57'
     P2SH_PREFIX = b'\x19\xe0'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x2a'
 
 
 class BitcoinPrivateRegtest(Network):
@@ -701,7 +701,7 @@ class BitcoinPrivateRegtest(Network):
     P2PKH_PREFIX = b'\x19\x57'
     P2SH_PREFIX = b'\x19\xe0'
     SEGWIT = False
-    SIGHASH_FORKID = b'\x40'
+    SIGHASH_FORKID = b'\x2a'
 
 
 class VergeMain(Network):
