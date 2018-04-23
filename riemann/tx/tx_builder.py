@@ -91,7 +91,7 @@ def make_p2pkh_output_script(pubkey):
 
 
 def make_p2wsh_output_script(script_string):
-        return make_sh_output_script(script_string, witness=True)
+    return make_sh_output_script(script_string, witness=True)
 
 
 def make_p2wpkh_output_script(pubkey):

@@ -5,7 +5,8 @@ from .. import utils
 
 SIGHASH_ALL = 0x01
 SIGHASH_NONE = 0x02
-SIGHASH_SINGLE = 0x3
+SIGHASH_SINGLE = 0x03
+SIGHASH_FORKID = 0x40
 SIGHASH_ANYONECANPAY = 0x80
 
 
@@ -518,7 +519,7 @@ class Tx(ByteData):
 
     def _sighash_prep(self, index, prevout_pk_script):
         '''
-        Tx, byte-like -> Tx
+        Tx, int, byte-like -> Tx
         Sighashes suck
         Performs the sighash setup described here:
         https://en.bitcoin.it/wiki/OP_CHECKSIG#How_it_works
@@ -538,15 +539,24 @@ class Tx(ByteData):
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_single(self, index, prevout_pk_script, anyone_can_pay=False):
+    def sighash_single(self, index, prevout_pk_script, prevout_value=None,
+                       anyone_can_pay=False):
         '''
-        Tx, int, byte-like, bool -> bytearray
+        Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_SINGLE
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
         https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
         https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
         '''
+
+        if riemann.network.SIGHASH_FORKID is not None:
+            return self._sighash_single_forkid(index,
+                                               prevout_pk_script,
+                                               SIGHASH_SINGLE,
+                                               prevout_value,
+                                               anyone_can_pay)
+
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         # NB: The output of txCopy is resized
         #     to the size of the current input index+1.
@@ -573,13 +583,19 @@ class Tx(ByteData):
 
         return Tx._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
 
-    def sighash_all(self, index, prevout_pk_script, anyone_can_pay=False):
+    def sighash_all(self, index, prevout_pk_script, prevout_value=None,
+                    anyone_can_pay=False):
         '''
-        Tx, int, byte-like, bool -> bytearray
+        Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_ALL
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
         '''
+
+        if riemann.network.SIGHASH_FORKID is not None:
+            return self._sighash_all_forkid(index, prevout_pk_script,
+                                            prevout_value, SIGHASH_ALL,
+                                            anyone_can_pay)
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         if anyone_can_pay:
@@ -592,12 +608,13 @@ class Tx(ByteData):
     def _sighash_anyone_can_pay(index, prevout_pk_script,
                                 copy_tx, sighash_type):
         '''
-        byte-like, Tx, int -> bytes
+        int, byte-like, Tx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
         Should be called by another SIGHASH procedure.
         Not on its own.
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
+
         # The txCopy input vector is resized to a length of one.
         copy_tx_ins = [copy_tx.tx_ins[index]]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
@@ -617,8 +634,87 @@ class Tx(ByteData):
         data.extend(utils.i2le_padded(sighash_type, 4))
         return utils.hash256(data)
 
-    def _sighash_all_forkid():
-        pass
+    def _sighash_forkid(self, index, prevout_pk_script, prevout_value,
+                        sighash_type, anyone_can_pay=False):
+        '''
+        Tx, int, byte-like, byte-like, int, bool -> bytes
+        https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
+        '''
+        self.validate_bytes(prevout_value, 8)
 
-    def _sighash_single_forkid():
-        pass
+        data = bytearray()
+        # 1. nVersion of the transaction (4-byte little endian)
+        data.extend(self.version)
+
+        # 2. hashPrevouts (32-byte hash)
+        if anyone_can_pay:
+            # If the ANYONECANPAY flag is set,
+            # hashPrevouts is a uint256 of 0x0000......0000.
+            data.extend(b'\x00' * 32)
+        else:
+            # hashPrevouts is the double SHA256 of all outpoints;
+            outpoints = bytearray()
+            for tx_in in self.tx_ins:
+                outpoints.extend(tx_in.outpoint)
+            data.extend(utils.hash256(outpoints))
+
+        # 3. hashSequence (32-byte hash)
+        if anyone_can_pay or sighash_type == SIGHASH_SINGLE:
+            # If any of ANYONECANPAY, SINGLE sighash type is set,
+            # hashSequence is a uint256 of 0x0000......0000.
+            data.extend(b'\x00' * 32)
+        else:
+            # hashSequence is the double SHA256 of nSequence of all inputs;
+            sequences = bytearray()
+            for tx_in in self.tx_ins:
+                sequences.extend(tx_in.sequence)
+            data.extend(utils.hash256(sequences))
+
+        # 4. outpoint (32-byte hash + 4-byte little endian)
+        data.extend(self.tx_ins[index].outpoint)
+
+        # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
+        if len(self.tx_ins[index].redeem_script) is not None:
+            # redeemScript in case of P2SH
+            data.extend(self.tx_ins[index].redeem_script)
+        else:
+            # scriptPubKey in the general case
+            data.extend(prevout_pk_script)
+
+        # 6. value of the output spent by this input (8-byte little endian)
+        data.extend(prevout_value)
+
+        # 7. nSequence of the input (4-byte little endian)
+        data.extend(self.tx_ins[index].sequence)
+
+        # 8. hashOutputs (32-byte hash)
+        if sighash_type == SIGHASH_ALL:
+            # If the sighash type is ALL,
+            # hashOutputs is the double SHA256 of all output amounts
+            # paired up with their scriptPubKey;
+            outputs = bytearray()
+            for tx_out in self.tx_outs:
+                outputs.extend(tx_out._bytes)
+            data.extend(utils.hash256(outputs))
+        elif sighash_type == SIGHASH_SINGLE and index < len(self.tx_outs):
+            # f sighash type is SINGLE
+            # and the input index is smaller than the number of outputs,
+            # hashOutputs is the double SHA256 of the output at the same index
+            data.extend(utils.hash256(self.tx_outs[index]._bytes))
+        else:
+            # Otherwise, hashOutputs is a uint256 of 0x0000......0000
+            data.extend(b'\x00' * 32)
+
+        # 9. nLocktime of the transaction (4-byte little endian)
+        data.extend(self.lock_time)
+
+        # 10. sighash type of the signature (4-byte little endian)
+        # The sighash type is altered to include a 24-bit fork id
+        # ss << ((GetForkID() << 8) | nHashType)
+        forkid = riemann.network.FORKID << 8
+        sighash = forkid | sighash_type | SIGHASH_FORKID
+        if anyone_can_pay:
+            sighash = sighash | SIGHASH_ANYONECANPAY
+        data.extend(utils.i2le_padded(sighash, 4))
+
+        return utils.hash256(data)
