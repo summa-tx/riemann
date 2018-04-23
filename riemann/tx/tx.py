@@ -616,3 +616,9 @@ class Tx(ByteData):
         data.extend(copy_tx._bytes)
         data.extend(utils.i2le_padded(sighash_type, 4))
         return utils.hash256(data)
+
+    def _sighash_all_forkid():
+        pass
+
+    def _sighash_single_forkid():
+        pass
