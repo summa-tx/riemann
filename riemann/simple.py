@@ -7,11 +7,11 @@ from .encoding import addr
 
 def guess_version(redeem_script):
     '''
-    -> int
-    Bitcoin uses tx type 2 for nSequence signaling.
-    Zcash uses tx type 2 for joinsplits.
+    str -> int
+    Bitcoin uses tx version 2 for nSequence signaling.
+    Zcash uses tx version 2 for joinsplits.
 
-    We want to signal nSequence enforcement (just in case).
+    We want to signal nSequence if we're using OP_CSV.
     Unless we're in zcash.
     '''
     if 'zcash' in riemann.get_current_network_name():

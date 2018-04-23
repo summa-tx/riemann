@@ -17,7 +17,7 @@ class Network:
     SEGWIT_ENCODER = bech32
     LEGACY_ENCODER = base58
     SEGWIT_TX_FLAG = b'\x00\x01'
-    SIGHASH_FORKID = 0
+    SIGHASH_FORKID = None
 
 
 class BitcoinMain(Network):

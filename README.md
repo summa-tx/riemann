@@ -5,20 +5,22 @@ Multi-coin transaction generation toolbox.
 * ~~Many~~ more tests
 * Alternate API where the network object is passed to functions (real statelessness)
 * Support OP_PUSHDATA1-4
-* Fix bug in InputWitness.from_bytes
+* Fix 255 byte bug in InputWitness.from_bytes
 * Support SIGHASH_FORKID
+    * https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
+    * https://github.com/owstack/bch-lib/blob/master/lib/transaction/sighash.js#L24-L139
 * More Sighash tests (witness transactions, etc.)
 * Build out simple interface more
 
 ### Purpose
 
-Multicoin is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
+Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
 
-Multicoin aims to make it easy to create application-specific Bitcoin transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for >20 live networks and ~40 testnet or regtest nets.
+Riemann aims to make it easy to create application-specific Bitcoin transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for ~20 live networks and ~40 testnet or regtest nets.
 
-Multicoin is NOT a wallet. It does NOT handle keys or create signatures. Multicoin is NOT a protocol or RPC implementation. Multicoin does NOT communicate with anything. Ever.
+Riemann is NOT a wallet. It does NOT handle keys or create signatures. Riemann is NOT a protocol or RPC implementation. Riemann does NOT communicate with anything. Ever. Riemann is NOT a Script VM. Riemann does NOT check the validity of your scriptsigs.
 
-Multicoin is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. **No networks have been thoroughly tested.**
+Riemann is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. **No networks have been thoroughly tested.**
 
 ### Installation, Development & Running Tests
 
@@ -32,13 +34,18 @@ Multicoin is _almost_ stateless. Before calling functions, you select a network.
 
 ### Usage
 
-All objects are immutable
+At a low level, Riemann deals in byte-like objects. However, it provides layers of abstractions on top of this. Notably, scripts are commonly expresses as strings. In script strings, data (like pubkeys) is expressed in unprefixed hex. For example, a P2PKH output script_pubkey might be expressed as follows:
 
-`tx.tx` contains the data structures for the different pieces of a transaction.
+```Python
+# Note that the PUSH0x14 for the pubkey is implied
+"OP_DUP OP_HASH160 00112233445566778899AABBCCDDEEFF00112233 OP_EQUALVERIFY OP_CHECKSIG"
+```
 
-`tx.tx_builder` provides tools for constructing
+`tx.tx` contains the data structures for the different pieces of a transaction. It deals in bytes and bytearrays.
 
-`simple` contains a simplified interface to the tx_builder.
+`tx.tx_builder` provides tools for constructing transactions. It accepts human-readable inputs, like ints and human readable script strings wherever possible, and returns serialized transactions.
+
+`simple` contains a simplified interface to the tx_builder. It accepts human-readable inputs, and guesses parameters like version and lock time based on the contents of the script.
 
 Bitcoin mainnet is the default network. Select a network as follows:
 
@@ -47,24 +54,21 @@ import riemann
 riemann.select_network('network_name')
 ```
 
-At a low level, Multicoin deals in byte-like objects. However, it provides layers of abstractions on top of this. Notably, scripts are commonly expresses as strings. In script strings, data (like pubkeys) is expressed in unprefixed hex. For example, a P2PKH output script_pubkey might be expressed as follows:
-
-```Python
-# Note that the PUSH0x14 for the pubkey is implied
-"OP_DUP OP_HASH160 00112233445566778899AABBCCDDEEFF00112233 OP_EQUALVERIFY OP_CHECKSIG"
-```
-
-Fixed-length bitstrings (version, lock_time, sequence, value, etc.) are expressed as integers.
-
-When relevant, segwit is enabled by passing `witness=True`. Example: `make_sh_output(script_string, witness=True)`. There are also convenience functions like `make_p2wsh_output` that provide the same functionality.
+When relevant, segwit is enabled by passing `witness=True`. Example: `make_sh_output(script_string, witness=True)`. There are also convenience functions that provide the same functionality, e.g.,  `make_p2wsh_output(script_string)`.
 
 Data structures are IMMUTABLE. You can not (and definitely should not!) edit an instance of any of the underlying classes. Instead, make a new instance, or use the `copy` method. The `copy` method allows you to make a copy, and takes arguments to override any specific attribute.
 
-### Notes and weird little transaction rules:
+### Notes and Bitcoin gotchas:
 
 * If there are any witnesses, all inputs must have a witness. The witness list MUST be the same size as the input list. Use `tx_builder.make_legacy_input_and_empty_witness()` when building your input to also generate a blank witness for your input. It returns `(TxIn, InputWitness)`.
 
-* If all sequence numbers are set to max (0xFFFFFFFF), `lock_time` is disregarded by consensus rules.
+* If all sequence numbers are set to max (0xFFFFFFFF), `lock_time` is disregarded by consensus rules. For this reason, 0xFFFFFFFE is the default sequence number in simple.py.
+
+* Relative lock-time signaling uses a **different time format** than absolute lock-time. See here: https://prestwi.ch/bitcoin-time-locks/
+
+* Not all chains support OP_CHECKSEQUENCEVERIFY and relative lock-times (lookin' at you Zcash).
+
+* Replace-by-fee signaling is also communicated by sequence numbers. If any sequence number is 0xFFFFFFFD or lower, then RBF is enabled. RBF is _NOT_ a consensus feature.
 
 * `lock_time` and `sequence` use different encodings for time.
 

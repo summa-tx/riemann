@@ -318,6 +318,7 @@ class InputWitness(ByteData):
                     'Invalid witness stack item. '
                     'Expected bytes. Got {}'
                     .format(item))
+
         self += VarInt(len(stack))
         for item in stack:
             self += item

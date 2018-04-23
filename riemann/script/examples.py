@@ -20,7 +20,7 @@ p2sh_script_pubkey = 'OP_HASH160 {} OP_EQUAL'
 p2w = 'OP_0 {}'
 
 # Needs a 32 byte hash, alice's pubkey, a timeout, and bob's pubkey
-htlc = \
+htlc_redeem_script = \
     'OP_IF ' \
         'OP_SHA256 {} OP_EQUALVERIFY ' \
         'OP_DUP OP_HASH160 {} ' \
@@ -33,10 +33,10 @@ htlc = \
 
 # Needs (signature, pubkey, secret)
 # IN THAT ORDER!
-htlc_script_sig_execute = '{} {} {} OP_TRUE'
+htlc_stack_script_execute = '{} {} {} OP_TRUE'
 
 # Needs (signature, pubkey, serialized_redeem_script)
 # IN THAT ORDER!
-htlc_script_sig_execute = '{} {} OP_FALSE'
+htlc_stack_script_refund = '{} {} OP_FALSE'
 
 # Don't forget to attach the script hash to the end of the p2sh script sigs
