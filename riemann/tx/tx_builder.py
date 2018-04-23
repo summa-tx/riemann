@@ -100,7 +100,7 @@ def make_p2wpkh_output_script(pubkey):
 
 def _make_output(value, script):
     '''
-    bytes-like, bytes-like -> TxOut
+    byte-like, byte-like -> TxOut
     '''
     return tx.TxOut(value, script)
 
@@ -135,6 +135,21 @@ def make_p2pkh_output(value, pubkey):
 
 def make_p2wpkh_output(value, pubkey):
     return make_pkh_output(value, pubkey, witness=True)
+
+
+def make_op_return_output(data):
+    '''
+    byte-like -> TxOut
+    https://github.com/bitpay/bitcore/issues/1389
+    '''
+    if len(data) > 77:  # 77 bytes is the limit
+        raise ValueError('Data is too long. Expected <= 77 bytes')
+    pk_script = bytearray()
+    pk_script.extend(b'\x6a')  # OP_RETURN
+    pk_script.extend(b'\x76')  # OP_PUSHDATA1
+    pk_script.extend([len(data)])  # One byte for length of data
+    pk_script.extend(data)  # Data
+    return _make_output(0, pk_script)
 
 
 def make_witness_stack_item(data):

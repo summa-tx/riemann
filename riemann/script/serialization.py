@@ -17,7 +17,7 @@ def serialize(script_string):
 
         token_bytes = bytes.fromhex(token)
 
-        if len(token_bytes) > 76:
+        if len(token_bytes) > 75:
             # TODO
             raise NotImplementedError('OP_PUSHDATA1-4 not supported yet.')
 
@@ -45,7 +45,7 @@ def deserialize(serialized_script):
         current_byte = serialized_script[i]
         if current_byte == 0xab:
             raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
-        if current_byte <= 76 and current_byte != 0:
+        if current_byte <= 75 and current_byte != 0:
 
             deserialized.append(
                 serialized_script[i + 1: i + 1 + current_byte].hex())

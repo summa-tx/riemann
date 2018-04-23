@@ -148,7 +148,7 @@ class TestOutpoint(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
 
-        self.assertIn('Expected bytes-like object with length 32. ',
+        self.assertIn('Expected byte-like object with length 32. ',
                       str(context.exception))
 
     def test_create_outpoint_str_tx_id(self):
@@ -158,7 +158,7 @@ class TestOutpoint(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
 
-        self.assertIn('Expected bytes-like object. ',
+        self.assertIn('Expected byte-like object. ',
                       str(context.exception))
 
     def test_create_outpoint_long_index(self):
@@ -168,7 +168,7 @@ class TestOutpoint(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
 
-        self.assertIn('Expected bytes-like object with length 4. ',
+        self.assertIn('Expected byte-like object with length 4. ',
                       str(context.exception))
 
     def test_create_outpoint_no_index(self):
@@ -178,7 +178,7 @@ class TestOutpoint(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
 
-        self.assertIn('Expected bytes-like object. ',
+        self.assertIn('Expected byte-like object. ',
                       str(context.exception))
 
     def test_copy(self):

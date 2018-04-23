@@ -29,7 +29,7 @@ class ByteData():
 
     def __iadd__(self, other):
         '''
-        ByteData, bytes-like -> ByteData
+        ByteData, byte-like -> ByteData
         Define += operator.
         Extend self's bytes with other's bytes.
         '''
@@ -45,7 +45,7 @@ class ByteData():
 
     def __ne__(self, other):
         '''
-        ByteData, bytes-like -> bool
+        ByteData, byte-like -> bool
         Define != operator.
         Compares self._bytes to other.
         '''
@@ -56,7 +56,7 @@ class ByteData():
 
     def __eq__(self, other):
         '''
-        ByteData, bytes-like -> bool
+        ByteData, byte-like -> bool
         Define == operator.
         '''
         return not self != other
@@ -117,14 +117,14 @@ class ByteData():
         if (not isinstance(data, ByteData)
                 and not isinstance(data, bytes)
                 and not isinstance(data, bytearray)):
-            raise ValueError('Expected bytes-like object. '
+            raise ValueError('Expected byte-like object. '
                              'Got: {}'.format(type(data)))
 
         if length is None:
             return
 
         if len(data) != length:
-            raise ValueError('Expected bytes-like object with length {}. '
+            raise ValueError('Expected byte-like object with length {}. '
                              'Got {} with length {}.'
                              .format(length, type(data), len(data)))
 
@@ -204,7 +204,7 @@ class Outpoint(ByteData):
 
 class TxIn(ByteData):
     '''
-    Outpoint, bytes-like, bytes-like, bytes-like -> TxIn
+    Outpoint, byte-like, byte-like, byte-like -> TxIn
     stack_script and redeem_script should already be serialized
     NB: sequence must be little-endian
     '''
@@ -550,7 +550,7 @@ class Tx(ByteData):
         https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
         '''
 
-        if riemann.network.SIGHASH_FORKID is not None:
+        if riemann.network.FORKID is not None:
             return self._sighash_single_forkid(index,
                                                prevout_pk_script,
                                                SIGHASH_SINGLE,
@@ -592,7 +592,7 @@ class Tx(ByteData):
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
         '''
 
-        if riemann.network.SIGHASH_FORKID is not None:
+        if riemann.network.FORKID is not None:
             return self._sighash_all_forkid(index, prevout_pk_script,
                                             prevout_value, SIGHASH_ALL,
                                             anyone_can_pay)
