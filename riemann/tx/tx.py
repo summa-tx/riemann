@@ -202,6 +202,32 @@ class Outpoint(ByteData):
             index=index if index is not None else self.index)
 
 
+class DecredOutpoint(ByteData, Outpoint):
+
+    def __init__(self, tx_id, index, tree):
+        super().__init__()
+
+        self.validate_bytes(tx_id, 32)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(tree, 1)
+
+        self += tx_id
+        self += index
+        self += tree
+
+        self.tx_id = tx_id
+        self.index = index
+        self.tree = tree
+
+        self._make_immutable()
+
+    def copy(self, tx_id=None, index=None, tree=None):
+        return DecredOutpoint(
+            tx_id=tx_id if tx_id is not None else self.tx_id,
+            index=index if index is not None else self.index,
+            tree=tree if tree is not None else self.tree)
+
+
 class TxIn(ByteData):
     '''
     Outpoint, byte-like, byte-like, byte-like -> TxIn
@@ -215,13 +241,12 @@ class TxIn(ByteData):
         self.validate_bytes(outpoint, 36)
         self.validate_bytes(stack_script, None)
         self.validate_bytes(redeem_script, None)
+        self.validate_bytes(sequence, 4)
 
         if len(stack_script) + len(redeem_script) > 1650:
             raise ValueError('Input script_sig is too long. '
                              'Expected <= 1650 bytes. Got {} bytes.'
                              .format(len(stack_script) + len(redeem_script)))
-
-        self.validate_bytes(sequence, 4)
 
         self += outpoint
         self += VarInt(len(stack_script) + len(redeem_script))
@@ -250,6 +275,54 @@ class TxIn(ByteData):
             redeem_script=(redeem_script if redeem_script is not None
                            else self.redeem_script),
             sequence=sequence if sequence is not None else self.sequence)
+
+
+class DecredTxIn(ByteData, TxIn):
+
+    def __init__(self, outpoint, sequence, value, height,
+                 index, stack_script, redeem_script):
+        super().__init__()
+
+        self.validate_bytes(outpoint, 37)
+        self.validate_bytes(sequence, 4)
+        self.validate_bytes(value, 8)
+        self.validate_bytes(height, 4)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(stack_script, None)
+        self.validate_bytes(redeem_script, None)
+
+        self += outpoint
+        self += sequence
+        self += value
+        self += height
+        self += VarInt(len(stack_script) + len(redeem_script))
+        self += stack_script
+        self += redeem_script
+
+        self.outpoint = outpoint
+        self.sequence = sequence
+        self.value = value
+        self.height = height
+        self.index = index
+        self.script_len = len(stack_script + redeem_script)
+        self.stack_script = stack_script
+        self.redeem_script = redeem_script
+        self.script_sig = self.stack_script + self.redeem_script
+
+        self._make_immutable()
+
+    def copy(self, outpoint=None, sequence=None, value=None, height=None,
+             index=None, stack_script=None, redeem_script=None):
+        return DecredTxIn(
+            outpoint=outpoint if outpoint is not None else self.outpoint,
+            sequence=sequence if sequence is not None else self.sequence,
+            value=value if value is not None else self.value,
+            height=height if height is not None else self.height,
+            index=index if index is not None else self.index,
+            stack_script=(stack_script if stack_script is not None
+                          else self.stack_script),
+            redeem_script=(redeem_script if redeem_script is not None
+                           else self.redeem_script))
 
 
 class TxOut(ByteData):
@@ -281,6 +354,33 @@ class TxOut(ByteData):
     def copy(self, value=None, output_script=None):
         return TxOut(
             value=value if value is not None else self.value,
+            output_script=(output_script if output_script is not None
+                           else self.output_script))
+
+
+class DecredTxOut(ByteData, TxOut):
+
+    def __init__(self, value, version, output_script):
+        super().__init__()
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(version, 2)
+        self.validate_bytes(output_script, None)
+
+        self += value
+        self += version
+        self += output_script
+
+        self.value = value
+        self.version = version
+        self.output_script = output_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, version=None, output_script=None):
+        return DecredTxOut(
+            value=value if value is not None else self.value,
+            version=version if version is not None else self.version,
             output_script=(output_script if output_script is not None
                            else self.output_script))
 
@@ -435,7 +535,7 @@ class Tx(ByteData):
             self.wtx_id = utils.change_endianness(self.wtx_id_le)
 
         else:
-            self.tx_id_le = utils.hash256(self._bytes)
+            self.tx_id_le = utils.hash256(self.to_bytes())
             self.tx_id = utils.change_endianness(self.tx_id_le)
             self.wtx_id = None
             self.wtx_le = None
@@ -567,7 +667,11 @@ class Tx(ByteData):
         #     are set to a blank script and a value of (long) -1.
         copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
                         for _ in copy_tx.tx_ins]  # Null them all
-        copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
+        try:
+            copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
+        except IndexError:
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
 
         # NB: All other txCopy inputs aside from the current input
         #     are set to have an nSequence index of zero.
@@ -630,7 +734,7 @@ class Tx(ByteData):
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
         data = bytearray()
-        data.extend(copy_tx._bytes)
+        data.extend(copy_tx.to_bytes())
         data.extend(utils.i2le_padded(sighash_type, 4))
         return utils.hash256(data)
 
@@ -694,13 +798,13 @@ class Tx(ByteData):
             # paired up with their scriptPubKey;
             outputs = bytearray()
             for tx_out in self.tx_outs:
-                outputs.extend(tx_out._bytes)
+                outputs.extend(tx_out.to_bytes())
             data.extend(utils.hash256(outputs))
         elif sighash_type == SIGHASH_SINGLE and index < len(self.tx_outs):
             # f sighash type is SINGLE
             # and the input index is smaller than the number of outputs,
             # hashOutputs is the double SHA256 of the output at the same index
-            data.extend(utils.hash256(self.tx_outs[index]._bytes))
+            data.extend(utils.hash256(self.tx_outs[index].to_bytes()))
         else:
             # Otherwise, hashOutputs is a uint256 of 0x0000......0000
             data.extend(b'\x00' * 32)
@@ -718,3 +822,59 @@ class Tx(ByteData):
         data.extend(utils.i2le_padded(sighash, 4))
 
         return utils.hash256(data)
+
+
+class DecredTx(ByteData, Tx):
+
+    def __init__(self, version, tx_ins, tx_outs, lock_time, expiry):
+        super().__init__()
+
+        self.validate_bytes(version, 4)
+        self.validate_bytes(lock_time, 4)
+        self.validate_bytes(expiry, 4)
+
+        if max(len(tx_ins), len(tx_outs)) > 255:
+            raise ValueError('Too many inputs or outputs. Stop that.')
+
+        if min(len(tx_ins), len(tx_outs)) == 0:
+            raise ValueError('Too few inputs or outputs. Stop that.')
+
+        for tx_in in tx_ins:
+            if not isinstance(tx_in, DecredTxIn):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of DecredTxIn. Got {}'
+                    .format(type(tx_in).__name__))
+
+        for tx_out in tx_outs:
+            if not isinstance(tx_outs, DecredTxOut):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of DecredTxOut. Got {}'
+                    .format(type(tx_outs).__name__))
+
+        self += version
+        self += VarInt(len(tx_ins))
+        for tx_in in tx_ins:
+            self += tx_in
+        self += VarInt(len(tx_outs))
+        for tx_out in tx_outs:
+            self += tx_out
+        self += lock_time
+        self += expiry
+
+        self.version = version
+        self.tx_ins = tx_ins
+        self.tx_outs = tx_outs
+        self.lock_time = lock_time
+        self.expiry = expiry
+
+        self.tx_id = utils.blake256(self.to_bytes())
+        self.tx_id_le = utils.change_endianness(self.tx_id)
+
+        self.make_immutable()
+
+        if len(self) > 100000:
+            raise ValueError(
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))

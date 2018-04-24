@@ -68,3 +68,10 @@ def hash256(msg_bytes):
     byte-like -> bytes
     '''
     return hashlib.sha256(hashlib.sha256(msg_bytes).digest()).digest()
+
+
+def blake256(msg_bytes):
+    '''
+    byte-like -> bytes
+    '''
+    raise NotImplementedError('TODO')
