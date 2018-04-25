@@ -12,13 +12,17 @@ def serialize(script_string):
     for token in string_tokens:
         if token == 'OP_CODESEPARATOR':
             raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
-        if token in riemann.network.CODE_TO_INT_OVERWRITE:
+        try:
             serialized_script.extend(
                 riemann.network.CODE_TO_INT_OVERWRITE[token])
-            continue
-        if token in CODE_TO_INT:  # If the string is a known opcode
+            continue  # Skip rest of loop
+        except (AttributeError, KeyError):
+            pass
+        try:
             serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
             continue  # Skip rest of loop
+        except KeyError:
+            pass
 
         token_bytes = bytes.fromhex(token)
 

@@ -1,4 +1,5 @@
 import hashlib
+import riemann
 
 
 def i2le(number):
@@ -59,6 +60,9 @@ def hash160(msg_bytes):
     byte-like -> bytes
     '''
     h = hashlib.new('ripemd160')
+    if 'decred' in riemann.get_current_network_name():
+        h.update(blake256(msg_bytes))
+        return h.digest()
     h.update(sha256(msg_bytes))
     return h.digest()
 
@@ -67,6 +71,8 @@ def hash256(msg_bytes):
     '''
     byte-like -> bytes
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return blake256(blake256(msg_bytes))
     return hashlib.sha256(hashlib.sha256(msg_bytes).digest()).digest()
 
 

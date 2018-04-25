@@ -18,6 +18,9 @@ class Network:
     LEGACY_ENCODER = base58
     SEGWIT_TX_FLAG = b'\x00\x01'
     FORKID = None
+    OPCODE_CHANGES = [(None, None)]
+    CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
 
 
 class BitcoinMain(Network):
@@ -248,7 +251,8 @@ class DecredMain(Network):
     SYMBOL = 'DCR'
     NETWORK_NAME = 'decred'
     SUBNET_NAME = 'main'
-    P2PKH_PREFIX = b'\x13\x86'
+    P2PKH_PREFIX = b'\x07\x3f'
+    P2PK_PREFIX = b'\x13\x86'
     P2SH_PREFIX = b'\x07\x1a'
     SEGWIT = False
     OPCODE_CHANGES = [
