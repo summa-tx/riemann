@@ -1,9 +1,13 @@
 import unittest
+import riemann
 from riemann.tests import helpers
 from riemann.script import serialization as ser
 
 
 class TestSerialization(unittest.TestCase):
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
 
     def test_serialize(self):
         self.assertEqual(
@@ -77,3 +81,18 @@ class TestSerialization(unittest.TestCase):
         self.assertEqual(
             'OP_IF',
             ser.hex_deserialize('63'))
+
+    def test_overwrites(self):
+        riemann.select_network('decred_main')
+        self.assertEqual(
+            'OP_BLAKE256',
+            ser.hex_deserialize('a8'))
+        self.assertEqual(
+            'a8',
+            ser.hex_serialize('OP_BLAKE256'))
+        self.assertEqual(
+            'OP_SHA256',
+            ser.hex_deserialize('c0'))
+        self.assertEqual(
+            'c0',
+            ser.hex_serialize('OP_SHA256'))

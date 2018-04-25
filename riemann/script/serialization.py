@@ -14,7 +14,7 @@ def serialize(script_string):
             raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
         try:
             serialized_script.extend(
-                riemann.network.CODE_TO_INT_OVERWRITE[token])
+                [riemann.network.CODE_TO_INT_OVERWRITE[token]])
             continue  # Skip rest of loop
         except (AttributeError, KeyError):
             pass
