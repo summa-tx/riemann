@@ -241,7 +241,11 @@ def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
     '''
     if 'decred' in riemann.get_current_network_name():
         return(make_witness_input(outpoint, sequence),
-               make_decred_witness(**kwargs))
+               make_decred_witness(value=kwargs['value'],
+                                   height=kwargs['height'],
+                                   index=kwargs['index'],
+                                   stack_script=kwargs['stack_script'],
+                                   redeem_script=kwargs['redeem_script']))
     return (make_witness_input(outpoint, sequence),
             make_witness(data_list))
 
