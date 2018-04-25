@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='riemann-tx',
-    version='0.5.0',
+    version='0.6.0',
     description=('Transaction creation library for Bitcoin-like coins'),
     author='James Prestwich',
     license='AGPLv3.0',
