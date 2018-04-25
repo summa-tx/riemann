@@ -34,7 +34,12 @@ TEST_VECTORS = [
     ["c27b1683ef76e274680ab5492e592997b0d9d5ac5a5f4651b6036f64215256af", "C is as portable as Stonehedge!!"],
     ["3995cce8f32b174c22ffac916124bd095c80205d9d5f1bb08a155ac24b40d6cb", "Even if I could be Shakespeare, I think I should still choose to be Faraday. - A. Huxley"],
     ["496f7063f8bd479bf54e9d87e9ba53e277839ac7fdaecc5105f2879b58ee562f", "The fugacity of a constituent in a mixture of gases at a given temperature is proportional to its mole fraction.  Lewis-Randall Rule"],
-    ["2e0eff918940b01eea9539a02212f33ee84f77fab201f4287aa6167e4a1ed043", "How can you write a big system without C++?  -Paul Glick"]]
+    ["2e0eff918940b01eea9539a02212f33ee84f77fab201f4287aa6167e4a1ed043", "How can you write a big system without C++?  -Paul Glick"],
+    ["7576698ee9cad30173080678e5965916adbb11cb5245d386bf1ffda1cb26c9d7", "The quick brown fox jumps over the lazy dog"],
+	["07663e00cf96fbc136cf7b1ee099c95346ba3920893d18cc8851f22ee2e36aa6", "BLAKE"],
+    ["18a393b4e62b1887a2edf79a5c5a5464daf5bbb976f4007bea16a73e4c1e198e", "'BLAKE wins SHA-3! Hooray!!!' (I have time machine)"],
+    ["1e75db2a709081f853c2229b65fd1558540aa5e7bd17b04b9a4b31989effa711", "HELP! I'm trapped in hash!"]
+]
 
 class TestBlake(unittest.TestCase):
 

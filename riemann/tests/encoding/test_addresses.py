@@ -1,4 +1,5 @@
 import unittest
+import riemann
 from .. import helpers
 from ...encoding import addresses as addr
 
@@ -18,6 +19,9 @@ from ...encoding import addresses as addr
 
 
 class TestAddresses(unittest.TestCase):
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
 
     def test_make_p2sh_address(self):
         a = addr.make_p2sh_address('OP_IF')
@@ -70,7 +74,6 @@ class TestAddresses(unittest.TestCase):
                          b'\x00' + helpers.PKH_0)
 
     def test_parse_hash(self):
-
         self.assertEqual(addr.parse_hash(helpers.OP_IF_P2SH),
                          helpers.OP_IF_SCRIPT_HASH)
         self.assertEqual(addr.parse_hash(helpers.MSIG_TWO_TWO_P2SH),
