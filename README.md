@@ -11,6 +11,8 @@ Multi-coin transaction generation toolbox.
     * https://github.com/owstack/bch-lib/blob/master/lib/transaction/sighash.js#L24-L139
 * More Sighash tests (witness transactions, etc.)
 * Build out simple interface more
+* Support Decred sighash
+* support blake256 (NOT equivalent to blake2b or blake2s)
 
 ### Purpose
 

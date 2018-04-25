@@ -202,7 +202,7 @@ class Outpoint(ByteData):
             index=index if index is not None else self.index)
 
 
-class DecredOutpoint(ByteData, Outpoint):
+class DecredOutpoint(ByteData):
 
     def __init__(self, tx_id, index, tree):
         super().__init__()
@@ -277,52 +277,26 @@ class TxIn(ByteData):
             sequence=sequence if sequence is not None else self.sequence)
 
 
-class DecredTxIn(ByteData, TxIn):
+class DecredTxIn(ByteData):
 
-    def __init__(self, outpoint, sequence, value, height,
-                 index, stack_script, redeem_script):
+    def __init__(self, outpoint, sequence):
         super().__init__()
 
         self.validate_bytes(outpoint, 37)
         self.validate_bytes(sequence, 4)
-        self.validate_bytes(value, 8)
-        self.validate_bytes(height, 4)
-        self.validate_bytes(index, 4)
-        self.validate_bytes(stack_script, None)
-        self.validate_bytes(redeem_script, None)
 
         self += outpoint
         self += sequence
-        self += value
-        self += height
-        self += VarInt(len(stack_script) + len(redeem_script))
-        self += stack_script
-        self += redeem_script
 
         self.outpoint = outpoint
         self.sequence = sequence
-        self.value = value
-        self.height = height
-        self.index = index
-        self.script_len = len(stack_script + redeem_script)
-        self.stack_script = stack_script
-        self.redeem_script = redeem_script
-        self.script_sig = self.stack_script + self.redeem_script
 
         self._make_immutable()
 
-    def copy(self, outpoint=None, sequence=None, value=None, height=None,
-             index=None, stack_script=None, redeem_script=None):
+    def copy(self, outpoint=None, sequence=None):
         return DecredTxIn(
             outpoint=outpoint if outpoint is not None else self.outpoint,
-            sequence=sequence if sequence is not None else self.sequence,
-            value=value if value is not None else self.value,
-            height=height if height is not None else self.height,
-            index=index if index is not None else self.index,
-            stack_script=(stack_script if stack_script is not None
-                          else self.stack_script),
-            redeem_script=(redeem_script if redeem_script is not None
-                           else self.redeem_script))
+            sequence=sequence if sequence is not None else self.sequence)
 
 
 class TxOut(ByteData):
@@ -358,7 +332,7 @@ class TxOut(ByteData):
                            else self.output_script))
 
 
-class DecredTxOut(ByteData, TxOut):
+class DecredTxOut(ByteData):
 
     def __init__(self, value, version, output_script):
         super().__init__()
@@ -369,10 +343,12 @@ class DecredTxOut(ByteData, TxOut):
 
         self += value
         self += version
+        self += VarInt(len(output_script))
         self += output_script
 
         self.value = value
         self.version = version
+        self.output_script_len = len(output_script)
         self.output_script = output_script
 
         self._make_immutable()
@@ -442,6 +418,44 @@ class InputWitness(ByteData):
             items += [WitnessStackItem.from_bytes(prefixed_item)]
             current += item_len + 1
         return InputWitness(items)
+
+
+class DecredInputWitness(ByteData):
+
+    def __init__(self, value, height, index, stack_script, redeem_script):
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(height, 4)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(stack_script, None)
+        self.validate_bytes(redeem_script, None)
+
+        self += value
+        self += height
+        self += VarInt(len(stack_script) + len(redeem_script))
+        self += stack_script
+        self += redeem_script
+
+        self.value = value
+        self.height = height
+        self.index = index
+        self.script_len = len(stack_script + redeem_script)
+        self.stack_script = stack_script
+        self.redeem_script = redeem_script
+        self.script_sig = self.stack_script + self.redeem_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, height=None, index=None,
+             stack_script=None, redeem_script=None):
+        return DecredInputWitness(
+            value=value if value is not None else self.value,
+            height=height if height is not None else self.height,
+            index=index if index is not None else self.index,
+            stack_script=(stack_script if stack_script is not None
+                          else self.stack_script),
+            redeem_script=(redeem_script if redeem_script is not None
+                           else self.redeem_script))
 
 
 class Tx(ByteData):
@@ -658,16 +672,17 @@ class Tx(ByteData):
                                                anyone_can_pay)
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
-        # NB: The output of txCopy is resized
-        #     to the size of the current input index+1.
-        copy_tx_outs = copy_tx.tx_outs[:index + 1]
-
-        # NB: All other txCopy outputs
-        #     aside from the output that is the same as the current input index
-        #     are set to a blank script and a value of (long) -1.
-        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
-                        for _ in copy_tx.tx_ins]  # Null them all
         try:
+            # NB: The output of txCopy is resized
+            #     to the size of the current input index+1.
+            copy_tx_outs = copy_tx.tx_outs[:index + 1]
+
+            # NB: All other txCopy outputs
+            #     aside from the output that is the same as the current index
+            #     are set to a blank script and a value of (long) -1.
+            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                            for _ in copy_tx.tx_ins]  # Null them all
+
             copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
         except IndexError:
             raise NotImplementedError(
@@ -682,8 +697,7 @@ class Tx(ByteData):
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
 
         if anyone_can_pay:  # Forward onwards
-            return Tx._sighash_anyone_can_pay(index, prevout_pk_script,
-                                              copy_tx, SIGHASH_SINGLE)
+            return Tx._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
 
         return Tx._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
 
@@ -703,14 +717,12 @@ class Tx(ByteData):
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         if anyone_can_pay:
-            return Tx._sighash_anyone_can_pay(index, prevout_pk_script,
-                                              copy_tx, SIGHASH_ALL)
+            return Tx._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
 
         return Tx._sighash_final_hashing(copy_tx, SIGHASH_ALL)
 
     @staticmethod
-    def _sighash_anyone_can_pay(index, prevout_pk_script,
-                                copy_tx, sighash_type):
+    def _sighash_anyone_can_pay(index, copy_tx, sighash_type):
         '''
         int, byte-like, Tx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
@@ -733,10 +745,10 @@ class Tx(ByteData):
         Returns the hash that should be signed
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
-        data = bytearray()
-        data.extend(copy_tx.to_bytes())
-        data.extend(utils.i2le_padded(sighash_type, 4))
-        return utils.hash256(data)
+        sighash = ByteData()
+        sighash += copy_tx.to_bytes()
+        sighash += utils.i2le_padded(sighash_type, 4)
+        return utils.hash256(sighash.to_bytes())
 
     def _sighash_forkid(self, index, prevout_pk_script, prevout_value,
                         sighash_type, anyone_can_pay=False):
@@ -824,9 +836,10 @@ class Tx(ByteData):
         return utils.hash256(data)
 
 
-class DecredTx(ByteData, Tx):
+class DecredTx(ByteData):
 
-    def __init__(self, version, tx_ins, tx_outs, lock_time, expiry):
+    def __init__(self, version, tx_ins, tx_outs,
+                 lock_time, expiry, tx_witnesses):
         super().__init__()
 
         self.validate_bytes(version, 4)
@@ -839,6 +852,12 @@ class DecredTx(ByteData, Tx):
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
 
+        if len(tx_witnesses) != len(tx_ins):
+            raise ValueError(
+                'Witness and TxIn lists must be same length. '
+                'Got {} inputs and {} witnesses.'
+                .format(len(tx_ins), len(tx_witnesses)))
+
         for tx_in in tx_ins:
             if not isinstance(tx_in, DecredTxIn):
                 raise ValueError(
@@ -847,11 +866,18 @@ class DecredTx(ByteData, Tx):
                     .format(type(tx_in).__name__))
 
         for tx_out in tx_outs:
-            if not isinstance(tx_outs, DecredTxOut):
+            if not isinstance(tx_out, DecredTxOut):
                 raise ValueError(
-                    'Invalid TxIn. '
+                    'Invalid TxOut. '
                     'Expected instance of DecredTxOut. Got {}'
-                    .format(type(tx_outs).__name__))
+                    .format(type(tx_out).__name__))
+
+        for tx_witness in tx_witnesses:
+            if not isinstance(tx_witness, DecredInputWitness):
+                raise ValueError(
+                    'Invalid TxWitness. '
+                    'Expected instance of DecredInputWitness. Got {}'
+                    .format(type(tx_witness).__name__))
 
         self += version
         self += VarInt(len(tx_ins))
@@ -862,15 +888,21 @@ class DecredTx(ByteData, Tx):
             self += tx_out
         self += lock_time
         self += expiry
+        for tx_witness in tx_witnesses:
+            self += tx_witness
 
         self.version = version
         self.tx_ins = tx_ins
         self.tx_outs = tx_outs
         self.lock_time = lock_time
         self.expiry = expiry
+        self.tx_witnesses = tx_witnesses
 
-        self.tx_id = utils.blake256(self.to_bytes())
+        # TODO: check this
+        self.tx_id = utils.blake256(self.no_witness())
         self.tx_id_le = utils.change_endianness(self.tx_id)
+        self.tx_id_full = utils.blake256(self.to_bytes())
+        self.tx_id_full_le = utils.change_endianness(self.tx_id_full)
 
         self.make_immutable()
 
@@ -878,3 +910,131 @@ class DecredTx(ByteData, Tx):
             raise ValueError(
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def no_witness(self):
+        data = ByteData()
+        data += self.version
+        data += self.tx_ins
+        data += self.tx_outs
+        data += self.lock_time
+        data += self.expiry
+        return data.to_bytes()
+
+    def calc_fee(self):
+        return \
+            sum([utils.le2i(i.value) for i in self.tx_ins]) \
+            - sum([utils.le2i(o.value) for o in self.tx_outs])
+
+    def copy(self, version=None, tx_ins=None, tx_outs=None,
+             lock_time=None, expiry=None):
+        return DecredTx(
+            version=version if version is not None else self.version,
+            tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
+            tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
+            lock_time=(lock_time if lock_time is not None
+                       else self.lock_time),
+            expiry=expiry if expiry is not None else self.expiry)
+
+    def sighash_none(self):
+        raise NotImplementedError('SIGHASH_NONE is a bad idea.')
+
+    def with_new_inputs(self, new_tx_ins):
+        '''
+        Tx, list(TxIn) -> Tx
+        '''
+        return self.copy(tx_ins=[i for i in self.tx_ins] + new_tx_ins)
+
+    def with_new_outputs(self, new_tx_outs):
+        '''
+        Tx, list(TxOut) -> Tx
+        '''
+        return self.copy(tx_outs=[o for o in self.tx_outs] + new_tx_outs)
+
+    def with_new_inputs_and_witnesses(self, new_tx_ins_and_witnesses):
+        '''
+        Tx, list(tuple(Txin, InputWitness)) -> Tx
+
+        NB: must have a one-to-one correspondance
+        '''
+        return self.copy(
+            tx_ins=(
+                [i for i in self.tx_ins]
+                + [i[0] for i in new_tx_ins_and_witnesses]),
+            tx_witnesses=(
+                [w for w in self.tx_witnesses]
+                + [i[1] for i in new_tx_ins_and_witnesses]))
+
+    def _sighash_prep(self, index, prevout_pk_script):
+        sub_script = prevout_pk_script
+        copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
+                             for w in self.tx_witnesses]
+        copy_tx_witnesses[index] = \
+            copy_tx_witnesses[index].copy(stack_script=b'',
+                                          redeem_script=sub_script)
+
+        return self.copy(tx_witnesses=copy_tx_witnesses)
+
+    def sighash_single(self, index, prevout_pk_script, anyone_can_pay=False):
+        '''
+        https://github.com/decred/dcrd/blob/master/txscript/script.go
+        '''
+        copy_tx = self._sighash_prep(index, prevout_pk_script)
+
+        try:
+            copy_tx_outs = copy_tx.tx_outs[:index + 1]
+            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                            for _ in copy_tx.tx_ins]
+            copy_tx_outs[index] = copy_tx.tx_outs[index]
+        except IndexError:
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
+
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]
+        copy_tx_ins[index] = copy_tx.tx_ins[index]
+        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
+
+        if anyone_can_pay:
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+
+    def sighash_all(self, index, prevout_pk_script, anyone_can_pay=False):
+        '''
+        https://gist.github.com/davecgh/b00ec6e11f73620c3deddf160353961c
+        https://github.com/decred/dcrd/blob/master/txscript/script.go
+        '''
+        copy_tx = self._sighash_prep(index, prevout_pk_script)
+
+        if anyone_can_pay:
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
+
+    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
+        copy_tx_ins = [copy_tx.tx_ins[index]]
+        copy_tx_witnesses = [copy_tx.tx_witnesses[index]]
+        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins,
+                               tx_witnesses=copy_tx_witnesses)
+
+        return self._sighash_final_hashing(index, copy_tx,
+                                           sighash_type | SIGHASH_ALL)
+
+    def _sighash_final_hashing(self, index, copy_tx, sighash_type):
+        prefix_hash = copy_tx.tx_id_le
+
+        witness_hash = ByteData()
+        for i in range(len(copy_tx.tx_witnesses)):
+            if i == index:
+                witness_hash += copy_tx.tx_witnesses[i].script_len
+                witness_hash += copy_tx.tx_witnesses[i].script_sig
+            else:
+                witness_hash += b'\x00'
+        witness_hash = utils.blake256(witness_hash.to_bytes())
+
+        sighash = ByteData()
+        sighash += utils.i2le_padded(sighash_type, 4)
+        sighash += prefix_hash
+        sighash += witness_hash
+
+        return utils.blake256(sighash.to_bytes())
