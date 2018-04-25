@@ -1,3 +1,4 @@
+import riemann
 from .opcodes import CODE_TO_INT, INT_TO_CODE
 
 
@@ -11,6 +12,10 @@ def serialize(script_string):
     for token in string_tokens:
         if token == 'OP_CODESEPARATOR':
             raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
+        if token in riemann.network.CODE_TO_INT_OVERWRITE:
+            serialized_script.extend(
+                riemann.network.CODE_TO_INT_OVERWRITE[token])
+            continue
         if token in CODE_TO_INT:  # If the string is a known opcode
             serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
             continue  # Skip rest of loop
@@ -57,9 +62,12 @@ def deserialize(serialized_script):
                     .format(current_byte))
 
         else:
-            try:
+            if current_byte in riemann.network.INT_TO_CODE_OVERWRITE:
+                deserialized.append(
+                    riemann.network.INT_TO_CODE_OVERWRITE[current_byte])
+            elif current_byte in INT_TO_CODE:
                 deserialized.append(INT_TO_CODE[current_byte])
-            except KeyError:
+            else:
                 raise ValueError(
                     'Unsupported opcode. '
                     'Got 0x%x' % serialized_script[i])

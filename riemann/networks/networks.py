@@ -251,6 +251,12 @@ class DecredMain(Network):
     P2PKH_PREFIX = b'\x13\x86'
     P2SH_PREFIX = b'\x07\x1a'
     SEGWIT = False
+    OPCODE_CHANGES = [
+        ('OP_BLAKE256', 168),
+        ('OP_SHA256', 192)
+    ]
+    CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
 
 
 class DecredTest(Network):
@@ -260,6 +266,12 @@ class DecredTest(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
+    OPCODE_CHANGES = [
+        ('OP_BLAKE256', 168),
+        ('OP_SHA256', 192)
+    ]
+    CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
 
 
 class DecredSimnet(Network):
@@ -269,6 +281,12 @@ class DecredSimnet(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
+    OPCODE_CHANGES = [
+        ('OP_BLAKE256', 168),
+        ('OP_SHA256', 192)
+    ]
+    CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
 
 
 class PivxMain(Network):

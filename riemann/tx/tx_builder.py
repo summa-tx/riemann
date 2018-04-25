@@ -98,11 +98,16 @@ def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
 
-def _make_output(value, script):
+def _make_output(value, script, version=None):
     '''
     byte-like, byte-like -> TxOut
     '''
-    return tx.TxOut(value, script)
+    if 'decred' in riemann.get_current_network_name():
+        return tx.DecredTxOut(
+            value=value,
+            version=version,
+            output_script=script)
+    return tx.TxOut(value=value, output_script=script)
 
 
 def make_sh_output(value, script, witness=False):
@@ -167,10 +172,21 @@ def make_witness(data_list):
         stack=[make_witness_stack_item(item) for item in data_list])
 
 
-def make_outpoint(tx_id_le, index):
+def make_decred_witness(value, height, index, stack_script, redeem_script):
+    return tx.DecredInputWitness(
+        value=value,
+        height=height,
+        index=index,
+        stack_script=stack_script,
+        redeem_script=redeem_script)
+
+
+def make_outpoint(tx_id_le, index, tree=None):
     '''
     bytearray, int -> Outpoint
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return tx.DecredOutpoint(tx_id=tx_id_le, index=index, tree=tree)
     return tx.Outpoint(tx_id=tx_id_le,
                        index=utils.i2le_padded(index, 4))
 
@@ -207,26 +223,42 @@ def make_witness_input(outpoint, sequence):
     '''
     Outpoint, int -> TxIn
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
     return tx.TxIn(outpoint=outpoint,
                    stack_script=bytearray([0]),
                    redeem_script=bytearray(),
                    sequence=sequence)
 
 
-def make_witness_input_and_witness(outpoint, sequence, data_list):
+def make_decred_input(outpoint, sequence):
+    return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
+
+
+def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
     '''
     Outpoint, int, list(bytearray) -> (Input, InputWitness)
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return(make_witness_input(outpoint, sequence),
+               make_decred_witness(**kwargs))
     return (make_witness_input(outpoint, sequence),
             make_witness(data_list))
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            tx_witnesses=None):
+            expiry=None, tx_witnesses=None):
 
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return tx.DecredTx(version=version,
+                           tx_ins=tx_ins,
+                           tx_outs=tx_outs,
+                           lock_time=lock_time,
+                           expiry=expiry,
+                           tx_witnesses=tx_witnesses)
     flag = riemann.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None
     return tx.Tx(version=utils.i2le_padded(version, 4),
@@ -235,11 +267,3 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
                  tx_outs=tx_outs,
                  tx_witnesses=tx_witnesses,
                  lock_time=utils.i2le_padded(lock_time, 4))
-
-
-def make_mutable_tx(version, tx_ins, tx_outs, lock_time, tx_witnesses=None):
-    '''
-    int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
-    '''
-    return make_tx(version, tx_ins, tx_outs, lock_time,
-                   tx_witnesses=None, make_immutable=True)
