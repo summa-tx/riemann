@@ -17,6 +17,8 @@ class ByteData():
     Can be made immutable.
     self._bytes is a bytearray object when mutable.
     self._bytes is a byte object when immutable.
+    Should be mostly transparent to the user.
+    Can be treated like bytes or a bytearray in most cases.
     '''
     __immutable = False
 
