@@ -870,24 +870,24 @@ class TestDecredTx(DecredTestCase):
             self.outpoint_tx_id, self.outpoint_index, self.outpoint_tree)
         self.tx_in = tx.DecredTxIn(self.outpoint, self.sequence)
 
-        self.value = helpers.DCR_OUTPUT_VALUE
+        self.output_value = helpers.DCR_OUTPUT_VALUE
         self.output_version = helpers.DCR_OUTPUT_VERSION
         self.output_script = helpers.DCR_OUTPUT_SCRIPT
         self.tx_out = tx.DecredTxOut(
-            self.value, self.output_version, self.output_script)
+            self.output_value, self.output_version, self.output_script)
 
         self.lock_time = helpers.DCR_LOCKTIME
         self.expiry = helpers.DCR_EXPIRY
 
-        self.value = helpers.DCR_WITNESS_VALUE
+        self.witness_value = helpers.DCR_WITNESS_VALUE
         self.height = helpers.DCR_WITNESS_HEIGHT
-        self.index = helpers.DCR_WITNESS_INDEX
+        self.witness_index = helpers.DCR_WITNESS_INDEX
         self.stack_script = helpers.DCR_STACK_SCRIPT
         self.redeem_script = helpers.DCR_REDEEM_SCRIPT
         self.witness = tx.DecredInputWitness(
-            value=self.value,
+            value=self.witness_value,
             height=self.height,
-            index=self.index,
+            index=self.witness_index,
             stack_script=self.stack_script,
             redeem_script=self.redeem_script)
 
@@ -901,3 +901,143 @@ class TestDecredTx(DecredTestCase):
             tx_witnesses=[self.witness])
 
         self.assertEqual(transaction, helpers.DCR_RAW_P2SH_TO_P2PKH)
+
+    def test_init_errors(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version='Hello World',
+                tx_ins=[self.tx_in],
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[self.witness])
+
+            self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=['Hello World'],
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[self.witness])
+
+        self.assertIn('Invalid TxIn.', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in],
+                tx_outs=['Hello World'],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[self.witness])
+
+        self.assertIn('Invalid TxOut.', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in],
+                tx_outs=[self.tx_out],
+                lock_time='Hello World',
+                expiry=self.expiry,
+                tx_witnesses=[self.witness])
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in],
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry='Hello World',
+                tx_witnesses=[self.witness])
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in],
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=['Hello World'])
+
+        self.assertIn('Invalid TxWitness', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in] * 256,
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[self.witness] * 256)
+
+        self.assertIn('Too many inputs or outputs. Stop that.',
+                      str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in] * 2,
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[self.witness])
+
+        self.assertIn('Witness and TxIn lists must be same length. ',
+                      str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[],
+                tx_outs=[self.tx_out],
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[])
+
+        self.assertIn('Too few inputs or outputs. Stop that.',
+                      str(context.exception))
+
+        long_witness = tx.DecredInputWitness(
+            self.witness_value,
+            self.height,
+            self.witness_index,
+            self.stack_script * 64,
+            self.redeem_script * 64)
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(
+                version=self.version,
+                tx_ins=[self.tx_in] * 255,
+                tx_outs=[self.tx_out] * 255,
+                lock_time=self.lock_time,
+                expiry=self.expiry,
+                tx_witnesses=[long_witness] * 255)
+
+        self.assertIn('Tx is too large. Expect less than 100kB.',
+                      str(context.exception))
+
+    def test_tx_id(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        self.assertEqual(transaction.tx_id, helpers.DCR_TX_ID)
+        self.assertEqual(transaction.tx_id_le, helpers.DCR_TX_ID_LE)
+
+    def test_calc_fee(self):
+        pass
+
+
+
+1

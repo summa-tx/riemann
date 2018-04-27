@@ -556,6 +556,11 @@ class Tx(ByteData):
             [wit for wit in tx_witnesses] if tx_witnesses is not None else None
         self.lock_time = lock_time
 
+        if len(self) > 100000:
+            raise ValueError(
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
         if flag is not None:
             self.tx_id_le = utils.hash256(self.no_witness())
             self.wtx_id_le = utils.hash256(self.to_bytes())
@@ -569,11 +574,6 @@ class Tx(ByteData):
             self.wtx_le = None
 
         self._make_immutable()
-
-        if len(self) > 100000:
-            raise ValueError(
-                'Tx is too large. '
-                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
     def no_witness(self):
         '''
@@ -913,24 +913,47 @@ class DecredTx(ByteData):
         self.expiry = expiry
         self.tx_witnesses = tx_witnesses
 
-        # TODO: check this
-        self.tx_id = utils.blake256(self.no_witness())
-        self.tx_id_le = utils.change_endianness(self.tx_id)
-        self.tx_id_full = utils.blake256(self.to_bytes())
-        self.tx_id_full_le = utils.change_endianness(self.tx_id_full)
-
-        self._make_immutable()
-
         if len(self) > 100000:
             raise ValueError(
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
-    def no_witness(self):
+        # TODO: check this
+        self.tx_id_le = self.prefix_hash()
+        self.tx_id = utils.change_endianness(self.tx_id_le)
+
+        # Ignoring this, as it's only used for in-block merkle trees
+        # self.tx_id_full_le = utils.blake256(self.tx_id_le
+        #                                     + self.witness_hash())
+        # self.tx_id_full = utils.change_endianness(self.tx_id_full_le)
+
+        self._make_immutable()
+
+    def prefix_hash(self):
+        return utils.blake256(self.prefix())
+
+    def witness_hash(self):
+        return utils.blake256(self.witness())
+
+    def witness(self):
         data = ByteData()
-        data += self.version
+        ser_type = 0x02 << 16
+        version = utils.le2i(self.version[:2])
+        data += utils.i2le_padded(version | ser_type, 4)
+        data += VarInt(len(self.tx_witnesses))
+        for w in self.tx_witnesses:
+            data += w
+        return data._bytes
+
+    def prefix(self):
+        data = ByteData()
+        ser_type = 0x01 << 16
+        version = utils.le2i(self.version[:2])
+        data += utils.i2le_padded(version | ser_type, 4)
+        data += VarInt(len(self.tx_ins))
         for tx_in in self.tx_ins:
             data += tx_in
+        data += VarInt(len(self.tx_outs))
         for tx_out in self.tx_outs:
             data += tx_out
         data += self.lock_time
