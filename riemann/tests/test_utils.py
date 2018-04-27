@@ -1,4 +1,5 @@
 import unittest
+import riemann
 from .. import utils
 from . import helpers
 
@@ -7,6 +8,9 @@ class TestUtils(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
 
     def test_i2le(self):
         self.assertEqual(utils.i2le(0), b'\x00')
@@ -92,3 +96,19 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(
             utils.hash256('The quick brown fox jumps over the lazy dog'.encode('utf-8')),  # noqa: E501
             bytes.fromhex('6d37795021e544d82b41850edf7aabab9a0ebe274e54a519840c4666f35b3937'))  # noqa: E501
+
+    def test_blake256(self):
+        self.assertEqual(
+            utils.blake256('').hex(),
+            '716f6e863f744b9ac22c97ec7b76ea5f5908bc5b2f67c61510bfc4751384ea7a')
+        self.assertEqual(
+            utils.blake256('a').hex(),
+            '43234ff894a9c0590d0246cfc574eb781a80958b01d7a2fa1ac73c673ba5e311')
+
+    def test_decred_snowflakes(self):
+        riemann.select_network('decred_main')
+        self.assertEqual(utils.hash160(b'\x00'),
+                         utils.rmd160(utils.blake256(b'\x00')))
+
+        self.assertEqual(utils.hash256(b'\x00'),
+                         utils.blake256(utils.blake256(b'\x00')))

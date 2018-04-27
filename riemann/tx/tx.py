@@ -131,6 +131,16 @@ class ByteData():
                              .format(length, type(data), len(data)))
 
 
+class DecredByteData(ByteData):
+
+    def __init__(self):
+        if 'decred' not in riemann.get_current_network_name():
+            raise ValueError('Decred classes not supported by network {}. '
+                             'How did you get here?'
+                             .format(riemann.get_current_network_name()))
+        super().__init__()
+
+
 class VarInt(ByteData):
     '''
     NB: number must be integer
@@ -204,7 +214,7 @@ class Outpoint(ByteData):
             index=index if index is not None else self.index)
 
 
-class DecredOutpoint(ByteData):
+class DecredOutpoint(DecredByteData):
 
     def __init__(self, tx_id, index, tree):
         super().__init__()
@@ -279,7 +289,7 @@ class TxIn(ByteData):
             sequence=sequence if sequence is not None else self.sequence)
 
 
-class DecredTxIn(ByteData):
+class DecredTxIn(DecredByteData):
 
     def __init__(self, outpoint, sequence):
         super().__init__()
@@ -422,9 +432,10 @@ class InputWitness(ByteData):
         return InputWitness(items)
 
 
-class DecredInputWitness(ByteData):
+class DecredInputWitness(DecredByteData):
 
     def __init__(self, value, height, index, stack_script, redeem_script):
+        super().__init__()
 
         self.validate_bytes(value, 8)
         self.validate_bytes(height, 4)
@@ -434,6 +445,7 @@ class DecredInputWitness(ByteData):
 
         self += value
         self += height
+        self += index
         self += VarInt(len(stack_script) + len(redeem_script))
         self += stack_script
         self += redeem_script
@@ -890,6 +902,7 @@ class DecredTx(ByteData):
             self += tx_out
         self += lock_time
         self += expiry
+        self += VarInt(len(tx_witnesses))
         for tx_witness in tx_witnesses:
             self += tx_witness
 
@@ -906,7 +919,7 @@ class DecredTx(ByteData):
         self.tx_id_full = utils.blake256(self.to_bytes())
         self.tx_id_full_le = utils.change_endianness(self.tx_id_full)
 
-        self.make_immutable()
+        self._make_immutable()
 
         if len(self) > 100000:
             raise ValueError(
@@ -916,8 +929,10 @@ class DecredTx(ByteData):
     def no_witness(self):
         data = ByteData()
         data += self.version
-        data += self.tx_ins
-        data += self.tx_outs
+        for tx_in in self.tx_ins:
+            data += tx_in
+        for tx_out in self.tx_outs:
+            data += tx_out
         data += self.lock_time
         data += self.expiry
         return data.to_bytes()

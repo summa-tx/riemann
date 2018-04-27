@@ -1,4 +1,5 @@
 import unittest
+import riemann
 from .. import helpers
 from ...tx import tx
 from ... import utils
@@ -55,6 +56,13 @@ class TestByteData(unittest.TestCase):
         bd2._bytes.extend(b'\xaa')
 
         self.assertEqual(bd.find(bd2), -1)
+
+    def test_hex(self):
+        t = b'\xff\xdd\x88'
+        bd = tx.ByteData()
+        bd._bytes.extend(t)
+
+        self.assertEqual(bd.hex(), t.hex())
 
 
 class TestVarInt(unittest.TestCase):
@@ -406,7 +414,7 @@ class TestTx(unittest.TestCase):
 
         res = tx.Tx(version, None, tx_ins, tx_outs, None, lock_time)
 
-        self.assertEqual(res.hex(), helpers.RAW_P2SH_TO_P2PKH)
+        self.assertEqual(res, helpers.RAW_P2SH_TO_P2PKH)
 
     # TODO: Break up this monstrosity
     def test_create_tx(self):
@@ -593,3 +601,303 @@ class TestTx(unittest.TestCase):
             t.sighash_single(
                 0, helpers.prevout_pk_script, anyone_can_pay=True),
             helpers.sighash_single_anyonecanpay)
+
+
+class DecredTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def setUp(self):
+        riemann.select_network('decred_main')
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
+
+class TestDecredByteData(DecredTestCase):
+
+    def test_init_error(self):
+        riemann.select_network('bitcoin_main')
+        with self.assertRaises(ValueError) as context:
+            tx.DecredByteData()
+
+        self.assertIn('Decred classes not supported by network bitcoin_main. '
+                      'How did you get here?',
+                      str(context.exception))
+
+
+class TestDecredOutpoint(DecredTestCase):
+
+    def test_create_outpoint(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        outpoint = tx.DecredOutpoint(
+            outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertEqual(outpoint, helpers.DCR_OUTPOINT)
+
+    def test_copy(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        res = tx.DecredOutpoint(
+            outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        copy = res.copy()
+        self.assertEqual(res, copy)
+        self.assertIsNot(res, copy)
+
+    def test_create_outpoint_short_tx_id(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = bytearray(b'\xff')
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredOutpoint(
+                outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertIn('Expected byte-like object with length 32. ',
+                      str(context.exception))
+
+    def test_create_outpoint_string_tx_id(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = 'Hello World'
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredOutpoint(
+                outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_create_outpoint_long_tx_id(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = b'00' * 37
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredOutpoint(
+                outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertIn('Expected byte-like object with length 32. ',
+                      str(context.exception))
+
+    def test_create_outpoint_short_index(self):
+        outpoint_index = b'\x00'
+        outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredOutpoint(
+                outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertIn('Expected byte-like object with length 4. ',
+                      str(context.exception))
+
+    def test_create_outpoint_string_tree(self):
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        outpoint_tree = 'Hello World'
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredOutpoint(
+                outpoint_tx_id, outpoint_index, outpoint_tree)
+
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+
+class TestDecredTxIn(DecredTestCase):
+
+    def setUp(self):
+        super().setUp()
+        outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        outpoint_tree = helpers.DCR_OUTPOINT_TREE
+
+        self.sequence = helpers.DCR_SEQUNCE
+
+        self.outpoint = tx.DecredOutpoint(
+            outpoint_tx_id, outpoint_index, outpoint_tree)
+
+    def test_init(self):
+        tx_in = tx.DecredTxIn(self.outpoint, self.sequence)
+
+        self.assertEqual(tx_in, helpers.DCR_INPUT)
+
+    def test_init_bad_outpoint(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTxIn('Hello World', self.sequence)
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_init_bad_sequnce(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTxIn(self.outpoint, 'Hello World')
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_copy(self):
+        res = tx.DecredTxIn(self.outpoint, self.sequence)
+        copy = res.copy()
+        self.assertEqual(res, copy)
+        self.assertIsNot(res, copy)
+
+
+class TestDecredTxOut(DecredTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.value = helpers.DCR_OUTPUT_VALUE
+        self.version = helpers.DCR_OUTPUT_VERSION
+        self.output_script = helpers.DCR_OUTPUT_SCRIPT
+
+    def test_init(self):
+        tx_out = tx.DecredTxOut(
+            self.value, self.version, self.output_script)
+
+        self.assertEqual(tx_out, helpers.DCR_OUTPUT)
+
+    def test_bad_value(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTxOut('Hello World', self.version, self.output_script)
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_bad_version(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTxOut(self.value, 'Hello World', self.output_script)
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_bad_script(self):
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTxOut(self.value, self.version, 'Hello World')
+        self.assertIn('Expected byte-like object. ',
+                      str(context.exception))
+
+    def test_copy(self):
+        res = tx.DecredTxOut(
+            self.value, self.version, self.output_script)
+        copy = res.copy()
+        self.assertEqual(res, copy)
+        self.assertIsNot(res, copy)
+
+
+class TestDecredInputWitness(DecredTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.value = helpers.DCR_WITNESS_VALUE
+        self.height = helpers.DCR_WITNESS_HEIGHT
+        self.index = helpers.DCR_WITNESS_INDEX
+        self.stack_script = helpers.DCR_STACK_SCRIPT
+        self.redeem_script = helpers.DCR_REDEEM_SCRIPT
+
+    def test_init(self):
+        input_witness = tx.DecredInputWitness(
+            value=self.value,
+            height=self.height,
+            index=self.index,
+            stack_script=self.stack_script,
+            redeem_script=self.redeem_script)
+
+        self.assertEqual(input_witness, helpers.DCR_WITNESS)
+
+    def test_init_errors(self):
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredInputWitness('Hello World', self.height, self.index,
+                                  self.stack_script, self.redeem_script)
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredInputWitness(self.value, 'Hello World', self.index,
+                                  self.stack_script, self.redeem_script)
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredInputWitness(self.value, self.height, 'Hello World',
+                                  self.stack_script, self.redeem_script)
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredInputWitness(self.value, self.height, self.index,
+                                  'Hello World', self.redeem_script)
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.DecredInputWitness(self.value, self.height, self.index,
+                                  self.redeem_script, 'Hello World')
+
+        self.assertIn('Expected byte-like object', str(context.exception))
+
+    def test_copy(self):
+        res = tx.DecredInputWitness(
+            value=self.value,
+            height=self.height,
+            index=self.index,
+            stack_script=self.stack_script,
+            redeem_script=self.redeem_script)
+        copy = res.copy()
+
+        self.assertEqual(res, copy)
+        self.assertIsNot(res, copy)
+
+
+class TestDecredTx(DecredTestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.version = helpers.DCR_VERSION
+
+        self.outpoint_index = helpers.DCR_OUTPOINT_INDEX
+        self.outpoint_tx_id = helpers.DCR_OUTPOINT_TX_ID_LE
+        self.outpoint_tree = helpers.DCR_OUTPOINT_TREE
+        self.sequence = helpers.DCR_SEQUNCE
+
+        self.outpoint = tx.DecredOutpoint(
+            self.outpoint_tx_id, self.outpoint_index, self.outpoint_tree)
+        self.tx_in = tx.DecredTxIn(self.outpoint, self.sequence)
+
+        self.value = helpers.DCR_OUTPUT_VALUE
+        self.output_version = helpers.DCR_OUTPUT_VERSION
+        self.output_script = helpers.DCR_OUTPUT_SCRIPT
+        self.tx_out = tx.DecredTxOut(
+            self.value, self.output_version, self.output_script)
+
+        self.lock_time = helpers.DCR_LOCKTIME
+        self.expiry = helpers.DCR_EXPIRY
+
+        self.value = helpers.DCR_WITNESS_VALUE
+        self.height = helpers.DCR_WITNESS_HEIGHT
+        self.index = helpers.DCR_WITNESS_INDEX
+        self.stack_script = helpers.DCR_STACK_SCRIPT
+        self.redeem_script = helpers.DCR_REDEEM_SCRIPT
+        self.witness = tx.DecredInputWitness(
+            value=self.value,
+            height=self.height,
+            index=self.index,
+            stack_script=self.stack_script,
+            redeem_script=self.redeem_script)
+
+    def test_init(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        self.assertEqual(transaction, helpers.DCR_RAW_P2SH_TO_P2PKH)

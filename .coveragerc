@@ -1,11 +1,12 @@
 [run]
 source = riemann/
-omit = reimann/tests/*
+omit =
+    riemann/tests/*
+    riemann/blake256.py
 
 [report]
 show_missing = True
 sort = Miss
-omit = riemann/tests/*
 
 [html]
 directory = coverage/html/

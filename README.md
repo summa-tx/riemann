@@ -2,9 +2,10 @@ Multi-coin transaction generation toolbox.
 
 ### Major TODOs
 
+* Lists in data structures (e.g. `tx_ins`, `tx_outs`) are not immutable. Should change to tuples.
+* Support OP_PUSHDATA1-4
 * ~~Many~~ more tests
 * Alternate API where the network object is passed to functions (real statelessness)
-* Support OP_PUSHDATA1-4
 * Fix 255 byte bug in InputWitness.from_bytes
 * Support SIGHASH_FORKID
     * https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
