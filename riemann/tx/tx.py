@@ -590,7 +590,7 @@ class Tx(ByteData):
         tx += self.lock_time
         return bytes(tx)
 
-    def calc_fee(self, input_values):
+    def calculate_fee(self, input_values):
         '''
         Tx, list(int) -> int
         Inputs don't know their value without the whole chain.
@@ -618,32 +618,6 @@ class Tx(ByteData):
                                 else self.tx_witnesses),
                   lock_time=(lock_time if lock_time is not None
                              else self.lock_time))
-
-    def with_new_inputs(self, new_tx_ins):
-        '''
-        Tx, list(TxIn) -> Tx
-        '''
-        return self.copy(tx_ins=[i for i in self.tx_ins] + new_tx_ins)
-
-    def with_new_outputs(self, new_tx_outs):
-        '''
-        Tx, list(TxOut) -> Tx
-        '''
-        return self.copy(tx_outs=[o for o in self.tx_outs] + new_tx_outs)
-
-    def with_new_inputs_and_witnesses(self, new_tx_ins_and_witnesses):
-        '''
-        Tx, list(tuple(Txin, InputWitness)) -> Tx
-
-        NB: must have a one-to-one correspondance
-        '''
-        return self.copy(
-            tx_ins=(
-                [i for i in self.tx_ins]
-                + [i[0] for i in new_tx_ins_and_witnesses]),
-            tx_witnesses=(
-                [w for w in self.tx_witnesses]
-                + [i[1] for i in new_tx_ins_and_witnesses]))
 
     def _sighash_prep(self, index, prevout_pk_script):
         '''
@@ -960,49 +934,25 @@ class DecredTx(ByteData):
         data += self.expiry
         return data.to_bytes()
 
-    def calc_fee(self):
+    def calculate_fee(self):
         return \
-            sum([utils.le2i(i.value) for i in self.tx_ins]) \
+            sum([utils.le2i(w.value) for w in self.tx_witnesses]) \
             - sum([utils.le2i(o.value) for o in self.tx_outs])
 
     def copy(self, version=None, tx_ins=None, tx_outs=None,
-             lock_time=None, expiry=None):
+             lock_time=None, expiry=None, tx_witnesses=None):
         return DecredTx(
             version=version if version is not None else self.version,
             tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
             tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
             lock_time=(lock_time if lock_time is not None
                        else self.lock_time),
-            expiry=expiry if expiry is not None else self.expiry)
+            expiry=expiry if expiry is not None else self.expiry,
+            tx_witnesses=(tx_witnesses if tx_witnesses is not None
+                          else self.tx_witnesses))
 
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
-
-    def with_new_inputs(self, new_tx_ins):
-        '''
-        Tx, list(TxIn) -> Tx
-        '''
-        return self.copy(tx_ins=[i for i in self.tx_ins] + new_tx_ins)
-
-    def with_new_outputs(self, new_tx_outs):
-        '''
-        Tx, list(TxOut) -> Tx
-        '''
-        return self.copy(tx_outs=[o for o in self.tx_outs] + new_tx_outs)
-
-    def with_new_inputs_and_witnesses(self, new_tx_ins_and_witnesses):
-        '''
-        Tx, list(tuple(Txin, InputWitness)) -> Tx
-
-        NB: must have a one-to-one correspondance
-        '''
-        return self.copy(
-            tx_ins=(
-                [i for i in self.tx_ins]
-                + [i[0] for i in new_tx_ins_and_witnesses]),
-            tx_witnesses=(
-                [w for w in self.tx_witnesses]
-                + [i[1] for i in new_tx_ins_and_witnesses]))
 
     def _sighash_prep(self, index, prevout_pk_script):
         sub_script = prevout_pk_script

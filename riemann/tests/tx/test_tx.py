@@ -519,11 +519,18 @@ class TestTx(unittest.TestCase):
             'Tx is too large. Expect less than 100kB. Got: 440397 bytes',
             str(context.exception))
 
-    def test_calc_fee(self):
+    def test_tx_id(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 
-        self.assertEqual(t.calc_fee([10 ** 8]), 57534406)
+        self.assertEqual(t.tx_id, helpers.tx_id)
+        self.assertEqual(t.tx_id_le, helpers.tx_id_le)
+
+    def test_calculate_fee(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        self.assertEqual(t.calculate_fee([10 ** 8]), 57534406)
 
     def test_sighash_none(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -542,38 +549,6 @@ class TestTx(unittest.TestCase):
 
         self.assertEqual(t, t_copy)
         self.assertIsNot(t, t_copy)
-
-    def test_with_new_inputs(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
-
-        t_with_new_inputs = t.with_new_inputs([self.tx_ins[0]])
-        t_copy = t.copy(tx_ins=self.tx_ins + [self.tx_ins[0]])
-
-        self.assertEqual(t_copy, t_with_new_inputs)
-        self.assertIsNot(t_copy, t_with_new_inputs)
-
-    def test_with_new_outputs(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
-
-        t_with_new_outputs = t.with_new_outputs([self.tx_outs[0]])
-        t_copy = t.copy(tx_outs=self.tx_outs + [self.tx_outs[0]])
-
-        self.assertEqual(t_copy, t_with_new_outputs)
-        self.assertIsNot(t_copy, t_with_new_outputs)
-
-    def test_with_new_inputs_and_witnesses(self):
-        new = (self.tx_ins[0], self.tx_witnesses[0])
-        t = tx.Tx(self.version, self.segwit_flag, self.tx_ins, self.tx_outs,
-                  self.tx_witnesses, self.lock_time)
-
-        t_with_new = t.with_new_inputs_and_witnesses([new])
-        t_copy = t.copy(tx_ins=self.tx_ins + [new[0]],
-                        tx_witnesses=self.tx_witnesses + [new[1]])
-
-        self.assertEqual(t_copy, t_with_new)
-        self.assertIsNot(t_copy, t_with_new)
 
     def test_sighash_all(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -1035,9 +1010,69 @@ class TestDecredTx(DecredTestCase):
         self.assertEqual(transaction.tx_id, helpers.DCR_TX_ID)
         self.assertEqual(transaction.tx_id_le, helpers.DCR_TX_ID_LE)
 
-    def test_calc_fee(self):
-        pass
+    def test_calculate_fee(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
 
+        self.assertEqual(transaction.calculate_fee(), 33400)
 
+    def test_witness(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
 
-1
+        self.assertEqual(
+            transaction.witness(),
+            b'\x01\x00' + b'\x02\x00' + b'\x01' + helpers.DCR_WITNESS)
+
+    def test_witness_hash(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        self.assertEqual(
+            transaction.witness_hash(),
+            helpers.DCR_WITNESS_HASH)  # TODO: check this better
+
+    def test_sighash_none(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        with self.assertRaises(NotImplementedError) as context:
+            transaction.sighash_none()
+
+        self.assertIn(
+            'SIGHASH_NONE is a bad idea.',
+            str(context.exception))
+
+    def test_copy(self):
+        res = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        copy = res.copy()
+
+        self.assertEqual(res, copy)
+        self.assertIsNot(res, copy)
