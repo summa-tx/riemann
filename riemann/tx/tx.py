@@ -681,8 +681,7 @@ class Tx(ByteData):
         sub_script = self.script_code(index=index)
         if sub_script is None:
             sub_script = prevout_pk_script
-        # NB: The scripts for all transaction inputs in txCopy are set
-        #     to empty scripts (exactly 1 byte 0x00)
+        # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
                        for tx_in in self.tx_ins]
 
@@ -816,13 +815,12 @@ class Tx(ByteData):
         if len(self.tx_ins[index].redeem_script) != 0:
             script = ByteData()
             # redeemScript in case of P2SH
-            script += VarInt(len(self.tx_ins[index].redeem_script))
             script += self.tx_ins[index].redeem_script
             print(script)
             return script.to_bytes()
         return None
 
-    def _script_code(self, index, prevout_pk_script):
+    def _adjusted_script_code(self, index, prevout_pk_script):
         script_code = self.script_code(index=index)
         if script_code is None:
             script_code = ByteData()
@@ -884,8 +882,9 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        data += self._script_code(index=index,
-                                  prevout_pk_script=prevout_pk_script)
+        data += self._adjusted_script_code(
+            index=index,
+            prevout_pk_script=prevout_pk_script)
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value

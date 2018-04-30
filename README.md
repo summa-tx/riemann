@@ -65,6 +65,8 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 
 ### Notes and Bitcoin gotchas:
 
+* For convenience, we separate the script_sig into the stack_script and the redeem_script. For PKH spends, the redeem script MUST BE `b''`.
+
 * If there are any witnesses, all inputs must have a witness. The witness list MUST be the same size as the input list. Use `tx_builder.make_legacy_input_and_empty_witness()` when building your input to also generate a blank witness for your input. It returns `(TxIn, InputWitness)`.
 
 * If all sequence numbers are set to max (0xFFFFFFFF), `lock_time` is disregarded by consensus rules. For this reason, 0xFFFFFFFE is the default sequence number in simple.py.
