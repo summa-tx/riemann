@@ -6,7 +6,7 @@ setup(
     name='riemann-tx',
     version='0.7.0',
     description=('Transaction creation library for Bitcoin-like coins'),
-    url='https://github.com/integral-tx/riemann-tx',
+    url='https://github.com/integral-tx/riemann',
     author='James Prestwich',
     author_email='james''@prestwi.ch',
     license='LGPLv3.0',
