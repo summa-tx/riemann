@@ -3,21 +3,19 @@ Multi-coin transaction generation toolbox.
 ### Major TODOs
 
 * Parse full Transaction from bytes or hex strings
-* Finish implementing decred sighash tests here: https://github.com/decred/dcrd/pull/1178/files
+* General
+    * Need more sighash tests
+* Bcash
+    * Need more sighash_forkid tests
+* Decred
+    * sighash is currently broken
+    * Finish implementing decred sighash tests here: https://github.com/decred/dcrd/pull/1178/files
 * Lists in data structures (e.g. `tx_ins`, `tx_outs`) are not immutable. Change to tuples.
 * Support OP_PUSHDATA1-4
-* ~~Many~~ more tests
 * Alternate API where the network object is passed to functions (real statelessness)
 * Fix 255 byte bug in InputWitness.from_bytes
-* Support SIGHASH_FORKID
-    * https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
-    * https://github.com/owstack/bch-lib/blob/master/lib/transaction/sighash.js#L24-L139
-    * Supported. Writing Tests now.
-* More Sighash tests (witness transactions, etc.)
 * improve Sighash code quality across the board.
 * Build out simple interface more
-* Support Decred sighash
-* support blake256 (NOT equivalent to blake2b or blake2s)
 
 ### Purpose
 
