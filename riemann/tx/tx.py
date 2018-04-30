@@ -678,7 +678,9 @@ class Tx(ByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = prevout_pk_script  # Follow wiki naming convention
+        sub_script = self.script_code(index=index)
+        if sub_script is None:
+            sub_script = prevout_pk_script
         # NB: The scripts for all transaction inputs in txCopy are set
         #     to empty scripts (exactly 1 byte 0x00)
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
@@ -691,55 +693,7 @@ class Tx(ByteData):
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_single(self, index, prevout_pk_script, prevout_value=None,
-                       anyone_can_pay=False):
-        '''
-        Tx, int, byte-like, byte-like, bool -> bytearray
-        Sighashes suck
-        Generates the hash to be signed with SIGHASH_SINGLE
-        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
-        https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
-        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
-        '''
-
-        if riemann.network.FORKID is not None:
-            return self._sighash_forkid(index=index,
-                                        prevout_pk_script=prevout_pk_script,
-                                        prevout_value=prevout_value,
-                                        sighash_type=SIGHASH_SINGLE,
-                                        anyone_can_pay=anyone_can_pay)
-
-        copy_tx = self._sighash_prep(index, prevout_pk_script)
-        try:
-            # NB: The output of txCopy is resized
-            #     to the size of the current input index+1.
-            copy_tx_outs = copy_tx.tx_outs[:index + 1]
-
-            # NB: All other txCopy outputs
-            #     aside from the output that is the same as the current index
-            #     are set to a blank script and a value of (long) -1.
-            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
-                            for _ in copy_tx.tx_ins]  # Null them all
-
-            copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
-        except IndexError:
-            raise NotImplementedError(
-                'I refuse to implement the SIGHASH_SINGLE bug.')
-
-        # NB: All other txCopy inputs aside from the current input
-        #     are set to have an nSequence index of zero.
-        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
-                       for tx_in in copy_tx.tx_ins]  # Set all to 0
-        copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
-
-        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
-
-        if anyone_can_pay:  # Forward onwards
-            return Tx._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
-
-        return Tx._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
-
-    def sighash_all(self, index, prevout_pk_script, prevout_value=None,
+    def sighash_all(self, index, prevout_pk_script=None, prevout_value=None,
                     anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
@@ -757,12 +711,56 @@ class Tx(ByteData):
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         if anyone_can_pay:
-            return Tx._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
 
-        return Tx._sighash_final_hashing(copy_tx, SIGHASH_ALL)
+        return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
 
-    @staticmethod
-    def _sighash_anyone_can_pay(index, copy_tx, sighash_type):
+    def sighash_single(self, index, prevout_pk_script=None, prevout_value=None,
+                       anyone_can_pay=False):
+        '''
+        Tx, int, byte-like, byte-like, bool -> bytearray
+        Sighashes suck
+        Generates the hash to be signed with SIGHASH_SINGLE
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
+        https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
+        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
+        '''
+
+        if index >= len(self.tx_outs):
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
+
+        if riemann.network.FORKID is not None:
+            return self._sighash_forkid(index=index,
+                                        prevout_pk_script=prevout_pk_script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_SINGLE,
+                                        anyone_can_pay=anyone_can_pay)
+
+        copy_tx = self._sighash_prep(index, prevout_pk_script)
+
+        # Remove outputs after the one we're signing
+        # Other tx_outs are set to -1 value and null scripts
+        copy_tx_outs = copy_tx.tx_outs[:index + 1]
+        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                        for _ in copy_tx.tx_ins]  # Null them all
+        copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
+
+        # Other tx_ins sequence numbers are set to 0
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]  # Set all to 0
+        copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
+
+        copy_tx = copy_tx.copy(
+            tx_ins=copy_tx_ins,
+            tx_outs=copy_tx_outs)
+
+        if anyone_can_pay:  # Forward onwards
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+
+    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
         '''
         int, byte-like, Tx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
@@ -775,11 +773,10 @@ class Tx(ByteData):
         copy_tx_ins = [copy_tx.tx_ins[index]]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
 
-        return Tx._sighash_final_hashing(
+        return self._sighash_final_hashing(
             copy_tx, sighash_type | SIGHASH_ANYONECANPAY)
 
-    @staticmethod
-    def _sighash_final_hashing(copy_tx, sighash_type):
+    def _sighash_final_hashing(self, copy_tx, sighash_type):
         '''
         Tx, int -> bytes
         Returns the hash that should be signed
@@ -815,17 +812,24 @@ class Tx(ByteData):
                 sequences += tx_in.sequence
             return utils.hash256(sequences.to_bytes())
 
-    def script_code(self, index, prevout_pk_script):
-        script = ByteData()
+    def script_code(self, index):
         if len(self.tx_ins[index].redeem_script) != 0:
+            script = ByteData()
             # redeemScript in case of P2SH
             script += VarInt(len(self.tx_ins[index].redeem_script))
             script += self.tx_ins[index].redeem_script
-        else:
-            # scriptPubKey in the general case
-            script += VarInt(len(prevout_pk_script))
-            script += prevout_pk_script
-        return script.to_bytes()
+            print(script)
+            return script.to_bytes()
+        return None
+
+    def _script_code(self, index, prevout_pk_script):
+        script_code = self.script_code(index=index)
+        if script_code is None:
+            script_code = prevout_pk_script
+        if script_code is None:
+            raise ValueError('No script found.')
+        print(script_code.hex())
+        return script_code
 
     def _hash_outputs(self, index, sighash_type):
         if sighash_type == SIGHASH_ALL:
@@ -879,9 +883,8 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-
-        data += self.script_code(index=index,
-                                 prevout_pk_script=prevout_pk_script)
+        data += self._script_code(index=index,
+                                  prevout_pk_script=prevout_pk_script)
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value

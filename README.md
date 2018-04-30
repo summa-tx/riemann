@@ -21,7 +21,7 @@ Multi-coin transaction generation toolbox.
 
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
 
-Riemann aims to make it easy to create application-specific Bitcoin transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for ~20 live networks and ~40 testnet or regtest nets.
+Riemann aims to make it easy to create application-specific transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for ~20 live networks and ~40 testnet or regtest nets.
 
 Riemann is NOT a wallet. It does NOT handle keys or create signatures. Riemann is NOT a protocol or RPC implementation. Riemann does NOT communicate with anything. Ever. Riemann is NOT a Script VM. Riemann does NOT check the validity of your scriptsigs.
 
