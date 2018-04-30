@@ -1,5 +1,9 @@
 ## Riemann: Multi-coin transaction generation toolbox.
 
+[![Build Status](https://travis-ci.org/integral-tx/riemann.svg?branch=master)](https://travis-ci.org/integral-tx/riemann)
+[![Coverage Status](https://coveralls.io/repos/github/integral-tx/riemann/badge.svg?branch=master)](https://coveralls.io/github/integral-tx/riemann?branch=master)
+
+
 ### Purpose
 
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
