@@ -821,13 +821,14 @@ class Tx(ByteData):
         return None
 
     def _adjusted_script_code(self, index, prevout_pk_script):
-        script_code = self.script_code(index=index)
-        if script_code is None:
-            script_code = ByteData()
+        script_code = ByteData()
+        script = self.script_code(index=index)
+        if script is None:
             script_code += VarInt(len(prevout_pk_script))
             script_code += prevout_pk_script
-        if script_code is None:
-            raise ValueError('No script found.')
+            return script_code
+        script_code += VarInt(len(script))
+        script_code += script
         return script_code
 
     def _hash_outputs(self, index, sighash_type):
