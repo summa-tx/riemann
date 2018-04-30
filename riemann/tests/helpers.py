@@ -9,8 +9,8 @@ num_inputs = bytes.fromhex('01')
 outpoint_tx_id = bytes.fromhex('813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1')
 outpoint_index = bytes.fromhex('00000000')
 script_sig_len = bytes.fromhex('6b')
-stack_script = bytes.fromhex('483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01')
-redeem_script = bytes.fromhex('210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278a')
+stack_script = bytes.fromhex('483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278a')
+redeem_script = bytes.fromhex('')
 sequence = bytes.fromhex('feffffff')
 num_outputs = bytes.fromhex('02')
 output_value_0 = bytes.fromhex('a135ef0100000000')
@@ -20,6 +20,8 @@ output_script_1 = bytes.fromhex('76a9141c4bc762dd5423e332166702cb75f40df79fea128
 lock_time = bytes.fromhex('19430600')
 
 prevout_pk_script = bytes.fromhex('a91424d6008f143af0cca57344069c46661aa4fcea2387')
+prevout_value = bytes.fromhex('3af9870200000000')
+
 sighash_all = bytes.fromhex('b85c4f8d1377cc138225dd9b319d0a4ca547f7884270640f44c5fcdf269e0fe8')
 sighash_all_anyonecanpay = bytes.fromhex('3b67a5114cc9fc837ddd6f6ec11bde38db5f68c34ab6ece2a043d7b25f2cf8bb')
 sighash_single = bytes.fromhex('1dab67d768be0380fc800098005d1f61744ffe585b0852f8d7adc12121a86938')
@@ -34,6 +36,24 @@ tx_out_1 = '99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac
 tx_id = bytes.fromhex('452c629d67e41baec3ac6f04fe744b4b9617f8f859c63b3002f8684e7a4fee03')
 tx_id_le = tx_id[::-1]
 P2PKH_SPEND = bytes.fromhex('0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600')
+
+
+# Generated with pycoin
+# To Produce More:
+# Install pycoin
+# from pycoin.coins.bcash.Tx import Tx
+# a = Tx.from_bin(P2PKH_SPEND)
+# class p():
+#    pass
+# c = p()
+# c.coin_value = int.from_bytes(prevout_value, 'little')
+# a.set_unspents([c])
+# hex(a.SolutionChecker(a)._signature_hash(prevout_pk_script, 0, SIGHASH TYPE AS INT))
+
+sighash_forkid_all = bytes.fromhex('450a16c7b1d6f913acb2460665a6fdc7dc7d351af5a3358c537278ffa4d125ea')
+sighash_forkid_single = bytes.fromhex('1a8ad1cebbd419fe5a53092fa6c272d8456829e871bf46be93906e859e42890e')
+sighash_forkid_all_anyone_can_pay = bytes.fromhex('f1a7a88eb953c86381f50ed223b8dd06e45b86437747ad83886f0529da9f3323')
+sighash_forkid_single_anyone_can_pay = bytes.fromhex('4ad1e69f172960c7ce26b993a0696fb618cf41104898b93b9fd66be465d1d38d')
 
 # From blockchain.info
 # https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
@@ -114,3 +134,7 @@ DCR_SIG_SCRIPT_LEN = bytes.fromhex('e0')
 DCR_SIG_SCRIPT = bytes.fromhex('483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac')
 DCR_STACK_SCRIPT = bytes.fromhex('483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed951')
 DCR_REDEEM_SCRIPT = bytes.fromhex('4c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac')
+
+# https://github.com/decred/dcrd/blob/1e42b8524db5e0cbcd5bf5f4893786b4986d17b6/txscript/script_test.go
+
+DCR_EXPECTED_SIGHASH = bytes.fromhex('4ce2cd042d64e35b36fdbd16aff0d38a5abebff0e5e8f6b6b31fcd4ac6957905')

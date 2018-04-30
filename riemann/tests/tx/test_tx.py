@@ -351,6 +351,9 @@ class TestTx(unittest.TestCase):
                       for b in helpers.P2WSH_WITNESS_STACK_ITEMS]
         self.tx_witnesses = [tx.InputWitness(self.stack)]
 
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
     # Convenience monotest
     # Sorta broken.
     def test_everything_witness(self):
@@ -516,7 +519,7 @@ class TestTx(unittest.TestCase):
                   None, self.lock_time)
 
         self.assertIn(
-            'Tx is too large. Expect less than 100kB. Got: 440397 bytes',
+            'Tx is too large. Expect less than 100kB. Got: ',
             str(context.exception))
 
     def test_tx_id(self):
@@ -576,6 +579,74 @@ class TestTx(unittest.TestCase):
             t.sighash_single(
                 0, helpers.prevout_pk_script, anyone_can_pay=True),
             helpers.sighash_single_anyonecanpay)
+
+    def test_sighash_single_bug(self):
+        with self.assertRaises(NotImplementedError) as context:
+            t = tx.Tx(self.version, self.none_flag, self.tx_ins * 3,
+                      self.tx_outs, self.none_witnesses, self.lock_time)
+            t.sighash_single(2, helpers.prevout_pk_script)
+
+        self.assertIn(
+            'I refuse to implement the SIGHASH_SINGLE bug.',
+            str(context.exception))
+
+    def test_sighash_forkid_single(self):
+        riemann.select_network('bitcoin_cash_main')
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        sighash = t.sighash_single(
+            index=0,
+            prevout_pk_script=helpers.prevout_pk_script,
+            prevout_value=helpers.prevout_value)
+
+        self.assertEqual(
+            sighash,
+            helpers.sighash_forkid_single)
+
+    def test_sighash_forkid_single_anyone_can_pay(self):
+        riemann.select_network('bitcoin_cash_main')
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        sighash = t.sighash_single(
+            index=0,
+            prevout_pk_script=helpers.prevout_pk_script,
+            prevout_value=helpers.prevout_value,
+            anyone_can_pay=True)
+
+        self.assertEqual(
+            sighash,
+            helpers.sighash_forkid_single_anyone_can_pay)
+
+    def test_sighash_forkid_all(self):
+        riemann.select_network('bitcoin_cash_main')
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        sighash = t.sighash_all(
+            index=0,
+            prevout_pk_script=helpers.prevout_pk_script,
+            prevout_value=helpers.prevout_value)
+
+        self.assertEqual(
+            sighash,
+            helpers.sighash_forkid_all)
+
+    def test_sighash_forkid_all_anyone_can_pay(self):
+        riemann.select_network('bitcoin_cash_main')
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        sighash = t.sighash_all(
+            index=0,
+            prevout_pk_script=helpers.prevout_pk_script,
+            prevout_value=helpers.prevout_value,
+            anyone_can_pay=True)
+
+        self.assertEqual(
+            sighash,
+            helpers.sighash_forkid_all_anyone_can_pay)
 
 
 class DecredTestCase(unittest.TestCase):
@@ -1076,3 +1147,55 @@ class TestDecredTx(DecredTestCase):
 
         self.assertEqual(res, copy)
         self.assertIsNot(res, copy)
+
+    def test_sighash(self):
+        '''
+        https://github.com/decred/dcrd/blob/1e42b8524db5e0cbcd5bf5f4893786b4986d17b6/txscript/script_test.go#L512
+        '''
+        tx_ins = []
+        tx_outs = []
+        tx_witnesses = []
+        version = helpers.DCR_VERSION
+        for i in range(3):
+            outpoint = tx.DecredOutpoint(
+                tx_id=utils.blake256(bytes([i])),
+                index=utils.i2le_padded(i, 4),
+                tree=b'\x00')
+            tx_in = tx.DecredTxIn(outpoint, b'\xff' * 4)
+            tx_ins += [tx_in]
+
+            # https://github.com/decred/dcrd/blob/master/wire/msgtx.go#L335-L343
+            tx_witness = tx.DecredInputWitness(
+                value=b'\xff' * 8,
+                height=b'\x00' * 4,
+                index=b'\xff' * 4,
+                stack_script=b'',
+                redeem_script=b'')
+            tx_witnesses += [tx_witness]
+
+        for i in range(2):
+            tx_out = tx.DecredTxOut(
+                value=bytes.fromhex('0000FF00FF00FF00'),
+                version=b'\x00\x00',
+                output_script=b'\x51')
+            tx_outs += [tx_out]
+
+        t = tx.DecredTx(
+            version=version,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=b'\x00' * 4,
+            expiry=b'\x00' * 4,
+            tx_witnesses=tx_witnesses)
+
+        print('')
+        print(
+            t.sighash_all(index=0,
+                          prevout_pk_script=b'\x51').hex())
+        print(helpers.DCR_EXPECTED_SIGHASH.hex())
+        print('')
+
+        self.assertEqual(
+            t.sighash_all(index=0,
+                          prevout_pk_script=b'\x51'),
+            helpers.DCR_EXPECTED_SIGHASH)

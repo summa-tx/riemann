@@ -653,11 +653,11 @@ class Tx(ByteData):
         '''
 
         if riemann.network.FORKID is not None:
-            return self._sighash_single_forkid(index,
-                                               prevout_pk_script,
-                                               SIGHASH_SINGLE,
-                                               prevout_value,
-                                               anyone_can_pay)
+            return self._sighash_forkid(index=index,
+                                        prevout_pk_script=prevout_pk_script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_SINGLE,
+                                        anyone_can_pay=anyone_can_pay)
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         try:
@@ -699,9 +699,11 @@ class Tx(ByteData):
         '''
 
         if riemann.network.FORKID is not None:
-            return self._sighash_all_forkid(index, prevout_pk_script,
-                                            prevout_value, SIGHASH_ALL,
-                                            anyone_can_pay)
+            return self._sighash_forkid(index=index,
+                                        prevout_pk_script=prevout_pk_script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_ALL,
+                                        anyone_can_pay=anyone_can_pay)
 
         copy_tx = self._sighash_prep(index, prevout_pk_script)
         if anyone_can_pay:
@@ -738,6 +740,71 @@ class Tx(ByteData):
         sighash += utils.i2le_padded(sighash_type, 4)
         return utils.hash256(sighash.to_bytes())
 
+    def _hash_prevouts(self, anyone_can_pay):
+        if anyone_can_pay:
+            # If the ANYONECANPAY flag is set,
+            # hashPrevouts is a uint256 of 0x0000......0000.
+            hash_prevouts = b'\x00' * 32
+        else:
+            # hashPrevouts is the double SHA256 of all outpoints;
+            outpoints = ByteData()
+            for tx_in in self.tx_ins:
+                outpoints += tx_in.outpoint
+            hash_prevouts = utils.hash256(outpoints.to_bytes())
+        return hash_prevouts
+
+    def _hash_sequence(self, sighash_type, anyone_can_pay):
+        if anyone_can_pay or sighash_type == SIGHASH_SINGLE:
+            # If any of ANYONECANPAY, SINGLE sighash type is set,
+            # hashSequence is a uint256 of 0x0000......0000.
+            return b'\x00' * 32
+        else:
+            # hashSequence is the double SHA256 of nSequence of all inputs;
+            sequences = ByteData()
+            for tx_in in self.tx_ins:
+                sequences += tx_in.sequence
+            return utils.hash256(sequences.to_bytes())
+
+    def script_code(self, index, prevout_pk_script):
+        script = ByteData()
+        if len(self.tx_ins[index].redeem_script) != 0:
+            # redeemScript in case of P2SH
+            script += VarInt(len(self.tx_ins[index].redeem_script))
+            script += self.tx_ins[index].redeem_script
+        else:
+            # scriptPubKey in the general case
+            script += VarInt(len(prevout_pk_script))
+            script += prevout_pk_script
+        return script.to_bytes()
+
+    def _hash_outputs(self, index, sighash_type):
+        if sighash_type == SIGHASH_ALL:
+            # If the sighash type is ALL,
+            # hashOutputs is the double SHA256 of all output amounts
+            # paired up with their scriptPubKey;
+            outputs = ByteData()
+            for tx_out in self.tx_outs:
+                outputs += tx_out.to_bytes()
+            return utils.hash256(outputs.to_bytes())
+        elif sighash_type == SIGHASH_SINGLE and index < len(self.tx_outs):
+            # f sighash type is SINGLE
+            # and the input index is smaller than the number of outputs,
+            # hashOutputs is the double SHA256 of the output at the same index
+            return utils.hash256(self.tx_outs[index].to_bytes())
+        else:
+            # Otherwise, hashOutputs is a uint256 of 0x0000......0000
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
+
+    def _adjusted_sighash_type(self, sighash_type, anyone_can_pay):
+        # The sighash type is altered to include a 24-bit fork id
+        # ss << ((GetForkID() << 8) | nHashType)
+        forkid = riemann.network.FORKID << 8
+        sighash = forkid | sighash_type | SIGHASH_FORKID
+        if anyone_can_pay:
+            sighash = sighash | SIGHASH_ANYONECANPAY
+        return utils.i2le_padded(sighash, 4)
+
     def _sighash_forkid(self, index, prevout_pk_script, prevout_value,
                         sighash_type, anyone_can_pay=False):
         '''
@@ -746,82 +813,43 @@ class Tx(ByteData):
         '''
         self.validate_bytes(prevout_value, 8)
 
-        data = bytearray()
+        data = ByteData()
+
         # 1. nVersion of the transaction (4-byte little endian)
-        data.extend(self.version)
+        data += self.version
 
         # 2. hashPrevouts (32-byte hash)
-        if anyone_can_pay:
-            # If the ANYONECANPAY flag is set,
-            # hashPrevouts is a uint256 of 0x0000......0000.
-            data.extend(b'\x00' * 32)
-        else:
-            # hashPrevouts is the double SHA256 of all outpoints;
-            outpoints = bytearray()
-            for tx_in in self.tx_ins:
-                outpoints.extend(tx_in.outpoint)
-            data.extend(utils.hash256(outpoints))
+        data += self._hash_prevouts(anyone_can_pay=anyone_can_pay)
 
         # 3. hashSequence (32-byte hash)
-        if anyone_can_pay or sighash_type == SIGHASH_SINGLE:
-            # If any of ANYONECANPAY, SINGLE sighash type is set,
-            # hashSequence is a uint256 of 0x0000......0000.
-            data.extend(b'\x00' * 32)
-        else:
-            # hashSequence is the double SHA256 of nSequence of all inputs;
-            sequences = bytearray()
-            for tx_in in self.tx_ins:
-                sequences.extend(tx_in.sequence)
-            data.extend(utils.hash256(sequences))
+        data += self._hash_sequence(sighash_type=sighash_type,
+                                    anyone_can_pay=anyone_can_pay)
 
         # 4. outpoint (32-byte hash + 4-byte little endian)
-        data.extend(self.tx_ins[index].outpoint)
+        data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        if len(self.tx_ins[index].redeem_script) is not None:
-            # redeemScript in case of P2SH
-            data.extend(self.tx_ins[index].redeem_script)
-        else:
-            # scriptPubKey in the general case
-            data.extend(prevout_pk_script)
+
+        data += self.script_code(index=index,
+                                 prevout_pk_script=prevout_pk_script)
 
         # 6. value of the output spent by this input (8-byte little endian)
-        data.extend(prevout_value)
+        data += prevout_value
 
         # 7. nSequence of the input (4-byte little endian)
-        data.extend(self.tx_ins[index].sequence)
+        data += self.tx_ins[index].sequence
 
         # 8. hashOutputs (32-byte hash)
-        if sighash_type == SIGHASH_ALL:
-            # If the sighash type is ALL,
-            # hashOutputs is the double SHA256 of all output amounts
-            # paired up with their scriptPubKey;
-            outputs = bytearray()
-            for tx_out in self.tx_outs:
-                outputs.extend(tx_out.to_bytes())
-            data.extend(utils.hash256(outputs))
-        elif sighash_type == SIGHASH_SINGLE and index < len(self.tx_outs):
-            # f sighash type is SINGLE
-            # and the input index is smaller than the number of outputs,
-            # hashOutputs is the double SHA256 of the output at the same index
-            data.extend(utils.hash256(self.tx_outs[index].to_bytes()))
-        else:
-            # Otherwise, hashOutputs is a uint256 of 0x0000......0000
-            data.extend(b'\x00' * 32)
+        data += self._hash_outputs(index=index, sighash_type=sighash_type)
 
         # 9. nLocktime of the transaction (4-byte little endian)
-        data.extend(self.lock_time)
+        data += self.lock_time
 
         # 10. sighash type of the signature (4-byte little endian)
-        # The sighash type is altered to include a 24-bit fork id
-        # ss << ((GetForkID() << 8) | nHashType)
-        forkid = riemann.network.FORKID << 8
-        sighash = forkid | sighash_type | SIGHASH_FORKID
-        if anyone_can_pay:
-            sighash = sighash | SIGHASH_ANYONECANPAY
-        data.extend(utils.i2le_padded(sighash, 4))
+        data += self._adjusted_sighash_type(sighash_type=sighash_type,
+                                            anyone_can_pay=anyone_can_pay)
 
-        return utils.hash256(data)
+        return utils.hash256(data.to_bytes())
 
 
 class DecredTx(ByteData):
@@ -904,26 +932,21 @@ class DecredTx(ByteData):
         self._make_immutable()
 
     def prefix_hash(self):
-        return utils.blake256(self.prefix())
+        try:
+            return self.tx_id_le  # Prevent redundant hashing
+        except AttributeError:
+            return utils.blake256(self.prefix())
 
     def witness_hash(self):
         return utils.blake256(self.witness())
 
-    def witness(self):
-        data = ByteData()
-        ser_type = 0x02 << 16
-        version = utils.le2i(self.version[:2])
-        data += utils.i2le_padded(version | ser_type, 4)
-        data += VarInt(len(self.tx_witnesses))
-        for w in self.tx_witnesses:
-            data += w
-        return data._bytes
+    def witness_signing_hash(self):
+        return utils.blake256(self.witness_signing())
 
     def prefix(self):
         data = ByteData()
-        ser_type = 0x01 << 16
-        version = utils.le2i(self.version[:2])
-        data += utils.i2le_padded(version | ser_type, 4)
+        data += self.version[:2]
+        data += b'\x01\x00'  # Serialization type 1 (prefix only)
         data += VarInt(len(self.tx_ins))
         for tx_in in self.tx_ins:
             data += tx_in
@@ -932,6 +955,25 @@ class DecredTx(ByteData):
             data += tx_out
         data += self.lock_time
         data += self.expiry
+        return data.to_bytes()
+
+    def witness(self):
+        data = ByteData()
+        data += self.version[:2]
+        data += b'\x02\x00'  # Serialization type 2 (witness only)
+        data += VarInt(len(self.tx_witnesses))
+        for tx_witness in self.tx_witnesses:
+            data += tx_witness
+        return data.to_bytes()
+
+    def witness_signing(self):
+        data = ByteData()
+        data += self.version[:2]
+        data += b'\x03\x00'  # Serialization type 3 (witness signing)
+        data += VarInt(len(self.tx_witnesses))
+        for tx_witness in self.tx_witnesses:
+            data += VarInt(tx_witness.script_len)
+            data += tx_witness.script_sig
         return data.to_bytes()
 
     def calculate_fee(self):
@@ -959,8 +1001,8 @@ class DecredTx(ByteData):
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
-            copy_tx_witnesses[index].copy(stack_script=b'',
-                                          redeem_script=sub_script)
+            copy_tx_witnesses[index].copy(stack_script=sub_script,
+                                          redeem_script=b'')
 
         return self.copy(tx_witnesses=copy_tx_witnesses)
 
@@ -985,9 +1027,15 @@ class DecredTx(ByteData):
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
 
         if anyone_can_pay:
-            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
+            return self._sighash_anyone_can_pay(
+                index=index,
+                copy_tx=copy_tx,
+                sighash_type=SIGHASH_SINGLE)
 
-        return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+        return self._sighash_final_hashing(
+            index=index,
+            copy_tx=copy_tx,
+            sighash_type=SIGHASH_SINGLE)
 
     def sighash_all(self, index, prevout_pk_script, anyone_can_pay=False):
         '''
@@ -997,9 +1045,15 @@ class DecredTx(ByteData):
         copy_tx = self._sighash_prep(index, prevout_pk_script)
 
         if anyone_can_pay:
-            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
+            return self._sighash_anyone_can_pay(
+                index=index,
+                copy_tx=copy_tx, 
+                sighash_type=SIGHASH_ALL)
 
-        return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
+        return self._sighash_final_hashing(
+            index=index,
+            copy_tx=copy_tx,
+            sighash_type=SIGHASH_ALL)
 
     def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
         copy_tx_ins = [copy_tx.tx_ins[index]]
@@ -1007,24 +1061,16 @@ class DecredTx(ByteData):
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins,
                                tx_witnesses=copy_tx_witnesses)
 
-        return self._sighash_final_hashing(index, copy_tx,
-                                           sighash_type | SIGHASH_ALL)
+        return self._sighash_final_hashing(
+            index=index,
+            copy_tx=copy_tx,
+            sighash_type=sighash_type | SIGHASH_ANYONECANPAY)
 
     def _sighash_final_hashing(self, index, copy_tx, sighash_type):
-        prefix_hash = copy_tx.tx_id_le
-
-        witness_hash = ByteData()
-        for i in range(len(copy_tx.tx_witnesses)):
-            if i == index:
-                witness_hash += copy_tx.tx_witnesses[i].script_len
-                witness_hash += copy_tx.tx_witnesses[i].script_sig
-            else:
-                witness_hash += b'\x00'
-        witness_hash = utils.blake256(witness_hash.to_bytes())
-
         sighash = ByteData()
         sighash += utils.i2le_padded(sighash_type, 4)
-        sighash += prefix_hash
-        sighash += witness_hash
+        sighash += copy_tx.prefix_hash()
+        sighash += copy_tx.witness_signing_hash()
+        print(sighash.hex())
 
         return utils.blake256(sighash.to_bytes())

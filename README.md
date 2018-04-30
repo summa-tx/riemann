@@ -10,7 +10,9 @@ Multi-coin transaction generation toolbox.
 * Support SIGHASH_FORKID
     * https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
     * https://github.com/owstack/bch-lib/blob/master/lib/transaction/sighash.js#L24-L139
+    * Supported. Writing Tests now.
 * More Sighash tests (witness transactions, etc.)
+* improve Sighash code quality across the board.
 * Build out simple interface more
 * Support Decred sighash
 * support blake256 (NOT equivalent to blake2b or blake2s)
