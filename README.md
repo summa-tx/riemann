@@ -2,7 +2,9 @@ Multi-coin transaction generation toolbox.
 
 ### Major TODOs
 
-* Lists in data structures (e.g. `tx_ins`, `tx_outs`) are not immutable. Should change to tuples.
+* Parse full Transaction from bytes or hex strings
+* Finish implementing decred sighash tests here: https://github.com/decred/dcrd/pull/1178/files
+* Lists in data structures (e.g. `tx_ins`, `tx_outs`) are not immutable. Change to tuples.
 * Support OP_PUSHDATA1-4
 * ~~Many~~ more tests
 * Alternate API where the network object is passed to functions (real statelessness)
@@ -134,3 +136,9 @@ print(SignatureHash(prevout_pk_script, a, index,
 ```
 
 Unsure if python-bitcoinlib supports witness txns yet.
+
+# LICENSE
+
+Riemann is released under the LGPL.
+It contains some code released under MIT and ISC licenses.
+TODO: Which code?

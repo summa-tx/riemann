@@ -213,6 +213,12 @@ class Outpoint(ByteData):
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index)
 
+    @classmethod
+    def from_bytes(Outpoint, byte_string):
+        return Outpoint(
+            tx_id=byte_string[:32],
+            index=byte_string[32:])
+
 
 class DecredOutpoint(DecredByteData):
 
@@ -238,6 +244,13 @@ class DecredOutpoint(DecredByteData):
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index,
             tree=tree if tree is not None else self.tree)
+
+    @classmethod
+    def from_bytes(DecredOutpoint, byte_string):
+        return DecredOutpoint(
+            tx_id=byte_string[:32],
+            index=byte_string[32:36],
+            tree=byte_string[36:])
 
 
 class TxIn(ByteData):
@@ -288,6 +301,10 @@ class TxIn(ByteData):
                            else self.redeem_script),
             sequence=sequence if sequence is not None else self.sequence)
 
+    @classmethod
+    def from_bytes(TxIn, byte_string):
+        raise NotImplementedError('TODO')
+
 
 class DecredTxIn(DecredByteData):
 
@@ -309,6 +326,12 @@ class DecredTxIn(DecredByteData):
         return DecredTxIn(
             outpoint=outpoint if outpoint is not None else self.outpoint,
             sequence=sequence if sequence is not None else self.sequence)
+
+    @classmethod
+    def from_bytes(DecredTxIn, byte_string):
+        return DecredTxIn(
+            outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
+            sequence=byte_string[37:])
 
 
 class TxOut(ByteData):
@@ -343,6 +366,17 @@ class TxOut(ByteData):
             output_script=(output_script if output_script is not None
                            else self.output_script))
 
+    @classmethod
+    def from_bytes(TxOut, byte_string):
+        n = byte_string[8]
+        if n < 0xfc:  # VarInt handling
+            return DecredTxOut(
+                value=byte_string[:8],
+                output_script=byte_string[9:])
+        else:
+            raise NotImplementedError(
+                'No support for abnormally long pk_scripts.')
+
 
 class DecredTxOut(ByteData):
 
@@ -371,6 +405,18 @@ class DecredTxOut(ByteData):
             version=version if version is not None else self.version,
             output_script=(output_script if output_script is not None
                            else self.output_script))
+
+    @classmethod
+    def from_bytes(DecredTxOut, byte_string):
+        n = byte_string[9]
+        if n < 0xfc:  # VarInt handling
+            return DecredTxOut(
+                value=byte_string[:8],
+                version=byte_string[8:10],
+                output_script=byte_string[11:])
+        else:
+            raise NotImplementedError(
+                'No support for abnormally long pk_scripts.')
 
 
 class WitnessStackItem(ByteData):
@@ -470,6 +516,10 @@ class DecredInputWitness(DecredByteData):
                           else self.stack_script),
             redeem_script=(redeem_script if redeem_script is not None
                            else self.redeem_script))
+
+    @classmethod
+    def from_bytes(DecredInputWitness, byte_string):
+        raise NotImplementedError('TODO')
 
 
 class Tx(ByteData):
@@ -868,11 +918,11 @@ class DecredTx(ByteData):
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
 
-        if len(tx_witnesses) != len(tx_ins):
-            raise ValueError(
-                'Witness and TxIn lists must be same length. '
-                'Got {} inputs and {} witnesses.'
-                .format(len(tx_ins), len(tx_witnesses)))
+        # if len(tx_witnesses) != len(tx_ins):
+        #     raise ValueError(
+        #         'Witness and TxIn lists must be same length. '
+        #         'Got {} inputs and {} witnesses.'
+        #         .format(len(tx_ins), len(tx_witnesses)))
 
         for tx_in in tx_ins:
             if not isinstance(tx_in, DecredTxIn):
@@ -996,8 +1046,9 @@ class DecredTx(ByteData):
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
-    def _sighash_prep(self, index, prevout_pk_script):
-        sub_script = prevout_pk_script
+    def _sighash_prep(self, index, prevout_pk_script=None):
+        sub_script = (prevout_pk_script if prevout_pk_script is not None
+                      else self.tx_ins[index].redeem_script[1:])
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
@@ -1006,11 +1057,14 @@ class DecredTx(ByteData):
 
         return self.copy(tx_witnesses=copy_tx_witnesses)
 
-    def sighash_single(self, index, prevout_pk_script, anyone_can_pay=False):
+    def sighash_single(self, index, prevout_pk_script=None,
+                       anyone_can_pay=False):
         '''
         https://github.com/decred/dcrd/blob/master/txscript/script.go
         '''
-        copy_tx = self._sighash_prep(index, prevout_pk_script)
+        copy_tx = self._sighash_prep(
+            index=index,
+            prevout_pk_script=prevout_pk_script)
 
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
@@ -1037,7 +1091,7 @@ class DecredTx(ByteData):
             copy_tx=copy_tx,
             sighash_type=SIGHASH_SINGLE)
 
-    def sighash_all(self, index, prevout_pk_script, anyone_can_pay=False):
+    def sighash_all(self, index, prevout_pk_script=None, anyone_can_pay=False):
         '''
         https://gist.github.com/davecgh/b00ec6e11f73620c3deddf160353961c
         https://github.com/decred/dcrd/blob/master/txscript/script.go
@@ -1047,7 +1101,7 @@ class DecredTx(ByteData):
         if anyone_can_pay:
             return self._sighash_anyone_can_pay(
                 index=index,
-                copy_tx=copy_tx, 
+                copy_tx=copy_tx,
                 sighash_type=SIGHASH_ALL)
 
         return self._sighash_final_hashing(
@@ -1056,10 +1110,10 @@ class DecredTx(ByteData):
             sighash_type=SIGHASH_ALL)
 
     def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
-        copy_tx_ins = [copy_tx.tx_ins[index]]
-        copy_tx_witnesses = [copy_tx.tx_witnesses[index]]
-        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins,
-                               tx_witnesses=copy_tx_witnesses)
+        copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
+                             for w in copy_tx.tx_witnesses]
+        copy_tx_witnesses[index] = copy_tx.tx_witnesses[index]
+        copy_tx = copy_tx.copy(tx_witnesses=copy_tx_witnesses)
 
         return self._sighash_final_hashing(
             index=index,
@@ -1071,6 +1125,4 @@ class DecredTx(ByteData):
         sighash += utils.i2le_padded(sighash_type, 4)
         sighash += copy_tx.prefix_hash()
         sighash += copy_tx.witness_signing_hash()
-        print(sighash.hex())
-
         return utils.blake256(sighash.to_bytes())
