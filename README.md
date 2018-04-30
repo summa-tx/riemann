@@ -67,6 +67,7 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 # script_sig -> Goes in TxIn.
 #   - Legacy only
 #   - Contains initial stack (stack_script)
+#   - Contains p2sh script (redeem_script)
 #   - Contains pubey/script revelation
 # stack_script -> Goes in script_sig
 #   - Legacy only
@@ -86,42 +87,12 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 #   - If spending from p2wpkh, consists of [signature, pubkey]
 ```
 
-# Notes
-To make more sighash tests:
-
-1. install python-bitcoinlib
-2. As follows:
-
-```Python
-import binascii
-from io import BytesIO
-from bitcoin.core import CMutableTransaction
-from bitcoin.core.script import SIGHASH_ANYONECANPAY, CScript
-from bitcoin.core.script import SignatureHash, SIGHASH_ALL, SIGHASH_SINGLE
-
-def parse_tx(hex_tx):
-     # NB: The deserialize function reads from a stream.
-     raw_tx = BytesIO(binascii.unhexlify(hex_tx))
-     tx = CMutableTransaction.stream_deserialize(raw_tx)
-     return tx
-
-prevout_pk_script = CScript(bytes.fromhex(HEX_ENCODED_PK_SCRIPT))
-tx_hex = 'SOME HEX ENCODED TX'
-index = THE_INDEX_OF_THE_INPUT
-a = parse_tx(HEX_ENCODED_TX)
-
-print(SignatureHash(prevout_pk_script, a, index, SIGHASH_ALL))
-print(SignatureHash(prevout_pk_script, a, index,
-                    SIGHASH_ALL | SIGHASH_ANYONECANPAY))
-print(SignatureHash(prevout_pk_script, a, index, SIGHASH_SINGLE))
-print(SignatureHash(prevout_pk_script, a, index,
-                    SIGHASH_SINGLE | SIGHASH_ANYONECANPAY))
-```
-
-Unsure if python-bitcoinlib supports witness txns yet.
-
 # LICENSE
 
 Riemann is released under the LGPL.
-It contains some code released under MIT and ISC licenses.
-TODO: Which code?
+Riemann contains some code released under MIT and ISC licenses. The appropriate license is included at the top of these files.
+
+In particular:
+* Base58 implementation from the excellent pycoin by Richard Kiss. [Link](https://github.com/richardkiss/pycoin)
+* Bech32 implementation from Pieter Wuille. [Link](https://github.com/sipa/bech32/tree/master/ref/python)
+* blake256 implementation by Larry Bugbee. [Link](http://www.seanet.com/~bugbee/crypto/blake/)

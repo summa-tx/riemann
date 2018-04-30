@@ -22,6 +22,37 @@ lock_time = bytes.fromhex('19430600')
 prevout_pk_script = bytes.fromhex('a91424d6008f143af0cca57344069c46661aa4fcea2387')
 prevout_value = bytes.fromhex('3af9870200000000')
 
+# Notes
+# Unsure if python-bitcoinlib supports witness txns yet.
+# To make more sighash tests:
+#
+# 1. install python-bitcoinlib
+# 2. As follows:
+#
+# ```Python
+# import binascii
+# from io import BytesIO
+# from bitcoin.core import CMutableTransaction
+# from bitcoin.core.script import SIGHASH_ANYONECANPAY, CScript
+# from bitcoin.core.script import SignatureHash, SIGHASH_ALL, SIGHASH_SINGLE
+#
+# def parse_tx(hex_tx):
+#      # NB: The deserialize function reads from a stream.
+#      raw_tx = BytesIO(binascii.unhexlify(hex_tx))
+#      tx = CMutableTransaction.stream_deserialize(raw_tx)
+#      return tx
+#
+# prevout_pk_script = CScript(bytes.fromhex(HEX_ENCODED_PK_SCRIPT))
+# tx_hex = 'SOME HEX ENCODED TX'
+# index = THE_INDEX_OF_THE_INPUT
+# a = parse_tx(HEX_ENCODED_TX)
+#
+# print(SignatureHash(prevout_pk_script, a, index, SIGHASH_ALL))
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_ALL | SIGHASH_ANYONECANPAY))
+# print(SignatureHash(prevout_pk_script, a, index, SIGHASH_SINGLE))
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_SINGLE | SIGHASH_ANYONECANPAY))
 sighash_all = bytes.fromhex('b85c4f8d1377cc138225dd9b319d0a4ca547f7884270640f44c5fcdf269e0fe8')
 sighash_all_anyonecanpay = bytes.fromhex('3b67a5114cc9fc837ddd6f6ec11bde38db5f68c34ab6ece2a043d7b25f2cf8bb')
 sighash_single = bytes.fromhex('1dab67d768be0380fc800098005d1f61744ffe585b0852f8d7adc12121a86938')
