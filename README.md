@@ -1,22 +1,5 @@
 Multi-coin transaction generation toolbox.
 
-### Major TODOs
-
-* Parse full Transaction from bytes or hex strings
-* General
-    * Need more sighash tests
-* Bcash
-    * Need more sighash_forkid tests
-* Decred
-    * sighash is currently broken
-    * Finish implementing decred sighash tests here: https://github.com/decred/dcrd/pull/1178/files
-* Lists in data structures (e.g. `tx_ins`, `tx_outs`) are not immutable. Change to tuples.
-* Support OP_PUSHDATA1-4
-* Alternate API where the network object is passed to functions (real statelessness)
-* Fix 255 byte bug in InputWitness.from_bytes
-* improve Sighash code quality across the board.
-* Build out simple interface more
-
 ### Purpose
 
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
