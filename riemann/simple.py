@@ -71,6 +71,13 @@ def outpoint(tx_id, index, tree=None):
     return tb.make_outpoint(tx_id_le, index, tree)
 
 
+def empty_outpoint():
+    return tb.make_outpoint(
+        tx_id_le=b'\x00' * 32,
+        index=0,
+        tree=b'\x00')
+
+
 def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
     if redeem_script != b'':
         sequence = guess_sequence(redeem_script)
@@ -144,6 +151,19 @@ def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
 
 def empty_input_witness():
     return tb.make_witness([])
+
+
+def empty_input():
+    return tb.make_witness_input(
+        outpoint=empty_outpoint(),
+        sequence=b'\x00' * 4)
+
+
+def empty_output():
+    return tb._make_output(
+        value=b'\xff' * 8,
+        script=b'',
+        version=b'\x00' * 2)
 
 
 def unsigned_tx(tx_ins, tx_outs, **kwargs):
