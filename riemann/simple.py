@@ -1,8 +1,9 @@
 import riemann
+from . import utils
 from .script import examples
 from .script import serialization as script_ser
 from .tx import tx_builder as tb
-from .encoding import addr
+from .encoding import addresses as addr
 
 
 def guess_version(redeem_script):
@@ -16,11 +17,12 @@ def guess_version(redeem_script):
     '''
     if 'zcash' in riemann.get_current_network_name():
         return 1
-    script_array = redeem_script.split()
-    loc = script_array.find('OP_CHECKSEQUENCEVERIFY')
-    if loc == -1:
+    try:
+        script_array = redeem_script.split()
+        script_array.index('OP_CHECKSEQUENCEVERIFY')
+        return 2
+    except ValueError:
         return 1  # Enable lock_time, disable RBF
-    return 2
 
 
 def guess_sequence(redeem_script):
@@ -30,11 +32,12 @@ def guess_sequence(redeem_script):
     Otherwise, disable RBF, but leave lock_time on.
     Fails if there's not a constant before OP_CSV
     '''
-    script_array = redeem_script.split()
-    loc = script_array.find('OP_CHECKSEQUENCEVERIFY')
-    if loc == -1:
+    try:
+        script_array = redeem_script.split()
+        loc = script_array.index('OP_CHECKSEQUENCEVERIFY')
+        return int(script_array[loc - 1], 16)
+    except ValueError:
         return 0xFFFFFFFE  # Enable lock_time, disable RBF
-    return int(script_array[loc - 1], 16)
 
 
 def guess_locktime(redeem_script):
@@ -44,11 +47,12 @@ def guess_locktime(redeem_script):
     Otherwise return 0 (no lock time)
     Fails if there's not a constant before OP_CLTV
     '''
-    script_array = redeem_script.split()
-    loc = script_array.find('OP_CHECKLOCKTIMEVERIFY')
-    if loc == -1:
+    try:
+        script_array = redeem_script.split()
+        loc = script_array.index('OP_CHECKLOCKTIMEVERIFY')
+        return int(script_array[loc - 1], 16)
+    except ValueError:
         return 0  # Enable lock_time, disable RBF
-    return int(script_array[loc - 1], 16)
 
 
 def output(value, address):
@@ -57,7 +61,25 @@ def output(value, address):
     accepts base58 or bech32
     '''
     script = addr.parse(address)
-    return tb.make_output(value, script)
+    value = utils.i2le_padded(value, 8)
+    return tb._make_output(value, script)
+
+
+def outpoint(tx_id, index, tree=None):
+    tx_id_le = bytes.fromhex(tx_id)[::-1]  # accepts block explorer txid string
+    tree = None if tree is None else utils.i2le_padded(tree, 1)
+    return tb.make_outpoint(tx_id_le, index, tree)
+
+
+def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
+    if redeem_script != b'':
+        sequence = guess_sequence(redeem_script)
+        redeem_script = script_ser.serialize(redeem_script)
+    return tb.make_legacy_input(
+        outpoint=outpoint,
+        stack_script=b'',
+        redeem_script=b'',
+        sequence=sequence)
 
 
 def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
@@ -120,6 +142,18 @@ def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
     return tb.make_witness_input_and_witness(outpoint, sequence, stack)
 
 
+def empty_input_witness():
+    return tb.make_witness([])
+
+
+def unsigned_tx(tx_ins, tx_outs, **kwargs):
+    return tb.make_tx(
+        version=kwargs['version'] if 'version' in kwargs else 1,
+        tx_ins=tx_ins,
+        tx_outs=tx_outs,
+        lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0)
+
+
 def legacy_tx(tx_ins, tx_outs):
     '''
     list(TxIn), list(TxOut) -> Tx
@@ -142,14 +176,15 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     list(TxIn), list(TxOut), list(InputWitness) -> Tx
     '''
     # Parse legacy scripts AND witness scripts for OP_CLTV
-    deser = [script_ser.deserialize(txin.script) for txin in tx_ins
-             if txin is not None]
+    deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins
+             if tx_in is not None]
     deser += [script_ser.deserialize(wit[::-1]) for wit in tx_witnesses]
     version = max([guess_version(d) for d in deser])
     lock_time = max([guess_locktime(d) for d in deser])
 
-    return tb.make_tx(version=version,
-                      tx_ins=tx_ins,
-                      tx_outs=tx_outs,
-                      lock_time=lock_time,
-                      tx_witnesses=tx_witnesses)
+    return tb.make_tx(
+        version=version,
+        tx_ins=tx_ins,
+        tx_outs=tx_outs,
+        lock_time=lock_time,
+        tx_witnesses=tx_witnesses)

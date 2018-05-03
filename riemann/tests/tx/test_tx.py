@@ -597,7 +597,7 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_single(
             index=0,
-            prevout_pk_script=helpers.prevout_pk_script,
+            script=helpers.prevout_pk_script,
             prevout_value=helpers.prevout_value)
 
         self.assertEqual(
@@ -611,7 +611,7 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_single(
             index=0,
-            prevout_pk_script=helpers.prevout_pk_script,
+            script=helpers.prevout_pk_script,
             prevout_value=helpers.prevout_value,
             anyone_can_pay=True)
 
@@ -626,7 +626,7 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_all(
             index=0,
-            prevout_pk_script=helpers.prevout_pk_script,
+            script=helpers.prevout_pk_script,
             prevout_value=helpers.prevout_value)
 
         self.assertEqual(
@@ -640,7 +640,7 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_all(
             index=0,
-            prevout_pk_script=helpers.prevout_pk_script,
+            script=helpers.prevout_pk_script,
             prevout_value=helpers.prevout_value,
             anyone_can_pay=True)
 
@@ -1211,7 +1211,7 @@ class TestDecredTx(DecredTestCase):
 
         tx_witnesses = [tx_witness_0, tx_witness_1, tx_witness_2]
 
-        t = tx.DecredTx(
+        tx.DecredTx(
             version=helpers.DCR_2_VERSION,
             tx_ins=tx_ins,
             tx_outs=tx_outs,

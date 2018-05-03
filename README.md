@@ -16,13 +16,15 @@ Riemann is _almost_ stateless. Before calling functions, you select a network. A
 
 ### Installation, Development & Running Tests
 
-`$ git clone $LIB_URL`
-`$ cd riemann-tx`
-`$ virtualenv -p python3 venv`
-`$ source venv/bin/activate`
-`$ pip install -r requirements-test.txt`
-`$ pip install -e .`
-`$ tox`
+```
+$ git clone $LIB_URL
+$ cd riemann-tx
+$ virtualenv -p python3 venv
+$ source venv/bin/activate
+$ pip install -r requirements-test.txt
+$ pip install -e .
+$ tox
+```
 
 ### Usage
 
