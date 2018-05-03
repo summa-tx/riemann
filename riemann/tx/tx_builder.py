@@ -183,7 +183,7 @@ def make_decred_witness(value, height, index, stack_script, redeem_script):
 
 def make_outpoint(tx_id_le, index, tree=None):
     '''
-    bytearray, int -> Outpoint
+    byte-like, int, byte-like -> Outpoint
     '''
     if 'decred' in riemann.get_current_network_name():
         return tx.DecredOutpoint(tx_id=tx_id_le, index=index, tree=tree)
@@ -226,8 +226,8 @@ def make_witness_input(outpoint, sequence):
     if 'decred' in riemann.get_current_network_name():
         return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
     return tx.TxIn(outpoint=outpoint,
-                   stack_script=bytearray([0]),
-                   redeem_script=bytearray(),
+                   stack_script=b'',
+                   redeem_script=b'',
                    sequence=sequence)
 
 

@@ -301,6 +301,9 @@ class TxIn(ByteData):
                            else self.redeem_script),
             sequence=sequence if sequence is not None else self.sequence)
 
+    def is_p2sh(self):
+        return self.redeem_script is not b''
+
     @classmethod
     def from_bytes(TxIn, byte_string):
         raise NotImplementedError('TODO')
@@ -669,7 +672,7 @@ class Tx(ByteData):
                   lock_time=(lock_time if lock_time is not None
                              else self.lock_time))
 
-    def _sighash_prep(self, index, prevout_pk_script):
+    def _sighash_prep(self, index, script):
         '''
         Tx, int, byte-like -> Tx
         Sighashes suck
@@ -680,7 +683,7 @@ class Tx(ByteData):
         '''
         sub_script = self.script_code(index=index)
         if sub_script is None:
-            sub_script = prevout_pk_script
+            sub_script = script
         # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
                        for tx_in in self.tx_ins]
@@ -692,7 +695,7 @@ class Tx(ByteData):
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_all(self, index, prevout_pk_script=None, prevout_value=None,
+    def sighash_all(self, index, script=None, prevout_value=None,
                     anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
@@ -703,18 +706,19 @@ class Tx(ByteData):
 
         if riemann.network.FORKID is not None:
             return self._sighash_forkid(index=index,
-                                        prevout_pk_script=prevout_pk_script,
+                                        script=script,
                                         prevout_value=prevout_value,
                                         sighash_type=SIGHASH_ALL,
                                         anyone_can_pay=anyone_can_pay)
 
-        copy_tx = self._sighash_prep(index, prevout_pk_script)
+        copy_tx = self._sighash_prep(index=index, script=script)
         if anyone_can_pay:
-            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_ALL)
+            return self._sighash_anyone_can_pay(
+                index=index, copy_tx=copy_tx, sighash_type=SIGHASH_ALL)
 
         return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
 
-    def sighash_single(self, index, prevout_pk_script=None, prevout_value=None,
+    def sighash_single(self, index, script=None, prevout_value=None,
                        anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
@@ -731,12 +735,12 @@ class Tx(ByteData):
 
         if riemann.network.FORKID is not None:
             return self._sighash_forkid(index=index,
-                                        prevout_pk_script=prevout_pk_script,
+                                        script=script,
                                         prevout_value=prevout_value,
                                         sighash_type=SIGHASH_SINGLE,
                                         anyone_can_pay=anyone_can_pay)
 
-        copy_tx = self._sighash_prep(index, prevout_pk_script)
+        copy_tx = self._sighash_prep(index=index, script=script)
 
         # Remove outputs after the one we're signing
         # Other tx_outs are set to -1 value and null scripts
@@ -819,15 +823,15 @@ class Tx(ByteData):
             return script.to_bytes()
         return None
 
-    def _adjusted_script_code(self, index, prevout_pk_script):
+    def _adjusted_script_code(self, index, script):
         script_code = ByteData()
-        script = self.script_code(index=index)
-        if script is None:
-            script_code += VarInt(len(prevout_pk_script))
-            script_code += prevout_pk_script
+        tx_in_redeem_script = self.script_code(index=index)
+        if tx_in_redeem_script is None:
+            script_code += VarInt(len(script))
+            script_code += script
             return script_code
-        script_code += VarInt(len(script))
-        script_code += script
+        script_code += VarInt(len(tx_in_redeem_script))
+        script_code += tx_in_redeem_script
         return script_code
 
     def _hash_outputs(self, index, sighash_type):
@@ -858,7 +862,7 @@ class Tx(ByteData):
             sighash = sighash | SIGHASH_ANYONECANPAY
         return utils.i2le_padded(sighash, 4)
 
-    def _sighash_forkid(self, index, prevout_pk_script, prevout_value,
+    def _sighash_forkid(self, index, script, prevout_value,
                         sighash_type, anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, int, bool -> bytes
@@ -884,7 +888,7 @@ class Tx(ByteData):
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
         data += self._adjusted_script_code(
             index=index,
-            prevout_pk_script=prevout_pk_script)
+            script=script)
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value
@@ -1057,10 +1061,10 @@ class DecredTx(ByteData):
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
-    def _sighash_prep(self, index, prevout_pk_script=None):
+    def _sighash_prep(self, index, script=None):
         sub_script = self.script_code(index)
         if sub_script is None:
-            sub_script = prevout_pk_script
+            sub_script = script
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
@@ -1069,14 +1073,14 @@ class DecredTx(ByteData):
 
         return self.copy(tx_witnesses=copy_tx_witnesses)
 
-    def sighash_single(self, index, prevout_pk_script=None,
+    def sighash_single(self, index, script=None,
                        anyone_can_pay=False):
         '''
         https://github.com/decred/dcrd/blob/master/txscript/script.go
         '''
         copy_tx = self._sighash_prep(
             index=index,
-            prevout_pk_script=prevout_pk_script)
+            script=script)
 
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
@@ -1103,12 +1107,12 @@ class DecredTx(ByteData):
             copy_tx=copy_tx,
             sighash_type=SIGHASH_SINGLE)
 
-    def sighash_all(self, index, prevout_pk_script=None, anyone_can_pay=False):
+    def sighash_all(self, index, script=None, anyone_can_pay=False):
         '''
         https://gist.github.com/davecgh/b00ec6e11f73620c3deddf160353961c
         https://github.com/decred/dcrd/blob/master/txscript/script.go
         '''
-        copy_tx = self._sighash_prep(index, prevout_pk_script)
+        copy_tx = self._sighash_prep(index, script)
 
         if anyone_can_pay:
             return self._sighash_anyone_can_pay(

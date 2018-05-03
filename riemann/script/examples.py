@@ -4,7 +4,7 @@
 msig_two_two = 'OP_2 {} {} OP_2 OP_CHECKMULTISIG'
 
 # Needs two signatures and the redeem_script
-msig_two_two_script_sig = 'OP_0 {} {} {}'
+msig_two_two_script_sig = 'OP_0 {} {}'
 
 # Needs signature and pubkey
 p2pkh_script_sig = '{} {}'
