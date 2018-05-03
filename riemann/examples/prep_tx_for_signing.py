@@ -1,3 +1,5 @@
+# flake8: noqa
+
 from riemann import simple
 
 # Spend a P2PKH output:
