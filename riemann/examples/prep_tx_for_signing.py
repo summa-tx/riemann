@@ -16,5 +16,5 @@ tx_outs = [simple.output(value, address)]
 # Build the transaction
 tx = simple.unsigned_tx(tx_ins, tx_outs)
 
-tx.sighash_single(0, p2pkh_pk_script)
-tx.sighash_all(1, redeem_script, anyone_can_pay=True)
+sighash_0 = tx.sighash_single(0, p2pkh_pk_script)
+sighash_1 tx.sighash_all(1, redeem_script, anyone_can_pay=True)

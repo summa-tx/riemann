@@ -60,15 +60,29 @@ def output(value, address):
     int, str -> TxOut
     accepts base58 or bech32
     '''
-    script = addr.parse(address)
+    script = addr.to_output_script(address)
     value = utils.i2le_padded(value, 8)
     return tb._make_output(value, script)
+
+
+def empty_output():
+    return tb._make_output(
+        value=b'\xff' * 8,
+        script=b'',
+        version=b'\x00' * 2)
 
 
 def outpoint(tx_id, index, tree=None):
     tx_id_le = bytes.fromhex(tx_id)[::-1]  # accepts block explorer txid string
     tree = None if tree is None else utils.i2le_padded(tree, 1)
     return tb.make_outpoint(tx_id_le, index, tree)
+
+
+def empty_outpoint():
+    return tb.make_outpoint(
+        tx_id_le=b'\x00' * 32,
+        index=0,
+        tree=b'\x00')
 
 
 def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
@@ -80,6 +94,12 @@ def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
         stack_script=b'',
         redeem_script=b'',
         sequence=sequence)
+
+
+def empty_input():
+    return tb.make_witness_input(
+        outpoint=empty_outpoint(),
+        sequence=b'\x00' * 4)
 
 
 def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
