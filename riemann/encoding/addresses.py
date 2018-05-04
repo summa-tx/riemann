@@ -64,28 +64,33 @@ def parse(address):
                 'Unsupported address format. Got: {}'.format(address))
 
 
-def parse_pkh_address(address):
-    return parse(address)
+def to_output_script(address):
+    '''
+    There's probably a better way to do this
+    '''
+    parsed = parse(address)
 
+    if parsed.find(riemann.network.P2WPKH_PREFIX) == 0:
+        return parsed
 
-def parse_p2wpkh_address(address):
-    return parse_pkh_address(address)
+    elif parsed.find(riemann.network.P2WSH_PREFIX) == 0:
+        return parsed
 
+    elif parsed.find(riemann.network.P2PKH_PREFIX) == 0:
+        prefix = b'\x76\xa9\x14'
+        parsed_hash = parsed[len(riemann.network.P2PKH_PREFIX):]
+        suffix = b'\x88\xac'
 
-def parse_p2pkh_address(address):
-    return parse_pkh_address(address)
+    elif parsed.find(riemann.network.P2SH_PREFIX) == 0:
+        prefix = b'\xa9'
+        parsed_hash = parsed[len(riemann.network.P2SH_PREFIX):]
+        suffix = b'\x87'
 
+    else:
+        raise ValueError('Cannot parse output script from address.')
 
-def parse_sh_address(address):
-    return parse(address)
-
-
-def parse_p2sh_address(address):
-    return parse_sh_address(address)
-
-
-def parse_p2wsh_address(address):
-    return parse_sh_address(address)
+    output_script = prefix + parsed_hash + suffix
+    return output_script
 
 
 def parse_hash(address):
