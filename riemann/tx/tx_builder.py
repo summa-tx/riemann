@@ -4,31 +4,6 @@ from .. import utils
 from ..script import serialization
 
 
-# TODO: Coerce the [expletive] out of everything
-# TODO: Check Terminology.
-# NB:
-# script_sig -> Goes in TxIn.
-#   - Legacy only
-#   - Contains initial stack (stack_script)
-#   - Contains pubey/script revelation
-# stack_script -> Goes in script_sig
-#   - Legacy only
-#   - Contains script that makes initial stack
-# script_pubkey -> Goes in TxOut
-#   - Also called pk_script, output_script
-#   - P2PKH: OP_DUP OP_HASH160 PUSH14 {pkh} OP_EQUALVERIFY OP_CHECKSIG
-#   - P2SH: OP_HASH160 {script_hash} OP_EQUAL
-#   - P2WPKH: OP_0 PUSH0x14 {pkh}
-#   - P2WSH: OP_0 PUSH0x20 {script_hash}
-# WitnessStackItem -> Goes in InputWitness
-#   - Witness only
-#   - Contains a length-prefixed stack item
-# InputWitness -> Goes in Witness
-#   - A stack associated with a specific input
-#   - If spending from p2wsh, the last item is a serialzed script
-#   - If spending from p2wpkh, consists of [signature, pubkey]
-
-
 def make_sh_output_script(script_string, witness=False):
     '''
     str -> bytearray

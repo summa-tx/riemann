@@ -695,8 +695,8 @@ class Tx(ByteData):
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_all(self, index, script=None, prevout_value=None,
-                    anyone_can_pay=False):
+    def sighash_all(self, index, script=None,
+                    prevout_value=None, anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
@@ -718,8 +718,8 @@ class Tx(ByteData):
 
         return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
 
-    def sighash_single(self, index, script=None, prevout_value=None,
-                       anyone_can_pay=False):
+    def sighash_single(self, index, script=None,
+                       prevout_value=None, anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
