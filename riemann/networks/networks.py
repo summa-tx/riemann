@@ -2,8 +2,11 @@ from ..encoding import base58, bech32
 
 
 class Network:
-    '''basic Network class, holding space for the various prefixes.
-    Not all prefixes are used by all coins.'''
+    '''
+    Basic Network class.
+    holding space for the various prefixes.
+    Not all features are used by all coins.
+    '''
     SYMBOL = None
     NETWORK_NAME = None
     SUBNET_NAME = None
