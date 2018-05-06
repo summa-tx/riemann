@@ -457,6 +457,7 @@ class BitcoreMain(Network):
     P2PKH_PREFIX = b'\x00'
     P2SH_PREFIX = b'\x32'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -468,6 +469,7 @@ class BitcoreTest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\x3a'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -479,6 +481,7 @@ class BitcoreRegtest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\x3a'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -526,9 +529,10 @@ class GroestlcoinMain(Network):
     P2PKH_PREFIX = b'\x24'
     P2SH_PREFIX = b'\x05'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
-    BECH32_HRP = 'grs'
+    # BECH32_HRP = 'grs'
     # some wallets have bech32 addresses w/prefix 'grs',
     # but bech32 is not active in groestl at this time.
     # no value for testnet/regnet exists
@@ -541,6 +545,7 @@ class GroestlcoinTest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -552,6 +557,7 @@ class GroestlcoinRegtest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -563,6 +569,7 @@ class MonacoinMain(Network):
     P2PKH_PREFIX = b'\x32'
     P2SH_PREFIX = b'\x37'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     # BECH32_HRP = 'mona'
@@ -576,6 +583,7 @@ class MonacoinTest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     # BECH32_HRP = 'tmona'
@@ -588,6 +596,7 @@ class MonacoinRegtest(Network):
     P2PKH_PREFIX = b'\x6f'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     # BECH32_HRP = 'tmona'
@@ -600,6 +609,7 @@ class NavcoinMain(Network):
     P2PKH_PREFIX = b'\x35'
     P2SH_PREFIX = b'\x55'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
     # bech32 is not yet active on Navcoin
@@ -612,6 +622,7 @@ class NavcoinTest(Network):
     P2PKH_PREFIX = b'\x36'
     P2SH_PREFIX = b'\x56'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -624,6 +635,7 @@ class NavcoinRegtest(Network):
     P2PKH_PREFIX = b'\x14'
     P2SH_PREFIX = b'\x60'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -635,6 +647,7 @@ class SyscoinMain(Network):
     P2PKH_PREFIX = b'\x3f'
     P2SH_PREFIX = b'\x05'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -646,6 +659,7 @@ class SyscoinTest(Network):
     P2PKH_PREFIX = b'\x41'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
@@ -657,6 +671,7 @@ class SyscoinRegtest(Network):
     P2PKH_PREFIX = b'\x41'
     P2SH_PREFIX = b'\xc4'
     SEGWIT = True
+    SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
 
