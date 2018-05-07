@@ -58,7 +58,7 @@ def guess_locktime(redeem_script):
 def output(value, address):
     '''
     int, str -> TxOut
-    accepts base58 or bech32
+    accepts base58 or bech32 addresses
     '''
     script = addr.to_output_script(address)
     value = utils.i2le_padded(value, 8)
@@ -66,6 +66,11 @@ def output(value, address):
 
 
 def empty_output():
+    '''
+    -> Output
+    Empty TxOut for partial txns or sighash_single signing
+    The value is -1, which is standard for null TxOuts
+    '''
     return tb._make_output(
         value=b'\xff' * 8,
         script=b'',
@@ -73,12 +78,18 @@ def empty_output():
 
 
 def outpoint(tx_id, index, tree=None):
+    '''
+    hex_str, int, int -> Outpoint
+    '''
     tx_id_le = bytes.fromhex(tx_id)[::-1]  # accepts block explorer txid string
-    tree = None if tree is None else utils.i2le_padded(tree, 1)
     return tb.make_outpoint(tx_id_le, index, tree)
 
 
 def empty_outpoint():
+    '''
+    -> Outpoint
+    Empty Outpoint for partial txns or sighash_single signing
+    '''
     return tb.make_outpoint(
         tx_id_le=b'\x00' * 32,
         index=0,
@@ -86,6 +97,9 @@ def empty_outpoint():
 
 
 def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
+    '''
+    Outpoint, byte-like, int -> TxIn
+    '''
     if redeem_script != b'':
         sequence = guess_sequence(redeem_script)
         redeem_script = script_ser.serialize(redeem_script)
@@ -97,6 +111,10 @@ def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
 
 
 def empty_input():
+    '''
+    -> TxIn
+    Empty TxIn for partial txns or sighash_single signing
+    '''
     return tb.make_witness_input(
         outpoint=empty_outpoint(),
         sequence=b'\x00' * 4)
@@ -105,6 +123,7 @@ def empty_input():
 def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     OutPoint, hex_string, hex_string, int -> TxIn
+    Create a signed legacy TxIn from a p2pkh prevout
     '''
     script_sig = examples.p2pkh_script_sig.format(sig, pubkey)
     return tb.make_legacy_input(outpoint, script_sig, None, sequence)
@@ -113,6 +132,9 @@ def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
 def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     OutPoint, hex_string, hex_string, int -> (TxIn, InputWitness)
+    Create a signed legacy TxIn from a p2pkh prevout
+    Create an empty InputWitness for it
+    Useful for transactions spending some witness and some legacy prevouts
     '''
     script_sig = examples.p2pkh_script_sig.format(sig, pubkey)
     return tb.make_legacy_input_and_empty_witness(
@@ -122,6 +144,7 @@ def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
 def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
     '''
     OutPoint, str, str, int -> TxIn
+    Create a signed legacy TxIn from a p2pkh prevout
     '''
     if sequence is None:
         sequence = guess_sequence(redeem_script)
@@ -134,6 +157,9 @@ def p2sh_input_and_witness(outpoint, stack_script,
                            redeem_script, sequence=None):
     '''
     OutPoint, str, str, int -> (TxIn, InputWitness)
+    Create a signed legacy TxIn from a p2pkh prevout
+    Create an empty InputWitness for it
+    Useful for transactions spending some witness and some legacy prevouts
     '''
     if sequence is None:
         sequence = guess_sequence(redeem_script)
@@ -145,6 +171,7 @@ def p2sh_input_and_witness(outpoint, stack_script,
 def p2wpkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     Outpoint, hex_string, hex_string, int -> (TxIn, InputWitness)
+    Create a signed witness TxIn and InputWitness from a p2wpkh prevout
     '''
     return tb.make_witness_input_and_witness(outpoint, sequence, [sig, pubkey])
 
@@ -152,6 +179,7 @@ def p2wpkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
 def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
     '''
     Outpoint, str, str, int -> (TxIn, InputWitness)
+    Create a signed witness TxIn and InputWitness from a p2wsh prevout
     '''
     if sequence is None:
         sequence = guess_sequence(witness_script)
@@ -167,6 +195,15 @@ def empty_input_witness():
 
 
 def unsigned_tx(tx_ins, tx_outs, **kwargs):
+    '''
+    list(TxIn), list(TxOut) -> Tx
+    Create an unsigned transaction
+    Use this to generate sighashes for unsigned TxIns
+    Gotcha: it requires you to know the timelock and version
+            it will _not_ guess them
+            becuase it may not have acess to all scripts
+    Hint: set version to 2 if using sequence number relative time locks
+    '''
     return tb.make_tx(
         version=kwargs['version'] if 'version' in kwargs else 1,
         tx_ins=tx_ins,
@@ -177,6 +214,7 @@ def unsigned_tx(tx_ins, tx_outs, **kwargs):
 def legacy_tx(tx_ins, tx_outs):
     '''
     list(TxIn), list(TxOut) -> Tx
+    Construct a fully-signed legacy transaction
     '''
 
     # Look at each input to guess lock_time and version
@@ -194,6 +232,7 @@ def legacy_tx(tx_ins, tx_outs):
 def witness_tx(tx_ins, tx_outs, tx_witnesses):
     '''
     list(TxIn), list(TxOut), list(InputWitness) -> Tx
+    Construct a fully-signed witness transaction
     '''
     # Parse legacy scripts AND witness scripts for OP_CLTV
     deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins

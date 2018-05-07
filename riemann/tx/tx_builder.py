@@ -161,7 +161,9 @@ def make_outpoint(tx_id_le, index, tree=None):
     byte-like, int, byte-like -> Outpoint
     '''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredOutpoint(tx_id=tx_id_le, index=index, tree=tree)
+        return tx.DecredOutpoint(tx_id=tx_id_le,
+                                 index=utils.i2le_padded(index, 4),
+                                 tree=utils.i2le_padded(tree, 1))
     return tx.Outpoint(tx_id=tx_id_le,
                        index=utils.i2le_padded(index, 4))
 
