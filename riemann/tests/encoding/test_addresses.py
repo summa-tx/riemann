@@ -1,5 +1,6 @@
 import unittest
 import riemann
+from riemann import utils
 from .. import helpers
 from ...encoding import addresses as addr
 
@@ -81,6 +82,20 @@ class TestAddresses(unittest.TestCase):
         self.assertIn('Unsupported address format. Got: ',
                       str(context.exception))
 
+        # Test cash addr code
+        riemann.select_network('bitcoin_cash_main')
+        self.assertEqual(
+            addr.parse_hash(helpers.OP_IF_P2SH),
+            helpers.OP_IF_SCRIPT_HASH)
+
+        self.assertEqual(
+            addr.parse_hash(helpers.OP_IF_CASHADDR),
+            helpers.OP_IF_SCRIPT_HASH)
+
+        self.assertEqual(
+            addr.parse_hash(helpers.CASHADDR_P2PKH_ADDRESS),
+            utils.hash160(helpers.CASHADDR_PUBKEY))
+
     def test_cashaddrs(self):
         riemann.select_network('bitcoin_cash_main')
 
@@ -99,3 +114,66 @@ class TestAddresses(unittest.TestCase):
         self.assertEqual(
             addr.make_pkh_address(helpers.CASHADDR_PUBKEY),
             helpers.CASHADDR_P2PKH_ADDRESS)
+
+    def test_from_output_script(self):
+
+        self.assertEqual(
+            addr.from_output_script(helpers.OP_IF_OUTPUT_SCRIPT),
+            helpers.OP_IF_P2SH)
+        self.assertEqual(
+            addr.from_output_script(helpers.P2WSH_OUTPUT_SCRIPT),
+            helpers.P2WSH_ADDRESS)
+        self.assertEqual(
+            addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
+            helpers.P2PKH_0)
+        self.assertEqual(
+            addr.from_output_script(helpers.P2WPKH_OUTPUT_SCRIPT),
+            helpers.P2WPKH_ADDRESS)
+
+        with self.assertRaises(ValueError) as context:
+            addr.from_output_script(b'\x8e' * 34)
+        self.assertIn(
+            'Cannot parse address from script.',
+            str(context.exception))
+
+    def test_cashaddr_from_output_script(self):
+        riemann.select_network('bitcoin_cash_main')
+        self.assertEqual(
+            addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
+            helpers.P2PKH_0_CASHADDR)
+        self.assertEqual(
+            addr.from_output_script(helpers.OP_IF_OUTPUT_SCRIPT),
+            helpers.OP_IF_CASHADDR)
+
+    def test_to_output_script(self):
+        self.assertEqual(
+            addr.to_output_script(helpers.OP_IF_P2SH),
+            helpers.OP_IF_OUTPUT_SCRIPT)
+        self.assertEqual(
+            addr.to_output_script(helpers.P2WSH_ADDRESS),
+            helpers.P2WSH_OUTPUT_SCRIPT)
+        self.assertEqual(
+            addr.to_output_script(helpers.P2PKH_0),
+            helpers.PKH_0_OUTPUT_SCRIPT)
+        self.assertEqual(
+            addr.to_output_script(helpers.P2WPKH_ADDRESS),
+            helpers.P2WPKH_OUTPUT_SCRIPT)
+
+        with self.assertRaises(ValueError) as context:
+            # Junk B58 w valid checksum
+            addr.to_output_script('1111111111111111111111111111111111177fdsQ')
+
+        self.assertIn(
+            'Cannot parse output script from address.',
+            str(context.exception))
+
+    def test_cashaddr_to_output_script(self):
+        riemann.select_network('bitcoin_cash_main')
+
+        self.assertEqual(
+            addr.to_output_script(helpers.OP_IF_CASHADDR),
+            helpers.OP_IF_OUTPUT_SCRIPT)
+
+        self.assertEqual(
+            addr.to_output_script(helpers.P2PKH_0_CASHADDR),
+            helpers.PKH_0_OUTPUT_SCRIPT)

@@ -149,8 +149,11 @@ def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
     if sequence is None:
         sequence = guess_sequence(redeem_script)
 
-    return tb.make_legacy_input(outpoint, stack_script,
-                                redeem_script, sequence)
+    return tb.make_legacy_input(
+        outpoint=outpoint,
+        stack_script=stack_script,
+        redeem_script=redeem_script,
+        sequence=sequence)
 
 
 def p2sh_input_and_witness(outpoint, stack_script,
@@ -165,7 +168,10 @@ def p2sh_input_and_witness(outpoint, stack_script,
         sequence = guess_sequence(redeem_script)
 
     return tb.make_legacy_input_and_empty_witness(
-        outpoint, stack_script, redeem_script, sequence)
+        outpoint=outpoint,
+        stack_script=stack_script,
+        redeem_script=redeem_script,
+        sequence=sequence)
 
 
 def p2wpkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):

@@ -63,7 +63,7 @@ def decode(data):
             raise ValueError('Bad cash address checksum')
     converted = convertbits(decoded, 5, 8)
 
-    return bytes(converted[1:-6])  # remove the checksum from the end
+    return bytes(converted[:-6])  # remove the checksum from the end
 
 
 def polymod(values):

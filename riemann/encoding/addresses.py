@@ -101,11 +101,20 @@ def parse(address):
     try:
         return bytearray(riemann.network.LEGACY_ENCODER.decode(address))
     except ValueError:
-        try:
-            return bytearray(riemann.network.SEGWIT_ENCODER.decode(address))
-        except Exception:
-            raise ValueError(
-                'Unsupported address format. Got: {}'.format(address))
+        pass
+
+    try:
+        return bytearray(riemann.network.SEGWIT_ENCODER.decode(address))
+    except Exception:
+        pass
+
+    try:
+        return bytearray(riemann.network.CASHADDR_ENCODER.decode(address))
+    except Exception:
+        pass
+
+    raise ValueError(
+        'Unsupported address format. Got: {}'.format(address))
 
 
 def to_output_script(address):
@@ -114,52 +123,89 @@ def to_output_script(address):
     There's probably a better way to do this
     '''
     parsed = parse(address)
+    parsed_hash = b''
 
-    if parsed.find(riemann.network.P2WPKH_PREFIX) == 0 and len(parsed) == 22:
-        return parsed
+    try:
+        if (parsed.find(riemann.network.P2WPKH_PREFIX) == 0
+                and len(parsed) == 22):
+            return parsed
+    except TypeError:
+        pass
 
-    elif parsed.find(riemann.network.P2WSH_PREFIX) == 0 and len(parsed) == 34:
-        return parsed
+    try:
+        if (parsed.find(riemann.network.P2WSH_PREFIX) == 0
+                and len(parsed) == 34):
+            return parsed
+    except TypeError:
+        pass
 
-    elif (parsed.find(riemann.network.P2PKH_PREFIX) == 0
-          and len(parsed) == len(riemann.network.P2PKH_PREFIX) + 20):
+    try:
+        if (parsed.find(riemann.network.CASHADDR_P2SH) == 0
+                and len(parsed) == len(riemann.network.CASHADDR_P2SH) + 20):
+            prefix = b'\xa9\x14'  # OP_HASH160 PUSH14
+            parsed_hash = parsed[len(riemann.network.P2SH_PREFIX):]
+            suffix = b'\x87'  # OP_EQUAL
+    except TypeError:
+        pass
+
+    try:
+        if (parsed.find(riemann.network.CASHADDR_P2PKH) == 0
+                and len(parsed) == len(riemann.network.CASHADDR_P2PKH) + 20):
+            prefix = b'\x76\xa9\x14'  # OP_DUP OP_HASH160 PUSH14
+            parsed_hash = parsed[len(riemann.network.P2PKH_PREFIX):]
+            suffix = b'\x88\xac'  # OP_EQUALVERIFY OP_CHECKSIG
+    except TypeError:
+        pass
+
+    if (parsed.find(riemann.network.P2PKH_PREFIX) == 0
+            and len(parsed) == len(riemann.network.P2PKH_PREFIX) + 20):
         prefix = b'\x76\xa9\x14'  # OP_DUP OP_HASH160 PUSH14
         parsed_hash = parsed[len(riemann.network.P2PKH_PREFIX):]
         suffix = b'\x88\xac'  # OP_EQUALVERIFY OP_CHECKSIG
 
-    elif (parsed.find(riemann.network.P2SH_PREFIX) == 0
-          and len(parsed) == len(riemann.network.P2SH_PREFIX) + 20):
+    if (parsed.find(riemann.network.P2SH_PREFIX) == 0
+            and len(parsed) == len(riemann.network.P2SH_PREFIX) + 20):
         prefix = b'\xa9\x14'  # OP_HASH160 PUSH14
         parsed_hash = parsed[len(riemann.network.P2SH_PREFIX):]
         suffix = b'\x87'  # OP_EQUAL
 
-    else:
+    if parsed_hash == b'':
         raise ValueError('Cannot parse output script from address.')
 
     output_script = prefix + parsed_hash + suffix
     return output_script
 
 
-def from_output_script(output_script):
+def from_output_script(output_script, cashaddr=True):
     '''
     bytes -> str
     Convert output script (the on-chain format) to an address
     There's probably a better way to do this
     '''
-    if len(output_script) == len(riemann.network.P2WSH_PREFIX) + 32:
-        # Script hash is the last 32 bytes
-        return _make_sh_address(output_script[-32:], witness=True)
+    try:
+        if (len(output_script) == len(riemann.network.P2WSH_PREFIX) + 32
+                and output_script.find(riemann.network.P2WSH_PREFIX) == 0):
+            # Script hash is the last 32 bytes
+            return _make_sh_address(
+                output_script[-32:], witness=True, cashaddr=cashaddr)
+    except TypeError:
+        pass
+    try:
+        if (len(output_script) == len(riemann.network.P2WPKH_PREFIX) + 20
+                and output_script.find(riemann.network.P2WPKH_PREFIX) == 0):
+            # PKH is the last 20 bytes
+            return _make_pkh_address(
+                output_script[-20:], witness=True, cashaddr=cashaddr)
+    except TypeError:
+        pass
 
-    elif (len(output_script) == len(riemann.network.P2WPKH_PREFIX) + 20
-          and output_script.find(riemann.network.P2WPKH_PREFIX) == 0):
-        # PKH is the last 20 bytes
-        return _make_pkh_address(output_script[-20], witness=True)
-
-    elif len(output_script) == 25 and output_script.find(b'\x76\xa9\x14') == 0:
-        return _make_pkh_address(output_script[3:23], witness=False)
+    if len(output_script) == 25 and output_script.find(b'\x76\xa9\x14') == 0:
+        return _make_pkh_address(
+            output_script[3:23], witness=False, cashaddr=cashaddr)
 
     elif len(output_script) == 23 and output_script.find(b'\xa9\x14') == 0:
-        return _make_sh_address(output_script[2:22], witness=False)
+        return _make_sh_address(
+            output_script[2:22], witness=False, cashaddr=cashaddr)
 
     raise ValueError('Cannot parse address from script.')
 
@@ -174,21 +220,22 @@ def parse_hash(address):
 
     # Cash addresses
     try:
-        address.find(riemann.network.CASHADDR_PREFIX)
-        if raw.find(riemann.network.CASHADDR_P2SH) == 0:
-            return raw[len(riemann.network.CASHADDR_P2SH):]
-        if raw.find(riemann.network.CASHADDR_P2PKH) == 0:
-            return raw[len(riemann.network.CASHADDR_P2PKH):]
+        if address.find(riemann.network.CASHADDR_PREFIX) == 0:
+            print(raw)
+            if raw.find(riemann.network.CASHADDR_P2SH) == 0:
+                return raw[len(riemann.network.CASHADDR_P2SH):]
+            if raw.find(riemann.network.CASHADDR_P2PKH) == 0:
+                return raw[len(riemann.network.CASHADDR_P2PKH):]
     except TypeError:
         pass
 
     # Segwit addresses
     try:
-        address.find(riemann.network.BECH32_HRP)
-        if raw.find(riemann.network.P2WSH_PREFIX) == 0:
-            return raw[len(riemann.network.P2WSH_PREFIX):]
-        if raw.find(riemann.network.P2WPKH_PREFIX) == 0:
-            return raw[len(riemann.network.P2WPKH_PREFIX):]
+        if address.find(riemann.network.BECH32_HRP) == 0:
+            if raw.find(riemann.network.P2WSH_PREFIX) == 0:
+                return raw[len(riemann.network.P2WSH_PREFIX):]
+            if raw.find(riemann.network.P2WPKH_PREFIX) == 0:
+                return raw[len(riemann.network.P2WPKH_PREFIX):]
     except TypeError:
         pass
 
@@ -197,5 +244,3 @@ def parse_hash(address):
         return raw[len(riemann.network.P2SH_PREFIX):]
     if raw.find(riemann.network.P2PKH_PREFIX) == 0:
         return raw[len(riemann.network.P2PKH_PREFIX):]
-
-    raise ValueError('Malformed address: {}'.format(address))
