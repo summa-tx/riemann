@@ -1,4 +1,4 @@
-from ..encoding import base58, bech32
+from ..encoding import base58, bech32, cashaddr
 
 
 class Network:
@@ -13,15 +13,20 @@ class Network:
     P2PKH_PREFIX = None
     P2SH_PREFIX = None
     SEGWIT = False
+    MALLEABLE = not SEGWIT
     P2WSH_PREFIX = None
     P2WPKH_PREFIX = None
     BECH32_HRP = None
     WITNESS_SCRIPT_VERSION = '\x00'
     SEGWIT_ENCODER = bech32
     LEGACY_ENCODER = base58
+    CASHADDR_ENCODER = cashaddr
     SEGWIT_TX_FLAG = b'\x00\x01'
     FORKID = None
     OPCODE_CHANGES = [(None, None)]
+    CASHADDR_PREFIX = None
+    CASHADDR_P2SH = None
+    CASHADDR_P2PKH = None
     CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
     INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
 
@@ -106,6 +111,9 @@ class BitcoinCashMain(Network):
     P2SH_PREFIX = b'\x05'
     SEGWIT = False
     FORKID = 0
+    CASHADDR_PREFIX = 'bitcoincash'
+    CASHADDR_P2SH = b'\x08'
+    CASHADDR_P2PKH = b'\x00'
 
 
 class BitcoinCashTest(Network):
@@ -116,6 +124,9 @@ class BitcoinCashTest(Network):
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
     FORKID = 0
+    CASHADDR_PREFIX = 'bchtest'
+    CASHADDR_P2SH = b'\x08'
+    CASHADDR_P2PKH = b'\x00'
 
 
 class BitcoinCashRegtest(Network):
@@ -126,6 +137,9 @@ class BitcoinCashRegtest(Network):
     P2SH_PREFIX = b'\xc4'
     SEGWIT = False
     FORKID = 0
+    CASHADDR_PREFIX = 'bchtest'
+    CASHADDR_P2SH = b'\x08'
+    CASHADDR_P2PKH = b'\x00'
 
 
 class BitcoinGoldMain(Network):
@@ -258,6 +272,7 @@ class DecredMain(Network):
     P2PK_PREFIX = b'\x13\x86'
     P2SH_PREFIX = b'\x07\x1a'
     SEGWIT = False
+    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
@@ -273,6 +288,7 @@ class DecredTest(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
+    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
@@ -288,6 +304,7 @@ class DecredSimnet(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
+    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
