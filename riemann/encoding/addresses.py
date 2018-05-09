@@ -3,11 +3,18 @@ from .. import utils
 from ..script import serialization as script_ser
 
 
-def _make_sh_address(script_hash, witness=False):
+def _make_sh_address(script_hash, witness=False, cashaddr=True):
     '''
-    bytes, bool -> str
+    bytes, bool, bool -> str
+    cashaddrs are preferred where possible
+    but cashaddr is ignored in most cases
+    is there a better way to structure this?
     '''
     addr_bytes = bytearray()
+    if riemann.network.CASHADDR_P2SH is not None and cashaddr:
+        addr_bytes.extend(riemann.network.CASHADDR_P2SH)
+        addr_bytes.extend(script_hash)
+        return riemann.network.CASHADDR_ENCODER.encode(addr_bytes)
     if witness:
         addr_bytes.extend(riemann.network.P2WSH_PREFIX)
         addr_bytes.extend(script_hash)
@@ -18,31 +25,46 @@ def _make_sh_address(script_hash, witness=False):
         return riemann.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
-def make_sh_address(script_string, witness=False):
+def make_sh_address(script_string, witness=False, cashaddr=True):
     '''
-    str, bool -> str
+    str, bool, bool -> str
     '''
     script_bytes = script_ser.serialize(script_string)
     if witness:
         script_hash = utils.sha256(script_bytes)
     else:
         script_hash = utils.hash160(script_bytes)
-    return _make_sh_address(script_hash=script_hash, witness=witness)
+    return _make_sh_address(
+        script_hash=script_hash,
+        witness=witness,
+        cashaddr=cashaddr)
 
 
 def make_p2wsh_address(script_string):
-    return make_sh_address(script_string, witness=True)
+    return make_sh_address(script_string=script_string,
+                           witness=True)
 
 
 def make_p2sh_address(script_string):
-    return make_sh_address(script_string, witness=False)
+    return make_sh_address(script_string=script_string,
+                           witness=False)
 
 
-def _make_pkh_address(pubkey_hash, witness=False):
+def make_legacy_p2sh_address(script_string):
+    return make_sh_address(script_string=script_string,
+                           witness=False,
+                           cashaddr=False)
+
+
+def _make_pkh_address(pubkey_hash, witness=False, cashaddr=True):
     '''
     bytes, bool -> str
     '''
     addr_bytes = bytearray()
+    if riemann.network.CASHADDR_P2PKH is not None and cashaddr:
+        addr_bytes.extend(riemann.network.CASHADDR_P2PKH)
+        addr_bytes.extend(pubkey_hash)
+        return riemann.network.CASHADDR_ENCODER.encode(addr_bytes)
     if witness:
         addr_bytes.extend(riemann.network.P2WPKH_PREFIX)
         addr_bytes.extend(pubkey_hash)
@@ -53,20 +75,26 @@ def _make_pkh_address(pubkey_hash, witness=False):
         return riemann.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
-def make_pkh_address(pubkey, witness=False):
+def make_pkh_address(pubkey, witness=False, cashaddr=True):
     '''
     bytes, bool -> str
     '''
     pubkey_hash = utils.hash160(pubkey)
-    return _make_pkh_address(pubkey_hash, witness=witness)
+    return _make_pkh_address(pubkey_hash=pubkey_hash,
+                             witness=witness,
+                             cashaddr=cashaddr)
 
 
 def make_p2wpkh_address(pubkey):
-    return make_pkh_address(pubkey, witness=True)
+    return make_pkh_address(pubkey=pubkey, witness=True)
 
 
 def make_p2pkh_address(pubkey):
-    return make_pkh_address(pubkey, witness=False)
+    return make_pkh_address(pubkey=pubkey, witness=False)
+
+
+def make_legacy_p2pkh_address(pubkey):
+    return make_pkh_address(pubkey=pubkey, witness=False, cashaddr=False)
 
 
 def parse(address):
@@ -133,7 +161,7 @@ def from_output_script(output_script):
     elif len(output_script) == 23 and output_script.find(b'\xa9\x14') == 0:
         return _make_sh_address(output_script[2:22], witness=False)
 
-    raise ValueError('Cannot parse address script.')
+    raise ValueError('Cannot parse address from script.')
 
 
 def parse_hash(address):
@@ -144,13 +172,30 @@ def parse_hash(address):
 
     raw = parse(address)
 
-    if address.find(riemann.network.BECH32_HRP) == 0:
+    # Cash addresses
+    try:
+        address.find(riemann.network.CASHADDR_PREFIX)
+        if raw.find(riemann.network.CASHADDR_P2SH) == 0:
+            return raw[len(riemann.network.CASHADDR_P2SH):]
+        if raw.find(riemann.network.CASHADDR_P2PKH) == 0:
+            return raw[len(riemann.network.CASHADDR_P2PKH):]
+    except TypeError:
+        pass
+
+    # Segwit addresses
+    try:
+        address.find(riemann.network.BECH32_HRP)
         if raw.find(riemann.network.P2WSH_PREFIX) == 0:
             return raw[len(riemann.network.P2WSH_PREFIX):]
         if raw.find(riemann.network.P2WPKH_PREFIX) == 0:
             return raw[len(riemann.network.P2WPKH_PREFIX):]
-    else:
-        if raw.find(riemann.network.P2SH_PREFIX) == 0:
-            return raw[len(riemann.network.P2SH_PREFIX):]
-        if raw.find(riemann.network.P2PKH_PREFIX) == 0:
-            return raw[len(riemann.network.P2PKH_PREFIX):]
+    except TypeError:
+        pass
+
+    # Legacy Addresses
+    if raw.find(riemann.network.P2SH_PREFIX) == 0:
+        return raw[len(riemann.network.P2SH_PREFIX):]
+    if raw.find(riemann.network.P2PKH_PREFIX) == 0:
+        return raw[len(riemann.network.P2PKH_PREFIX):]
+
+    raise ValueError('Malformed address: {}'.format(address))

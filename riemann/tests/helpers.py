@@ -93,8 +93,13 @@ RAW_P2SH_TO_P2PKH = bytes.fromhex( '010000000101d15c2cc4621b2a319ba53714e2709f8b
 
 
 OP_IF_P2SH = '3MpTk145zbm5odhRALfT9BnUs8DB5w4ydw'
+OP_IF_CASHADDR = 'bitcoincash:prwv474e2d35xuf77ju6r4zr5xmv4ryd6ynr4c5mld'
 OP_IF_SCRIPT_HASH = bytes.fromhex('dccafab9536343713ef4b9a1d443a1b6ca8c8dd1')
 OP_IF_OUTPUT_SCRIPT = b'\xa9' + OP_IF_SCRIPT_HASH + b'\x87'
+
+CASHADDR_PUBKEY = bytes.fromhex('02f0899f0bbd104a12efa06d10eece1584887a6cfaf31cd168c78d0c15d8357aa7')
+LEGACY_P2PKH_ADDRESS = '1NWdP6dqMUjK5VCDELo6vFhaGkJFLEY5Gw'
+CASHADDR_P2PKH_ADDRESS = 'bitcoincash:qr4l2ykm7qw4rwg0yqtxwrt4mp0m4wsn4qv4sm4l62'
 
 # Use '00' * 65 and '11' * 65 as pubkeys
 PK_0 = '00' * 65

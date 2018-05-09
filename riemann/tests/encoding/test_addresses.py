@@ -80,3 +80,22 @@ class TestAddresses(unittest.TestCase):
 
         self.assertIn('Unsupported address format. Got: ',
                       str(context.exception))
+
+    def test_cashaddrs(self):
+        riemann.select_network('bitcoin_cash_main')
+
+        self.assertEqual(
+            addr.make_legacy_p2sh_address('OP_IF'),
+            helpers.OP_IF_P2SH)
+
+        self.assertEqual(
+            addr.make_sh_address('OP_IF'),
+            helpers.OP_IF_CASHADDR)
+
+        self.assertEqual(
+            addr.make_legacy_p2pkh_address(helpers.CASHADDR_PUBKEY),
+            helpers.LEGACY_P2PKH_ADDRESS)
+
+        self.assertEqual(
+            addr.make_pkh_address(helpers.CASHADDR_PUBKEY),
+            helpers.CASHADDR_P2PKH_ADDRESS)

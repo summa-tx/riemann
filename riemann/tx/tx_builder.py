@@ -192,7 +192,10 @@ def make_legacy_input_and_empty_witness(outpoint, stack_script,
     '''
     Outpoint, str, str, int -> (TxIn, InputWitness)
     '''
-    return (make_legacy_input(outpoint, stack_script, redeem_script, sequence),
+    return (make_legacy_input(outpoint=outpoint,
+                              stack_script=stack_script,
+                              redeem_script=redeem_script,
+                              sequence=sequence),
             tx.InputWitness(bytearray([0])))
 
 
