@@ -19,9 +19,15 @@ class TestSerialization(unittest.TestCase):
 
     def test_serialize_error(self):
         with self.assertRaises(NotImplementedError) as context:
-            ser.serialize('00' * 77)
+            ser.serialize('00' * 65999)
         self.assertIn(
-            'OP_PUSHDATA1-4 not supported yet.',
+            'Hex string too long to serialize.',
+            str(context.exception))
+
+        with self.assertRaises(NotImplementedError) as context:
+            ser.serialize('OP_PUSHDATA4')
+        self.assertIn(
+            'OP_PUSHDATA4 is a bad idea.',
             str(context.exception))
 
         with self.assertRaises(NotImplementedError) as context:
@@ -44,6 +50,26 @@ class TestSerialization(unittest.TestCase):
         self.assertEqual(
             ser.hex_serialize('OP_IF'),
             bytes([99]).hex())
+
+    def test_hex_serialize_OP_PUSHDATA1(self):
+        self.assertEqual(
+            ser.hex_serialize(helpers.P2SH_PUSHDATA1_SCRIPT),
+            helpers.P2SH_PUSHDATA1_SERIALIZED)
+
+    def test_hex_deserialize_OP_PUSHDATA1(self):
+        self.assertEqual(
+            ser.hex_deserialize(helpers.P2SH_PUSHDATA1_SERIALIZED),
+            helpers.P2SH_PUSHDATA1_SCRIPT)
+
+    def test_hex_serialize_OP_PUSHDATA2(self):
+        self.assertEqual(
+            ser.hex_serialize(helpers.P2SH_PUSHDATA2_SCRIPT),
+            helpers.P2SH_PUSHDATA2_SERIALIZED)
+
+    def test_hex_deserialize_OP_PUSHDATA2(self):
+        self.assertEqual(
+            ser.hex_deserialize(helpers.P2SH_PUSHDATA2_SERIALIZED),
+            helpers.P2SH_PUSHDATA2_SCRIPT)
 
     def test_deserialize(self):
         self.assertEqual(
