@@ -1,39 +1,49 @@
 import riemann
+from .. import utils
 from .opcodes import CODE_TO_INT, INT_TO_CODE
-
 
 def serialize(script_string):
     '''
     str -> bytearray
     '''
+
     string_tokens = script_string.split()
     serialized_script = bytearray()
-
+    
     for token in string_tokens:
-        if token == 'OP_CODESEPARATOR':
-            raise NotImplementedError('OP_CODESEPARATOR is a bad idea.')
-        try:
+        if token == 'OP_CODESEPARATOR' or token == 'OP_PUSHDATA4':
+            raise NotImplementedError('{} is a bad idea.'.format(token))
+
+        if token in riemann.network.CODE_TO_INT_OVERWRITE:
             serialized_script.extend(
                 [riemann.network.CODE_TO_INT_OVERWRITE[token]])
-            continue  # Skip rest of loop
-        except (AttributeError, KeyError):
-            pass
-        try:
-            serialized_script.extend([CODE_TO_INT[token]])  # Put it in there
-            continue  # Skip rest of loop
-        except KeyError:
-            pass
 
-        token_bytes = bytes.fromhex(token)
+        elif token in CODE_TO_INT:
+            serialized_script.extend([CODE_TO_INT[token]])
 
-        if len(token_bytes) > 75:
-            # TODO
-            raise NotImplementedError('OP_PUSHDATA1-4 not supported yet.')
+        else:
+            token_bytes = bytes.fromhex(token)
 
-        op = 'OP_PUSH_{}'.format(len(token_bytes))
-        serialized_script.extend([CODE_TO_INT[op]])
-        serialized_script.extend(token_bytes)
+            if len(token_bytes) <= 75:
+                op = 'OP_PUSH_{}'.format(len(token_bytes))
+                serialized_script.extend([CODE_TO_INT[op]])
+                serialized_script.extend(token_bytes)
 
+            elif len(token_bytes) > 75 and len(token_bytes) <= 255:
+                op = 'OP_PUSHDATA1'
+                serialized_script.extend([CODE_TO_INT[op]])
+                serialized_script.extend(utils.i2le(len(token_bytes)))
+                serialized_script.extend(token_bytes)
+
+            elif len(token_bytes) > 256 and len(token_bytes) <= 1000:
+                op = 'OP_PUSHDATA2'
+                serialized_script.extend([CODE_TO_INT[op]])
+                serialized_script.extend(utils.i2le_padded(len(token_bytes), 2))
+                serialized_script.extend(token_bytes)
+
+            else:
+                raise NotImplementedError('Very long script strings is a bad idea.')
+                
     return serialized_script
 
 
@@ -65,6 +75,27 @@ def deserialize(serialized_script):
                     'Push {} caused out of bounds exception.'
                     .format(current_byte))
 
+        elif current_byte == 76:
+            # next hex blob length
+            blob_len = serialized_script[i+1]
+
+            deserialized.append(
+                   serialized_script[i + 2: i + 2 + blob_len].hex()) 
+
+            i += 2 + blob_len
+
+        elif current_byte == 77:
+            # next hex blob length
+            blob_len = utils.le2i(serialized_script[i + 1 : i + 3])
+            
+            deserialized.append(
+                   serialized_script[i + 3: i + 3 + blob_len].hex()) 
+
+            i += 3 + blob_len
+
+        elif current_byte == 78:
+            raise NotImplementedError('OP_PUSHDATA4 is a bad idea.')
+        
         else:
             if current_byte in riemann.network.INT_TO_CODE_OVERWRITE:
                 deserialized.append(
@@ -82,6 +113,6 @@ def deserialize(serialized_script):
 
 def hex_deserialize(script_hex):
     '''
-    bytearray -> hex_str
+    bytearry -> hex_str
     '''
     return deserialize(bytes.fromhex(script_hex))
