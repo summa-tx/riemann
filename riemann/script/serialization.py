@@ -2,6 +2,7 @@ import riemann
 from .. import utils
 from .opcodes import CODE_TO_INT, INT_TO_CODE
 
+
 def serialize(script_string):
     '''
     str -> bytearray
@@ -9,7 +10,7 @@ def serialize(script_string):
 
     string_tokens = script_string.split()
     serialized_script = bytearray()
-    
+
     for token in string_tokens:
         if token == 'OP_CODESEPARATOR' or token == 'OP_PUSHDATA4':
             raise NotImplementedError('{} is a bad idea.'.format(token))
@@ -38,12 +39,14 @@ def serialize(script_string):
             elif len(token_bytes) > 256 and len(token_bytes) <= 1000:
                 op = 'OP_PUSHDATA2'
                 serialized_script.extend([CODE_TO_INT[op]])
-                serialized_script.extend(utils.i2le_padded(len(token_bytes), 2))
+                serialized_script.extend(
+                    utils.i2le_padded(len(token_bytes), 2))
                 serialized_script.extend(token_bytes)
 
             else:
-                raise NotImplementedError('Very long script strings is a bad idea.')
-                
+                raise NotImplementedError(
+                    'Hex string too long to serialize.')
+
     return serialized_script
 
 
@@ -77,25 +80,25 @@ def deserialize(serialized_script):
 
         elif current_byte == 76:
             # next hex blob length
-            blob_len = serialized_script[i+1]
+            blob_len = serialized_script[i + 1]
 
             deserialized.append(
-                   serialized_script[i + 2: i + 2 + blob_len].hex()) 
+                serialized_script[i + 2: i + 2 + blob_len].hex())
 
             i += 2 + blob_len
 
         elif current_byte == 77:
             # next hex blob length
-            blob_len = utils.le2i(serialized_script[i + 1 : i + 3])
-            
+            blob_len = utils.le2i(serialized_script[i + 1: i + 3])
+
             deserialized.append(
-                   serialized_script[i + 3: i + 3 + blob_len].hex()) 
+                serialized_script[i + 3: i + 3 + blob_len].hex())
 
             i += 3 + blob_len
 
         elif current_byte == 78:
             raise NotImplementedError('OP_PUSHDATA4 is a bad idea.')
-        
+
         else:
             if current_byte in riemann.network.INT_TO_CODE_OVERWRITE:
                 deserialized.append(
