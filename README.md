@@ -4,6 +4,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/summa-tx/riemann/badge.svg?branch=master)](https://coveralls.io/github/summa-tx/riemann?branch=master)
 
 
+### Contributing
+
+Please read CONTRIBUTING.md.
+
 ### Purpose
 
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
