@@ -7,7 +7,6 @@ def serialize(script_string):
     '''
     str -> bytearray
     '''
-
     string_tokens = script_string.split()
     serialized_script = bytearray()
 
@@ -36,7 +35,7 @@ def serialize(script_string):
                 serialized_script.extend(utils.i2le(len(token_bytes)))
                 serialized_script.extend(token_bytes)
 
-            elif len(token_bytes) > 256 and len(token_bytes) <= 1000:
+            elif len(token_bytes) > 255 and len(token_bytes) <= 1000:
                 op = 'OP_PUSHDATA2'
                 serialized_script.extend([CODE_TO_INT[op]])
                 serialized_script.extend(
@@ -116,6 +115,6 @@ def deserialize(serialized_script):
 
 def hex_deserialize(script_hex):
     '''
-    bytearry -> hex_str
+    hex_str -> str
     '''
     return deserialize(bytes.fromhex(script_hex))
