@@ -4,11 +4,18 @@ from ..script import serialization as script_ser
 
 
 def _make_sh_address(script_hash, witness=False, cashaddr=True):
-    '''
-    bytes, bool, bool -> str
+    '''make_sh_address implementation
+
     cashaddrs are preferred where possible
     but cashaddr is ignored in most cases
     is there a better way to structure this?
+
+    Args:
+        script_hash (bytes)
+        witness     (bool)
+        cashaddr    (bool)
+    Returns:
+        str
     '''
     addr_bytes = bytearray()
     if riemann.network.CASHADDR_P2SH is not None and cashaddr:
@@ -26,8 +33,13 @@ def _make_sh_address(script_hash, witness=False, cashaddr=True):
 
 
 def make_sh_address(script_string, witness=False, cashaddr=True):
-    '''
-    str, bool, bool -> str
+    '''Create a script hash address
+    Args:
+        script_hash  (bytes)
+        witness      (bool)
+        cashaddr     (bool)
+    Returns:
+        str
     '''
     script_bytes = script_ser.serialize(script_string)
     if witness:
@@ -41,24 +53,47 @@ def make_sh_address(script_string, witness=False, cashaddr=True):
 
 
 def make_p2wsh_address(script_string):
+    '''Create a pay to witness script hash address
+    Args:
+        script_string  (str)
+    Returns:
+        str
+    '''
     return make_sh_address(script_string=script_string,
                            witness=True)
 
 
 def make_p2sh_address(script_string):
+    '''Create a pay to script hash address
+    Args:
+        script_string  (str)
+    Returns:
+        str
+    '''
     return make_sh_address(script_string=script_string,
                            witness=False)
 
 
 def make_legacy_p2sh_address(script_string):
+    '''Create a legacy pay to script hash address
+    Args:
+        script_string  (str)
+    Returns:
+        str
+    '''
     return make_sh_address(script_string=script_string,
                            witness=False,
                            cashaddr=False)
 
 
 def _make_pkh_address(pubkey_hash, witness=False, cashaddr=True):
-    '''
-    bytes, bool -> str
+    '''make_pkh_address implementation
+    Args:
+        pubkey_hash  (bytes)
+        witness      (bool)
+        cashaddr     (bool)
+    Returns:
+        str
     '''
     addr_bytes = bytearray()
     if riemann.network.CASHADDR_P2PKH is not None and cashaddr:
@@ -76,8 +111,13 @@ def _make_pkh_address(pubkey_hash, witness=False, cashaddr=True):
 
 
 def make_pkh_address(pubkey, witness=False, cashaddr=True):
-    '''
-    bytes, bool -> str
+    '''Create a public key hash address
+    Args:
+        pubkey    (bytes)
+        witness   (bool)
+        cashaddr  (bool)
+    Returns:
+        str
     '''
     pubkey_hash = utils.hash160(pubkey)
     return _make_pkh_address(pubkey_hash=pubkey_hash,
@@ -86,18 +126,48 @@ def make_pkh_address(pubkey, witness=False, cashaddr=True):
 
 
 def make_p2wpkh_address(pubkey):
+    '''Create a pay to witness pubkey hash address
+    Args:
+        pubkey  (bytes)
+    Returns:
+        str
+    '''
     return make_pkh_address(pubkey=pubkey, witness=True)
 
 
 def make_p2pkh_address(pubkey):
+    '''Create a pay to pubkey hash address
+    Args:
+        pubkey  (bytes)
+    Returns:
+        str
+    '''
     return make_pkh_address(pubkey=pubkey, witness=False)
 
 
 def make_legacy_p2pkh_address(pubkey):
+    '''Create a legacy pay to pubkey hash address
+    Args:
+        pubkey  (bytes)
+    Returns:
+        str
+    '''
     return make_pkh_address(pubkey=pubkey, witness=False, cashaddr=False)
 
 
 def parse(address):
+    '''Parse an address
+
+    Attempts to parse address as:
+        - legacy address
+        - segwit address
+        - cash address
+
+    Args:
+        address  (str)
+    Returns:
+        bytes
+    '''
     try:
         return bytearray(riemann.network.LEGACY_ENCODER.decode(address))
     except ValueError:
@@ -118,9 +188,13 @@ def parse(address):
 
 
 def to_output_script(address):
-    '''
-    str -> bytes
+    '''Convert address to output script
     There's probably a better way to do this
+
+    Args:
+        address  (str)
+    Returns:
+        bytes
     '''
     parsed = parse(address)
     parsed_hash = b''
@@ -177,10 +251,14 @@ def to_output_script(address):
 
 
 def from_output_script(output_script, cashaddr=True):
-    '''
-    bytes -> str
-    Convert output script (the on-chain format) to an address
+    '''Convert output script (the on-chain format) to an address
     There's probably a better way to do this
+
+    Args:
+        output_script  (bytes)
+        cashaddr       (bool)
+    Returns:
+        str
     '''
     try:
         if (len(output_script) == len(riemann.network.P2WSH_PREFIX) + 32
@@ -212,8 +290,12 @@ def from_output_script(output_script, cashaddr=True):
 
 def parse_hash(address):
     '''
-    str -> bytes
     There's probably a better way to do this.
+
+    Args:
+        address (str)
+    Returns:
+        bytes
     '''
 
     raw = parse(address)

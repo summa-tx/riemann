@@ -29,6 +29,14 @@ CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
 
 def encode(data):
+    """
+    Args:
+        data
+    Returns:
+        str | None
+    Raises:
+        ValueError
+    """
     if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
@@ -37,6 +45,14 @@ def encode(data):
 
 
 def decode(bech):
+    """
+    Args:
+        bech (str)
+    Returns:
+        bytes
+    Raises:
+        ValueError - If network doesn't support bech32
+    """
     if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
@@ -52,7 +68,15 @@ def decode(bech):
 
 
 def segwit_decode(hrp, addr):
-    """Decode a segwit address."""
+    """Decode a segwit address.
+    Args:
+        hrp  (str)
+        addr (str)
+
+    Returns:
+        tuple containing:
+            (int, list of int) | (None, None)
+    """
     hrpgot, data = bech32_decode(addr)
     if hrpgot != hrp:
         return (None, None)
@@ -67,7 +91,15 @@ def segwit_decode(hrp, addr):
 
 
 def segwit_encode(hrp, witver, witprog):
-    """Encode a segwit address."""
+    """Encode a segwit address.
+    Args:
+        hrp      (str)
+        witver   (int)
+        witprog  (list of int)
+
+    Returns:
+        str | None
+    """
     ret = bech32_encode(hrp, [witver] + convertbits(witprog, 8, 5))
     if segwit_decode(hrp, ret) == (None, None):
         return None
@@ -75,13 +107,25 @@ def segwit_encode(hrp, witver, witprog):
 
 
 def bech32_encode(hrp, data):
-    """Compute a Bech32 string given HRP and data values."""
+    """Compute a Bech32 string given HRP and data values.
+    Args:
+        hrp  (str)
+        data (list of int)
+    Returns:
+        str
+    """
     combined = data + bech32_create_checksum(hrp, data)
     return hrp + '1' + ''.join([CHARSET[d] for d in combined])
 
 
 def bech32_decode(bech):
-    """Validate a Bech32 string, and determine HRP and data."""
+    """Validate a Bech32 string, and determine HRP and data.
+    Args:
+        bech (str)
+    Returns:
+        tuple containing:
+            (str, list of int) | (None, None)
+    """
     if ((any(ord(x) < 33 or ord(x) > 126 for x in bech)) or
             (bech.lower() != bech and bech.upper() != bech)):
         return (None, None)
@@ -99,7 +143,12 @@ def bech32_decode(bech):
 
 
 def bech32_polymod(values):
-    """Internal function that computes the Bech32 checksum."""
+    """Internal function that computes the Bech32 checksum.
+    Args:
+        values
+    Returns:
+        int
+    """
     generator = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3]
     chk = 1
     for value in values:
@@ -111,24 +160,49 @@ def bech32_polymod(values):
 
 
 def bech32_hrp_expand(hrp):
-    """Expand the HRP into values for checksum computation."""
+    """Expand the HRP into values for checksum computation.
+    Args:
+        hrp  (str)
+    Returns:
+        list of int
+    """
     return [ord(x) >> 5 for x in hrp] + [0] + [ord(x) & 31 for x in hrp]
 
 
 def bech32_verify_checksum(hrp, data):
-    """Verify a checksum given HRP and converted data characters."""
+    """Verify a checksum given HRP and converted data characters.
+    Args:
+        hrp   (str)
+        data  (list of int)
+    Returns:
+        bool
+    """
     return bech32_polymod(bech32_hrp_expand(hrp) + data) == 1
 
 
 def bech32_create_checksum(hrp, data):
-    """Compute the checksum values given HRP and data."""
+    """Compute the checksum values given HRP and data.
+    Args:
+        hrp (str)
+        data (list of int)
+    Returns:
+        list of int
+    """
     values = bech32_hrp_expand(hrp) + data
     polymod = bech32_polymod(values + [0, 0, 0, 0, 0, 0]) ^ 1
     return [(polymod >> 5 * (5 - i)) & 31 for i in range(6)]
 
 
 def convertbits(data, frombits, tobits, pad=True):
-    """General power-of-2 base conversion."""
+    """General power-of-2 base conversion.
+    Args:
+        data      (list of int)
+        frombits  (int)
+        tobits    (int)
+        pad       (bool)
+    Returns:
+        list of int | None
+    """
     acc = 0
     bits = 0
     ret = []

@@ -5,7 +5,12 @@ from .opcodes import CODE_TO_INT, INT_TO_CODE
 
 def serialize(script_string):
     '''
-    str -> bytearray
+    Args:
+        script_string  (str)
+    Returns:
+        bytearray
+    Raises:
+        NotImplementedError
     '''
     string_tokens = script_string.split()
     serialized_script = bytearray()
@@ -51,14 +56,22 @@ def serialize(script_string):
 
 def hex_serialize(script_string):
     '''
-    str -> hex_str
+    Args:
+        script_string  (str)
+    Returns:
+        str (hex)
     '''
     return serialize(script_string).hex()
 
 
 def deserialize(serialized_script):
     '''
-    bytearray -> str
+    Args:
+        serialized_script (bytearray)
+    Returns:
+        str
+    Raises:
+        ValueError
     '''
     deserialized = []
     i = 0
@@ -115,6 +128,9 @@ def deserialize(serialized_script):
 
 def hex_deserialize(script_hex):
     '''
-    hex_str -> str
+    Args:
+        script_hex (str)
+    Return:
+        str (hex)
     '''
     return deserialize(bytes.fromhex(script_hex))

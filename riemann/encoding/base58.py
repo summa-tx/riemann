@@ -30,7 +30,13 @@ BASE58_LOOKUP = dict((c, i) for i, c in enumerate(BASE58_ALPHABET))
 
 
 def encode(data, checksum=True):
-    """Convert binary to base58 using BASE58_ALPHABET."""
+    """Convert binary to base58 using BASE58_ALPHABET.
+    Args:
+        data:      (bytes)
+        checksum:  (bool)
+    Returns:
+        str
+    """
 
     if checksum:
         data = data + utils.hash256(data)[:4]
@@ -40,7 +46,13 @@ def encode(data, checksum=True):
 
 
 def decode(s, checksum=True):
-    """Convert base58 to binary using BASE58_ALPHABET."""
+    """Convert base58 to binary using BASE58_ALPHABET.
+    Args:
+        s:         (str)
+        checksum:  (bool)
+    Returns:
+        bytes
+    """
     v, prefix = to_long(
         BASE58_BASE, lambda c: BASE58_LOOKUP[c], s.encode("utf8"))
 
@@ -60,20 +72,36 @@ def encode_with_checksum(data):
     A "hashed_base58" structure is a base58 integer (which looks like a string)
     with four bytes of hash data at the end.
     This function turns data into its hashed_base58 equivalent.
+
+    Args:
+        data: (bytes)
+    Returns:
+        str
     """
     return encode(data, checksum=True)
 
 
 def decode_with_checksum(s):
-    """
-    If the passed string is hashed_base58, return the binary data.
-    Otherwise raises a ValueError.
+    """If the passed string is hashed_base58, return the binary data.
+
+    Args:
+        s: (str)
+    Returns:
+        bytes
+    Raises:
+        ValueError: If s is not hashed_base58
     """
     return decode(s, checksum=True)
 
 
 def has_checksum(base58):
-    """Return True if and only if base58 is valid hashed_base58."""
+    """Return True if and only if base58 is valid hashed_base58.
+
+    Args:
+        base58: (str)
+    Returns:
+        bool
+    """
     try:
         decode_with_checksum(base58)
     except ValueError:
@@ -83,10 +111,16 @@ def has_checksum(base58):
 
 def from_long(v, prefix, base, charset):
     """The inverse of to_long. Convert an integer to an arbitrary base.
-    v: the integer value to convert
-    prefix: the number of prefixed 0s to include
-    base: the new base
-    charset: an array indicating a printable character to use for each value.
+
+    Args:
+        v        (int): the integer value to convert
+        prefix   (int): the number of prefixed 0s to include
+        base     (int): the new base
+        charset  (list): an array indicating a printable character to use for each value
+    Returns:
+        bytes
+    Raises:
+        ValueError
     """
     ba = bytearray()
     while v > 0:
@@ -102,15 +136,19 @@ def from_long(v, prefix, base, charset):
 
 
 def to_long(base, lookup_f, s):
-    """
-    Convert an array to a (possibly bignum) integer, along with a prefix value
-    of how many prefixed zeros there are.
-    base:
-        the source base
-    lookup_f:
-        a function to convert an element of s to a value between 0 and base-1.
-    s:
-        the value to convert
+    """Convert an array to a (possibly bignum) integer,
+    along with a prefix value of how many prefixed zeros there are.
+
+    Args:
+        base     (int): the source base
+        lookup_f (func):
+            a function to convert an element of s to a value between 0 and base-1.
+        s        (str): the value to convert
+
+    Returns:
+        int, int
+    Raises:
+        ValueError
     """
     prefix = 0
     v = 0

@@ -28,7 +28,12 @@ CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 def encode(data):
     '''
-    bytes -> str
+    Args:
+        data  (list of int)
+    Returns:
+        str
+    Raises:
+        ValueError
     '''
     if riemann.network.CASHADDR_PREFIX is None:
         raise ValueError('Network {} does not support cashaddresses.'
@@ -47,7 +52,12 @@ def encode(data):
 
 def decode(data):
     '''
-    str -> bytes
+    Args:
+        data  (str)
+    Returns:
+        bytes
+    Raises:
+        ValueError
     '''
     if riemann.network.CASHADDR_PREFIX is None:
         raise ValueError('Network {} does not support cashaddresses.'
@@ -67,6 +77,12 @@ def decode(data):
 
 
 def polymod(values):
+    '''
+    Args:
+        values  (list of int)
+    Returns:
+        int
+    '''
     chk = 1
     generator = [
         (0x01, 0x98f2bc8e61),
@@ -84,10 +100,23 @@ def polymod(values):
 
 
 def prefix_expand(prefix):
+    '''
+    Args:
+        prefix  (str)
+    Returns:
+        list of int
+    '''
     return [ord(x) & 0x1f for x in prefix] + [0]
 
 
 def calculate_checksum(prefix, payload):
+    '''
+    Args:
+        prefix   (str)
+        payload  (list of int)
+    Returns:
+        list of int
+    '''
     poly = polymod(prefix_expand(prefix) + payload + [0, 0, 0, 0, 0, 0, 0, 0])
     out = list()
     for i in range(8):
@@ -96,10 +125,23 @@ def calculate_checksum(prefix, payload):
 
 
 def verify_checksum(prefix, payload):
+    '''
+    Args:
+        prefix   (str)
+        payload  (list of int)
+    Returns:
+        int
+    '''
     return polymod(prefix_expand(prefix) + payload) == 0
 
 
 def b32decode(inputs):
+    '''
+    Args:
+        inputs (str)
+    Returns:
+        list of int
+    '''
     out = list()
     for letter in inputs:
         out.append(CHARSET.find(letter))
@@ -107,6 +149,12 @@ def b32decode(inputs):
 
 
 def b32encode(inputs):
+    '''
+    Args:
+        inputs ()
+    Returns:
+        str
+    '''
     out = ''
     for char_code in inputs:
         out += CHARSET[char_code]
@@ -114,6 +162,15 @@ def b32encode(inputs):
 
 
 def convertbits(data, frombits, tobits, pad=True):
+    '''
+    Args:
+        data      (list of int)
+        frombits  (int)
+        tobits    (int)
+        pad       (bool)
+    Returns:
+        list of int | None
+    '''
     acc = 0
     bits = 0
     ret = []
