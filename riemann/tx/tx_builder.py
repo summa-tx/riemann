@@ -179,7 +179,7 @@ def make_script_sig(stack_script, redeem_script):
 
 def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
     '''
-    Outpoint, str, str, int -> TxIn
+    Outpoint, byte-like, byte-like, int -> TxIn
     '''
     return tx.TxIn(outpoint=outpoint,
                    stack_script=stack_script,
