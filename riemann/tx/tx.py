@@ -190,7 +190,6 @@ class VarInt(ByteData):
             num = num[1:5]
         elif num[0] == 0xff:
             num = num[1:9]
-
         if len(num) == 0:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
@@ -382,7 +381,7 @@ class TxOut(ByteData):
     def from_bytes(TxOut, byte_string):
         n = byte_string[8]
         if n < 0xfc:  # VarInt handling
-            return DecredTxOut(
+            return TxOut(
                 value=byte_string[:8],
                 output_script=byte_string[9:])
         else:
@@ -449,7 +448,15 @@ class WitnessStackItem(ByteData):
     @classmethod
     def from_bytes(WitnessStackItem, byte_string):
         WitnessStackItem.validate_bytes(byte_string, None)
-        return WitnessStackItem(byte_string[1:])
+        prefix = byte_string[0]
+        if prefix <= 0xfc:
+            return WitnessStackItem(byte_string[1:])
+        elif prefix == 0xfd:
+            return WitnessStackItem(byte_string[3:])
+        elif prefix == 0xfe:
+            return WitnessStackItem(byte_string[5:])
+        elif prefix == 0xff:
+            return WitnessStackItem(byte_string[9:])
 
 
 class InputWitness(ByteData):
