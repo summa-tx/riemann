@@ -179,13 +179,22 @@ class VarInt(ByteData):
     def from_bytes(VarInt, byte_string):
         '''
         byte-like -> VarInt
+        accepts arbitrary length input, gets a VarInt off the front
         '''
         num = byte_string
-        if num[0] >= 0xfd:
-            num = num[1:]
-            if len(num) == 0:
-                raise ValueError('Malformed VarInt. Got: {}'
-                                 .format(byte_string.hex()))
+        if num[0] <= 0xfc:
+            num = num[0:1]
+        elif num[0] == 0xfd:
+            num = num[1:3]
+        elif num[0] == 0xfe:
+            num = num[1:5]
+        elif num[0] == 0xff:
+            num = num[1:9]
+
+        if len(num) == 0:
+            raise ValueError('Malformed VarInt. Got: {}'
+                             .format(byte_string.hex()))
+
         return VarInt(utils.le2i(num))
 
 
@@ -468,16 +477,16 @@ class InputWitness(ByteData):
 
     @classmethod
     def from_bytes(InputWitness, byte_string):
-        # TODO: This assumes <=255 bytes in each witness stack item
         WitnessStackItem.validate_bytes(byte_string, None)
         stack_len = byte_string[0]
         current = 1
         items = []
         while len(items) < stack_len:
-            item_len = byte_string[current]
-            prefixed_item = byte_string[current: current + 1 + item_len]
+            item_len = VarInt.from_bytes(byte_string[current:])
+            prefixed_item_len = len(item_len) + item_len.number
+            prefixed_item = byte_string[current: current + prefixed_item_len]
             items += [WitnessStackItem.from_bytes(prefixed_item)]
-            current += item_len + 1
+            current += prefixed_item_len
         return InputWitness(items)
 
 

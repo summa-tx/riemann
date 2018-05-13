@@ -126,6 +126,7 @@ class TestVarInt(unittest.TestCase):
         # This test is kinda a joke
         self.assertEqual(tx.VarInt.from_bytes(b'\xfd\x91#'), b'\xfd\x91#')
         self.assertEqual(tx.VarInt.from_bytes(b'\x00'), b'\x00')
+        self.assertEqual(tx.VarInt.from_bytes(b'\xff') * 9, b'\xff' * 9)
 
         with self.assertRaises(ValueError) as context:
             tx.VarInt.from_bytes(b'\xfe')
