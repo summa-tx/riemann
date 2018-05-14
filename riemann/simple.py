@@ -171,6 +171,10 @@ def p2sh_input_and_witness(outpoint, stack_script,
     if sequence is None:
         sequence = guess_sequence(redeem_script)
 
+    stack_script = script_ser.serialize(stack_script)
+    redeem_script = script_ser.hex_serialize(redeem_script)
+    redeem_script = script_ser.serialize(redeem_script)
+
     return tb.make_legacy_input_and_empty_witness(
         outpoint=outpoint,
         stack_script=stack_script,

@@ -132,6 +132,10 @@ def make_op_return_output(data):
     return _make_output(0, pk_script)
 
 
+def make_empty_witness():
+    return make_witness([])
+
+
 def make_witness_stack_item(data):
     '''
     bytearray -> WitnessStackItem
@@ -190,13 +194,13 @@ def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
 def make_legacy_input_and_empty_witness(outpoint, stack_script,
                                         redeem_script, sequence):
     '''
-    Outpoint, str, str, int -> (TxIn, InputWitness)
+    Outpoint, byte-like, byte-like, int -> (TxIn, InputWitness)
     '''
     return (make_legacy_input(outpoint=outpoint,
                               stack_script=stack_script,
                               redeem_script=redeem_script,
                               sequence=sequence),
-            tx.InputWitness(bytearray([0])))
+            make_empty_witness())
 
 
 def make_witness_input(outpoint, sequence):
