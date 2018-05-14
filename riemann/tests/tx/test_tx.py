@@ -328,6 +328,7 @@ class TestWitnessStackItem(unittest.TestCase):
             'Item is too large. Expected <=520 bytes. ',
             str(context.exception))
 
+
 class TestInputWitness(unittest.TestCase):
 
     def setUp(self):
