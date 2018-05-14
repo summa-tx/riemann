@@ -125,8 +125,9 @@ def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     OutPoint, hex_string, hex_string, int -> TxIn
     Create a signed legacy TxIn from a p2pkh prevout
     '''
-    script_sig = examples.p2pkh_script_sig.format(sig, pubkey)
-    return tb.make_legacy_input(outpoint, script_sig, None, sequence)
+    stack_script = examples.p2pkh_script_sig.format(sig=sig, pk=pubkey)
+    stack_script = script_ser.serialize(stack_script)
+    return tb.make_legacy_input(outpoint, stack_script, b'', sequence)
 
 
 def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
@@ -138,7 +139,7 @@ def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     '''
     script_sig = examples.p2pkh_script_sig.format(sig, pubkey)
     return tb.make_legacy_input_and_empty_witness(
-        outpoint, script_sig, None, sequence)
+        outpoint, script_sig, b'', sequence)
 
 
 def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
@@ -148,6 +149,10 @@ def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
     '''
     if sequence is None:
         sequence = guess_sequence(redeem_script)
+
+    stack_script = script_ser.serialize(stack_script)
+    redeem_script = script_ser.hex_serialize(redeem_script)
+    redeem_script = script_ser.serialize(redeem_script)
 
     return tb.make_legacy_input(
         outpoint=outpoint,
@@ -166,6 +171,10 @@ def p2sh_input_and_witness(outpoint, stack_script,
     '''
     if sequence is None:
         sequence = guess_sequence(redeem_script)
+
+    stack_script = script_ser.serialize(stack_script)
+    redeem_script = script_ser.hex_serialize(redeem_script)
+    redeem_script = script_ser.serialize(redeem_script)
 
     return tb.make_legacy_input_and_empty_witness(
         outpoint=outpoint,

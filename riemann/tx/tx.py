@@ -356,7 +356,7 @@ class TxOut(ByteData):
         self.validate_bytes(value, 8)
         self.validate_bytes(output_script, None)
 
-        if utils.le2i(value) <= 546:
+        if output_script != b'' and [0] != 0x6a and utils.le2i(value) <= 546:
             raise ValueError('Transaction value below dust limit. '
                              'Expected more than 546 sat. Got: {} sat.'
                              .format(utils.le2i(value)))
