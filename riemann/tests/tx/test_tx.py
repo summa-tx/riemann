@@ -321,6 +321,12 @@ class TestWitnessStackItem(unittest.TestCase):
             b'\xff' + utils.i2le_padded(8, 8) + b'\xff' * 8)
         self.assertEqual(w.item, b'\xff' * 8)
 
+    def test_item_too_long(self):
+        with self.assertRaises(ValueError) as context:
+            tx.WitnessStackItem(b'\xff' * 521)
+        self.assertIn(
+            'Item is too large. Expected <=520 bytes. ',
+            str(context.exception))
 
 class TestInputWitness(unittest.TestCase):
 
