@@ -686,8 +686,8 @@ class Tx(ByteData):
         if sub_script is None:
             sub_script = script
         # 0 out scripts in tx_ins
-        copy_tx_ins = tuple(tx_in.copy(stack_script=b'', redeem_script=b'')
-                            for tx_in in self.tx_ins)
+        copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
+                       for tx_in in self.tx_ins]
 
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
@@ -746,13 +746,13 @@ class Tx(ByteData):
         # Remove outputs after the one we're signing
         # Other tx_outs are set to -1 value and null scripts
         copy_tx_outs = copy_tx.tx_outs[:index + 1]
-        copy_tx_outs = tuple(TxOut(value=b'\xff' * 8, output_script=b'')
-                             for _ in copy_tx.tx_ins)  # Null them all
+        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                        for _ in copy_tx.tx_ins]  # Null them all
         copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
 
         # Other tx_ins sequence numbers are set to 0
-        copy_tx_ins = tuple(tx_in.copy(sequence=b'\x00\x00\x00\x00')
-                            for tx_in in copy_tx.tx_ins)  # Set all to 0
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]  # Set all to 0
         copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
 
         copy_tx = copy_tx.copy(
