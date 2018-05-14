@@ -126,6 +126,7 @@ class TestVarInt(unittest.TestCase):
         # This test is kinda a joke
         self.assertEqual(tx.VarInt.from_bytes(b'\xfd\x91#'), b'\xfd\x91#')
         self.assertEqual(tx.VarInt.from_bytes(b'\x00'), b'\x00')
+        self.assertEqual(tx.VarInt.from_bytes(b'\xff' * 9), b'\xff' * 9)
 
         with self.assertRaises(ValueError) as context:
             tx.VarInt.from_bytes(b'\xfe')
@@ -197,6 +198,12 @@ class TestOutpoint(unittest.TestCase):
         copy = res.copy()
         self.assertEqual(res, copy)
         self.assertIsNot(res, copy)
+
+    def test_from_bytes(self):
+        outpoint = tx.Outpoint.from_bytes(helpers.outpoint)
+        self.assertEqual(outpoint, helpers.outpoint)
+        self.assertEqual(outpoint.tx_id, helpers.outpoint_tx_id)
+        self.assertEqual(outpoint.index, helpers.outpoint_index)
 
 
 class TestTxIn(unittest.TestCase):
@@ -284,6 +291,19 @@ class TestTxOut(unittest.TestCase):
             'Expected more than 546 sat. Got: 5 sat.',
             str(context.exception))
 
+    def test_from_bytes(self):
+        output = helpers.output_value_0 + b'\x19' + helpers.output_script_0
+        tx_out = tx.TxOut.from_bytes(output)
+        self.assertEqual(tx_out.value, helpers.output_value_0)
+        self.assertEqual(tx_out.output_script, helpers.output_script_0)
+
+    def test_from_bytes_long(self):
+        with self.assertRaises(NotImplementedError) as context:
+            tx.TxOut.from_bytes(b'\xff' * 10)
+        self.assertIn(
+            'No support for abnormally long pk_scripts.',
+            str(context.exception))
+
 
 class TestWitnessStackItem(unittest.TestCase):
 
@@ -306,6 +326,25 @@ class TestWitnessStackItem(unittest.TestCase):
         self.assertEqual(
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
+
+        w = tx.WitnessStackItem.from_bytes(
+            b'\xfd' + utils.i2le_padded(8, 2) + b'\xff' * 2)
+        self.assertEqual(w.item, b'\xff' * 2)
+
+        w = tx.WitnessStackItem.from_bytes(
+            b'\xfe' + utils.i2le_padded(8, 4) + b'\xff' * 4)
+        self.assertEqual(w.item, b'\xff' * 4)
+
+        w = tx.WitnessStackItem.from_bytes(
+            b'\xff' + utils.i2le_padded(8, 8) + b'\xff' * 8)
+        self.assertEqual(w.item, b'\xff' * 8)
+
+    def test_item_too_long(self):
+        with self.assertRaises(ValueError) as context:
+            tx.WitnessStackItem(b'\xff' * 521)
+        self.assertIn(
+            'Item is too large. Expected <=520 bytes. ',
+            str(context.exception))
 
 
 class TestInputWitness(unittest.TestCase):
@@ -851,6 +890,13 @@ class TestDecredTxOut(DecredTestCase):
         copy = res.copy()
         self.assertEqual(res, copy)
         self.assertIsNot(res, copy)
+
+    def test_from_bytes_long(self):
+        with self.assertRaises(NotImplementedError) as context:
+            tx.DecredTxOut.from_bytes(b'\xff' * 10)
+        self.assertIn(
+            'No support for abnormally long pk_scripts.',
+            str(context.exception))
 
 
 class TestDecredInputWitness(DecredTestCase):
