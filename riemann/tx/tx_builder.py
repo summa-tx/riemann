@@ -126,10 +126,10 @@ def make_op_return_output(data):
         raise ValueError('Data is too long. Expected <= 77 bytes')
     pk_script = bytearray()
     pk_script.extend(b'\x6a')  # OP_RETURN
-    pk_script.extend(b'\x76')  # OP_PUSHDATA1
+    pk_script.extend(b'\x4c')  # OP_PUSHDATA1
     pk_script.extend([len(data)])  # One byte for length of data
     pk_script.extend(data)  # Data
-    return _make_output(0, pk_script)
+    return _make_output(utils.i2le_padded(0, 8), pk_script)
 
 
 def make_empty_witness():
