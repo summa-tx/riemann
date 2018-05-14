@@ -335,7 +335,7 @@ class TxIn(ByteData):
                 serialization.hex_deserialize(items[-1])
                 stack_script = serialization.serialize(' '.join(items[:-1]))
                 redeem_script = serialization.serialize(items[-1])
-            except:
+            except IndexError:
                 stack_script = script_sig
                 redeem_script = b''
 
