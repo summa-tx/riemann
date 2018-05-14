@@ -597,6 +597,7 @@ class Tx(ByteData):
             for witness in tx_witnesses:
                 self += witness
         self += lock_time
+
         self.version = version
         self.flag = flag
         self.tx_ins_len = len(tx_ins)
