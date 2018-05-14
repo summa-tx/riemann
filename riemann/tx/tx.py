@@ -462,7 +462,7 @@ class InputWitness(ByteData):
             self += item
 
         self.stack_len = len(stack)
-        self.stack = tuple(item for item in stack)
+        self.stack = [item for item in stack]
 
         self._make_immutable()
 
@@ -774,7 +774,7 @@ class Tx(ByteData):
         '''
 
         # The txCopy input vector is resized to a length of one.
-        copy_tx_ins = (copy_tx.tx_ins[index])
+        copy_tx_ins = [copy_tx.tx_ins[index]]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
 
         return self._sighash_final_hashing(
@@ -1066,8 +1066,8 @@ class DecredTx(ByteData):
         sub_script = self.script_code(index)
         if sub_script is None:
             sub_script = script
-        copy_tx_witnesses = tuple(w.copy(stack_script=b'', redeem_script=b'')
-                                  for w in self.tx_witnesses)
+        copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
+                             for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
             copy_tx_witnesses[index].copy(stack_script=sub_script,
                                           redeem_script=b'')
@@ -1085,15 +1085,15 @@ class DecredTx(ByteData):
 
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
-            copy_tx_outs = tuple(TxOut(value=b'\xff' * 8, output_script=b'')
-                                 for _ in copy_tx.tx_ins)
+            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                            for _ in copy_tx.tx_ins]
             copy_tx_outs[index] = copy_tx.tx_outs[index]
         except IndexError:
             raise NotImplementedError(
                 'I refuse to implement the SIGHASH_SINGLE bug.')
 
-        copy_tx_ins = tuple(tx_in.copy(sequence=b'\x00\x00\x00\x00')
-                            for tx_in in copy_tx.tx_ins)
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]
         copy_tx_ins[index] = copy_tx.tx_ins[index]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins, tx_outs=copy_tx_outs)
 
@@ -1127,8 +1127,8 @@ class DecredTx(ByteData):
             sighash_type=SIGHASH_ALL)
 
     def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
-        copy_tx_witnesses = tuple(w.copy(stack_script=b'', redeem_script=b'')
-                                  for w in copy_tx.tx_witnesses)
+        copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
+                             for w in copy_tx.tx_witnesses]
         copy_tx_witnesses[index] = copy_tx.tx_witnesses[index]
         copy_tx = copy_tx.copy(tx_witnesses=copy_tx_witnesses)
 
