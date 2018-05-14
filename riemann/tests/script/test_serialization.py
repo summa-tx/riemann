@@ -122,3 +122,11 @@ class TestSerialization(unittest.TestCase):
         self.assertEqual(
             'c0',
             ser.hex_serialize('OP_SHA256'))
+
+    def test_pushdata4_error(self):
+        with self.assertRaises(NotImplementedError) as context:
+            ser.deserialize(bytes([78]))
+
+        self.assertIn(
+            'OP_PUSHDATA4 is a bad idea.',
+            str(context.exception))
