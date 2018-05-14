@@ -676,6 +676,10 @@ class Tx(ByteData):
 
         self._make_immutable()
 
+    @classmethod
+    def from_bytes(Tx, byte_string):
+        raise NotImplementedError('TODO')
+
     def no_witness(self):
         '''
         Tx -> bytes
@@ -957,7 +961,7 @@ class Tx(ByteData):
         return utils.hash256(data.to_bytes())
 
 
-class DecredTx(ByteData):
+class DecredTx(DecredByteData):
 
     def __init__(self, version, tx_ins, tx_outs,
                  lock_time, expiry, tx_witnesses):
@@ -1035,6 +1039,10 @@ class DecredTx(ByteData):
         # self.tx_id_full = utils.change_endianness(self.tx_id_full_le)
 
         self._make_immutable()
+
+    @classmethod
+    def from_bytes(DecredTx, byte_string):
+        raise NotImplementedError('TODO')
 
     def prefix_hash(self):
         try:
