@@ -1,4 +1,5 @@
 import riemann
+from ..script import serialization
 import math
 from .. import utils
 
@@ -306,7 +307,35 @@ class TxIn(ByteData):
 
     @classmethod
     def from_bytes(TxIn, byte_string):
-        raise NotImplementedError('TODO')
+        '''
+        byte_string -> TxIn
+        parses a TxIn from a byte-like object
+        '''
+        outpoint = Outpoint.from_bytes(byte_string[:36])
+        script_sig_len = VarInt.from_bytes(byte_string[36:-4])
+        script_sig = byte_string[36 + len(script_sig_len):]
+        sequence = byte_string[-4:]
+        if script_sig == b'\x00':
+            stack_script = b''
+            redeem_script = b''
+        else:
+            # Is there a better way to do this?
+            try:
+                # If the last entry deserializes, it's a p2sh input
+                deserialized = serialization.deserialize(script_sig)
+                items = deserialized.split()
+                serialization.hex_deserialize(items[-1])
+                stack_script = serialization.serialize(' '.join(items[:-1]))
+                redeem_script = serialization.serialize(items[-1])
+            except:
+                stack_script = script_sig
+                redeem_script = b''
+
+        return TxIn(
+            outpoint=outpoint,
+            stack_script=stack_script,
+            redeem_script=redeem_script,
+            sequence=sequence)
 
 
 class DecredTxIn(DecredByteData):
