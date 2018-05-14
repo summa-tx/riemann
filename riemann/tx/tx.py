@@ -321,7 +321,7 @@ class TxIn(ByteData):
         '''
         outpoint = Outpoint.from_bytes(byte_string[:36])
         script_sig_len = VarInt.from_bytes(byte_string[36:-4])
-        script_sig = byte_string[36 + len(script_sig_len):]
+        script_sig = byte_string[36 + len(script_sig_len):-4]
         sequence = byte_string[-4:]
         if script_sig == b'\x00':
             stack_script = b''

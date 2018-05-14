@@ -255,14 +255,19 @@ class TestTxIn(unittest.TestCase):
 
     def test_from_bytes_pkh(self):
         tx_in = tx.TxIn.from_bytes(helpers.tx_in)
+        self.assertEqual(tx_in, helpers.tx_in)
         self.assertEqual(tx_in.outpoint, helpers.outpoint)
         self.assertEqual(tx_in.sequence, helpers.sequence)
-        print(tx_in.stack_script.hex())
         self.assertEqual(tx_in.stack_script, helpers.stack_script)
         self.assertEqual(tx_in.redeem_script, helpers.redeem_script)
 
     def test_from_bytes_sh(self):
-        pass
+        tx_in = tx.TxIn.from_bytes(helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(tx_in, helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(tx_in.outpoint, helpers.P2SH_SPEND_OUTPOINT)
+        self.assertEqual(tx_in.sequence, helpers.P2SH_SPEND_SEQUENCE)
+        self.assertEqual(tx_in.stack_script, helpers.P2SH_SPEND_STACK_SCRIPT)
+        self.assertEqual(tx_in.redeem_script, helpers.P2SH_SPEND_REDEEM_SCRIPT)
 
 
 class TestTxOut(unittest.TestCase):
