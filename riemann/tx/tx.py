@@ -692,6 +692,50 @@ class Tx(ByteData):
 
     @classmethod
     def from_bytes(Tx, byte_string):
+        version = byte_string[0:4]
+        if byte_string[5:7] == riemann.network.SEGWIT_TX_FLAG:
+            tx_ins_num_loc = 7
+            flag = riemann.network.SEGWIT_TX_FLAG
+        else:
+            tx_ins_num_loc = 5
+            flag = None
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
+
+        current = tx_ins_num_loc + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        if not flag:
+            tx_witnesses = None
+        else:
+            tx_witnesses = []
+            tx_witnesses_num = tx_ins_num
+            for _ in range(tx_witnesses_num.number):
+                tx_witness = InputWitness.from_bytes(byte_string[current:])
+                current += len(tx_witness)
+                tx_witnesses.append(tx_witness)
+
+        lock_time = byte_string[current:]
+        return Tx(
+            version=version,
+            flag=flag,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            tx_witnesses=tx_witnesses,
+            lock_time=lock_time)
+
         raise NotImplementedError('TODO')
 
     def no_witness(self):
