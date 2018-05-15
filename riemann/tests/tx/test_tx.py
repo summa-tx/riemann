@@ -583,6 +583,36 @@ class TestTx(unittest.TestCase):
         self.assertEqual(t.tx_id, helpers.tx_id)
         self.assertEqual(t.tx_id_le, helpers.tx_id_le)
 
+    def test_from_bytes_pkh(self):
+        t = tx.Tx.from_bytes(helpers.P2PKH_SPEND)
+        self.assertEqual(t.version, helpers.version)
+        self.assertEqual(t.tx_ins[0], helpers.tx_in)
+        self.assertEqual(t.tx_outs[0], helpers.tx_out_0)
+        self.assertEqual(t.tx_outs[1], helpers.tx_out_1)
+        self.assertEqual(t.lock_time, helpers.lock_time)
+        self.assertEqual(t, helpers.P2PKH_SPEND)
+
+    def test_from_bytes_sh(self):
+        t = tx.Tx.from_bytes(helpers.P2SH_SPEND)
+        self.assertEqual(t.version, helpers.P2SH_SPEND_VERSION)
+        self.assertEqual(t.tx_ins[0], helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(t.tx_outs[0], helpers.P2SH_SPEND_OUTPUT_0)
+        self.assertEqual(t.tx_outs[1], helpers.P2SH_SPEND_OUTPUT_1)
+        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
+        self.assertEqual(t, helpers.P2SH_SPEND)
+
+    def test_from_bytes_wsh(self):
+        t = tx.Tx.from_bytes(helpers.P2WSH_SPEND)
+        self.assertEqual(t.version, helpers.P2WSH_SPEND_VERSION)
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(t.tx_outs[0], helpers.P2WSH_OUTPUT_0)
+        self.assertEqual(t.tx_outs[1], helpers.P2WSH_OUTPUT_1)
+        self.assertEqual(t.tx_outs[2], helpers.P2WSH_OUTPUT_2)
+        self.assertEqual(t.tx_outs[3], helpers.P2WSH_OUTPUT_3)
+        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH_WITNESS)
+        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
+        self.assertEqual(t, helpers.P2WSH_SPEND)
+
     def test_calculate_fee(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)

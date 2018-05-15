@@ -333,7 +333,7 @@ class TxIn(ByteData):
             serialization.hex_deserialize(items[-1])
             stack_script = serialization.serialize(' '.join(items[:-1]))
             redeem_script = serialization.serialize(items[-1])
-        except IndexError:
+        except (IndexError, ValueError):
             pass
 
         return stack_script, redeem_script
@@ -693,11 +693,11 @@ class Tx(ByteData):
     @classmethod
     def from_bytes(Tx, byte_string):
         version = byte_string[0:4]
-        if byte_string[5:7] == riemann.network.SEGWIT_TX_FLAG:
-            tx_ins_num_loc = 7
+        if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:
+            tx_ins_num_loc = 6
             flag = riemann.network.SEGWIT_TX_FLAG
         else:
-            tx_ins_num_loc = 5
+            tx_ins_num_loc = 4
             flag = None
         tx_ins = []
         tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
@@ -735,8 +735,6 @@ class Tx(ByteData):
             tx_outs=tx_outs,
             tx_witnesses=tx_witnesses,
             lock_time=lock_time)
-
-        raise NotImplementedError('TODO')
 
     def no_witness(self):
         '''
