@@ -352,7 +352,7 @@ class TxIn(ByteData):
         script_sig = byte_string[script_start:script_end]
 
         sequence = byte_string[script_end:script_end + 4]
-        if script_sig == b'\x00':
+        if script_sig == b'':
             stack_script = b''
             redeem_script = b''
         else:

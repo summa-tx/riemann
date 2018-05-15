@@ -269,6 +269,14 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(tx_in.stack_script, helpers.P2SH_SPEND_STACK_SCRIPT)
         self.assertEqual(tx_in.redeem_script, helpers.P2SH_SPEND_REDEEM_SCRIPT)
 
+    def test_from_bytes_wsh(self):
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(tx_in, helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(tx_in.outpoint, helpers.P2WSH_SPEND_OUTPOINT)
+        self.assertEqual(tx_in.sequence, helpers.P2WSH_SPEND_SEQUENCE)
+        self.assertEqual(tx_in.stack_script, b'')
+        self.assertEqual(tx_in.redeem_script, b'')
+
 
 class TestTxOut(unittest.TestCase):
 
