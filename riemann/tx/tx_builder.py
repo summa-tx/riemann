@@ -216,7 +216,9 @@ def make_witness_input(outpoint, sequence):
 
 
 def make_decred_input(outpoint, sequence):
-    return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
+    return tx.DecredTxIn(
+        outpoint=outpoint,
+        sequence=utils.i2le_padded(sequence, 4))
 
 
 def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
