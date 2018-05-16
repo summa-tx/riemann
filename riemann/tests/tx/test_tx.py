@@ -246,6 +246,30 @@ class TestTxIn(unittest.TestCase):
             'Got 2000 bytes.',
             str(context.exception))
 
+    def test_from_bytes_pkh(self):
+        tx_in = tx.TxIn.from_bytes(helpers.tx_in)
+        self.assertEqual(tx_in, helpers.tx_in)
+        self.assertEqual(tx_in.outpoint, helpers.outpoint)
+        self.assertEqual(tx_in.sequence, helpers.sequence)
+        self.assertEqual(tx_in.stack_script, helpers.stack_script)
+        self.assertEqual(tx_in.redeem_script, helpers.redeem_script)
+
+    def test_from_bytes_sh(self):
+        tx_in = tx.TxIn.from_bytes(helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(tx_in, helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(tx_in.outpoint, helpers.P2SH_SPEND_OUTPOINT)
+        self.assertEqual(tx_in.sequence, helpers.P2SH_SPEND_SEQUENCE)
+        self.assertEqual(tx_in.stack_script, helpers.P2SH_SPEND_STACK_SCRIPT)
+        self.assertEqual(tx_in.redeem_script, helpers.P2SH_SPEND_REDEEM_SCRIPT)
+
+    def test_from_bytes_wsh(self):
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(tx_in, helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(tx_in.outpoint, helpers.P2WSH_SPEND_OUTPOINT)
+        self.assertEqual(tx_in.sequence, helpers.P2WSH_SPEND_SEQUENCE)
+        self.assertEqual(tx_in.stack_script, b'')
+        self.assertEqual(tx_in.redeem_script, b'')
+
 
 class TestTxOut(unittest.TestCase):
 
@@ -309,24 +333,16 @@ class TestWitnessStackItem(unittest.TestCase):
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
 
-        w = tx.WitnessStackItem.from_bytes(
-            b'\xfd' + utils.i2le_padded(8, 2) + b'\xff' * 2)
-        self.assertEqual(w.item, b'\xff' * 2)
-
-        w = tx.WitnessStackItem.from_bytes(
-            b'\xfe' + utils.i2le_padded(8, 4) + b'\xff' * 4)
-        self.assertEqual(w.item, b'\xff' * 4)
-
-        w = tx.WitnessStackItem.from_bytes(
-            b'\xff' + utils.i2le_padded(8, 8) + b'\xff' * 8)
-        self.assertEqual(w.item, b'\xff' * 8)
-
     def test_item_too_long(self):
         with self.assertRaises(ValueError) as context:
             tx.WitnessStackItem(b'\xff' * 521)
         self.assertIn(
             'Item is too large. Expected <=520 bytes. ',
             str(context.exception))
+
+    def test_null_item_from_bytes(self):
+        w = tx.WitnessStackItem.from_bytes(b'\x00')
+        self.assertEqual(w, b'\x00')
 
 
 class TestInputWitness(unittest.TestCase):
@@ -567,6 +583,36 @@ class TestTx(unittest.TestCase):
 
         self.assertEqual(t.tx_id, helpers.tx_id)
         self.assertEqual(t.tx_id_le, helpers.tx_id_le)
+
+    def test_from_bytes_pkh(self):
+        t = tx.Tx.from_bytes(helpers.P2PKH_SPEND)
+        self.assertEqual(t.version, helpers.version)
+        self.assertEqual(t.tx_ins[0], helpers.tx_in)
+        self.assertEqual(t.tx_outs[0], helpers.tx_out_0)
+        self.assertEqual(t.tx_outs[1], helpers.tx_out_1)
+        self.assertEqual(t.lock_time, helpers.lock_time)
+        self.assertEqual(t, helpers.P2PKH_SPEND)
+
+    def test_from_bytes_sh(self):
+        t = tx.Tx.from_bytes(helpers.P2SH_SPEND)
+        self.assertEqual(t.version, helpers.P2SH_SPEND_VERSION)
+        self.assertEqual(t.tx_ins[0], helpers.P2SH_SPEND_INPUT)
+        self.assertEqual(t.tx_outs[0], helpers.P2SH_SPEND_OUTPUT_0)
+        self.assertEqual(t.tx_outs[1], helpers.P2SH_SPEND_OUTPUT_1)
+        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
+        self.assertEqual(t, helpers.P2SH_SPEND)
+
+    def test_from_bytes_wsh(self):
+        t = tx.Tx.from_bytes(helpers.P2WSH_SPEND)
+        self.assertEqual(t.version, helpers.P2WSH_SPEND_VERSION)
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH_SPEND_TX_IN)
+        self.assertEqual(t.tx_outs[0], helpers.P2WSH_OUTPUT_0)
+        self.assertEqual(t.tx_outs[1], helpers.P2WSH_OUTPUT_1)
+        self.assertEqual(t.tx_outs[2], helpers.P2WSH_OUTPUT_2)
+        self.assertEqual(t.tx_outs[3], helpers.P2WSH_OUTPUT_3)
+        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH_WITNESS)
+        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
+        self.assertEqual(t, helpers.P2WSH_SPEND)
 
     def test_calculate_fee(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -875,7 +921,7 @@ class TestDecredTxOut(DecredTestCase):
 
     def test_from_bytes_long(self):
         with self.assertRaises(NotImplementedError) as context:
-            tx.DecredTxOut.from_bytes(b'\xff' * 10)
+            tx.DecredTxOut.from_bytes(b'\xff' * 1000)
         self.assertIn(
             'No support for abnormally long pk_scripts.',
             str(context.exception))
