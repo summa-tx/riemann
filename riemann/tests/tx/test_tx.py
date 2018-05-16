@@ -246,13 +246,6 @@ class TestTxIn(unittest.TestCase):
             'Got 2000 bytes.',
             str(context.exception))
 
-    def test_from_bytes_witness(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2WSH_SPEND_TX_IN)
-        self.assertEqual(tx_in.stack_script, b'')
-        self.assertEqual(tx_in.redeem_script, b'')
-        self.assertEqual(tx_in.outpoint, helpers.P2WSH_SPEND_OUTPOINT)
-        self.assertEqual(tx_in.sequence, b'\xff' * 4)
-
     def test_from_bytes_pkh(self):
         tx_in = tx.TxIn.from_bytes(helpers.tx_in)
         self.assertEqual(tx_in, helpers.tx_in)
