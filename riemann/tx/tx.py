@@ -665,12 +665,13 @@ class Tx(ByteData):
         self.version = version
         self.flag = flag
         self.tx_ins_len = len(tx_ins)
-        self.tx_ins = [tx_in for tx_in in tx_ins]
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
         self.tx_outs_len = len(tx_outs)
-        self.tx_outs = [tx_out for tx_out in tx_outs]
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
         self.tx_witnesses_len = self.tx_ins_len
         self.tx_witnesses = \
-            [wit for wit in tx_witnesses] if tx_witnesses is not None else None
+            tuple(wit for wit in tx_witnesses) if tx_witnesses is not None \
+            else None
         self.lock_time = lock_time
 
         if len(self) > 100000:
