@@ -80,8 +80,9 @@ def empty_output():
 def outpoint(tx_id, index, tree=None):
     '''
     hex_str, int, int -> Outpoint
+    accepts block explorer txid string
     '''
-    tx_id_le = bytes.fromhex(tx_id)[::-1]  # accepts block explorer txid string
+    tx_id_le = bytes.fromhex(tx_id)[::-1]
     return tb.make_outpoint(tx_id_le, index, tree)
 
 
