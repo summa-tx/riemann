@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='riemann-tx',
-    version='0.7.0',
+    version='0.8.0',
     description=('Transaction creation library for Bitcoin-like coins'),
     url='https://github.com/integral-tx/riemann',
     author='James Prestwich',

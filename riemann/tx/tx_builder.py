@@ -126,10 +126,14 @@ def make_op_return_output(data):
         raise ValueError('Data is too long. Expected <= 77 bytes')
     pk_script = bytearray()
     pk_script.extend(b'\x6a')  # OP_RETURN
-    pk_script.extend(b'\x76')  # OP_PUSHDATA1
+    pk_script.extend(b'\x4c')  # OP_PUSHDATA1
     pk_script.extend([len(data)])  # One byte for length of data
     pk_script.extend(data)  # Data
-    return _make_output(0, pk_script)
+    return _make_output(utils.i2le_padded(0, 8), pk_script)
+
+
+def make_empty_witness():
+    return make_witness([])
 
 
 def make_witness_stack_item(data):
@@ -179,7 +183,7 @@ def make_script_sig(stack_script, redeem_script):
 
 def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
     '''
-    Outpoint, str, str, int -> TxIn
+    Outpoint, byte-like, byte-like, int -> TxIn
     '''
     return tx.TxIn(outpoint=outpoint,
                    stack_script=stack_script,
@@ -190,13 +194,13 @@ def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
 def make_legacy_input_and_empty_witness(outpoint, stack_script,
                                         redeem_script, sequence):
     '''
-    Outpoint, str, str, int -> (TxIn, InputWitness)
+    Outpoint, byte-like, byte-like, int -> (TxIn, InputWitness)
     '''
     return (make_legacy_input(outpoint=outpoint,
                               stack_script=stack_script,
                               redeem_script=redeem_script,
                               sequence=sequence),
-            tx.InputWitness(bytearray([0])))
+            make_empty_witness())
 
 
 def make_witness_input(outpoint, sequence):
