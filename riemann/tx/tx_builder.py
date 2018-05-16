@@ -199,7 +199,7 @@ def make_legacy_input_and_empty_witness(outpoint, stack_script,
     return (make_legacy_input(outpoint=outpoint,
                               stack_script=stack_script,
                               redeem_script=redeem_script,
-                              sequence=utils.i2le_padded(sequence, 4)),
+                              sequence=sequence),
             make_empty_witness())
 
 
