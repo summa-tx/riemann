@@ -179,13 +179,21 @@ class VarInt(ByteData):
     def from_bytes(VarInt, byte_string):
         '''
         byte-like -> VarInt
+        accepts arbitrary length input, gets a VarInt off the front
         '''
         num = byte_string
-        if num[0] >= 0xfd:
-            num = num[1:]
-            if len(num) == 0:
-                raise ValueError('Malformed VarInt. Got: {}'
-                                 .format(byte_string.hex()))
+        if num[0] <= 0xfc:
+            num = num[0:1]
+        elif num[0] == 0xfd:
+            num = num[1:3]
+        elif num[0] == 0xfe:
+            num = num[1:5]
+        elif num[0] == 0xff:
+            num = num[1:9]
+        if len(num) == 0:
+            raise ValueError('Malformed VarInt. Got: {}'
+                             .format(byte_string.hex()))
+
         return VarInt(utils.le2i(num))
 
 
@@ -348,7 +356,9 @@ class TxOut(ByteData):
         self.validate_bytes(value, 8)
         self.validate_bytes(output_script, None)
 
-        if utils.le2i(value) <= 546:
+        if (output_script != b''
+                and utils.le2i(value) <= 546
+                and output_script[0] != 0x6a):
             raise ValueError('Transaction value below dust limit. '
                              'Expected more than 546 sat. Got: {} sat.'
                              .format(utils.le2i(value)))
@@ -373,7 +383,7 @@ class TxOut(ByteData):
     def from_bytes(TxOut, byte_string):
         n = byte_string[8]
         if n < 0xfc:  # VarInt handling
-            return DecredTxOut(
+            return TxOut(
                 value=byte_string[:8],
                 output_script=byte_string[9:])
         else:
@@ -428,7 +438,10 @@ class WitnessStackItem(ByteData):
         super().__init__()
 
         self.validate_bytes(item, None)
-
+        if len(item) > 520:
+            raise ValueError(
+                'Item is too large. Expected <=520 bytes. '
+                'Got: {} bytes'.format(len(item)))
         self += VarInt(len(item))
         self += item
 
@@ -440,7 +453,15 @@ class WitnessStackItem(ByteData):
     @classmethod
     def from_bytes(WitnessStackItem, byte_string):
         WitnessStackItem.validate_bytes(byte_string, None)
-        return WitnessStackItem(byte_string[1:])
+        prefix = byte_string[0]
+        if prefix <= 0xfc:
+            return WitnessStackItem(byte_string[1:])
+        elif prefix == 0xfd:
+            return WitnessStackItem(byte_string[3:])
+        elif prefix == 0xfe:
+            return WitnessStackItem(byte_string[5:])
+        elif prefix == 0xff:
+            return WitnessStackItem(byte_string[9:])
 
 
 class InputWitness(ByteData):
@@ -468,16 +489,16 @@ class InputWitness(ByteData):
 
     @classmethod
     def from_bytes(InputWitness, byte_string):
-        # TODO: This assumes <=255 bytes in each witness stack item
         WitnessStackItem.validate_bytes(byte_string, None)
         stack_len = byte_string[0]
         current = 1
         items = []
         while len(items) < stack_len:
-            item_len = byte_string[current]
-            prefixed_item = byte_string[current: current + 1 + item_len]
+            item_len = VarInt.from_bytes(byte_string[current:])
+            prefixed_item_len = len(item_len) + item_len.number
+            prefixed_item = byte_string[current: current + prefixed_item_len]
             items += [WitnessStackItem.from_bytes(prefixed_item)]
-            current += item_len + 1
+            current += prefixed_item_len
         return InputWitness(items)
 
 
@@ -601,12 +622,13 @@ class Tx(ByteData):
         self.version = version
         self.flag = flag
         self.tx_ins_len = len(tx_ins)
-        self.tx_ins = [tx_in for tx_in in tx_ins]
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
         self.tx_outs_len = len(tx_outs)
-        self.tx_outs = [tx_out for tx_out in tx_outs]
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
         self.tx_witnesses_len = self.tx_ins_len
         self.tx_witnesses = \
-            [wit for wit in tx_witnesses] if tx_witnesses is not None else None
+            tuple(wit for wit in tx_witnesses) if tx_witnesses is not None \
+            else None
         self.lock_time = lock_time
 
         if len(self) > 100000:
