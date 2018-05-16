@@ -199,7 +199,7 @@ def make_legacy_input_and_empty_witness(outpoint, stack_script,
     return (make_legacy_input(outpoint=outpoint,
                               stack_script=stack_script,
                               redeem_script=redeem_script,
-                              sequence=sequence),
+                              sequence=utils.i2le_padded(sequence, 4)),
             make_empty_witness())
 
 
@@ -212,11 +212,13 @@ def make_witness_input(outpoint, sequence):
     return tx.TxIn(outpoint=outpoint,
                    stack_script=b'',
                    redeem_script=b'',
-                   sequence=sequence)
+                   sequence=utils.i2le_padded(sequence, 4))
 
 
 def make_decred_input(outpoint, sequence):
-    return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
+    return tx.DecredTxIn(
+        outpoint=outpoint,
+        sequence=utils.i2le_padded(sequence, 4))
 
 
 def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
