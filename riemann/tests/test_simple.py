@@ -53,11 +53,13 @@ class TestSimple(unittest.TestCase):
         self.assertEqual(tx_p2sh_input, helpers.P2SH_PUSHDATA1_INPUT)
 
     def test_p2wsh_input_and_witness(self):
+
         outpoint = simple.outpoint(helpers.P2WSH_TX_ID, helpers.P2WSH_TX_INDEX)
         (tx_in, witness) = simple.p2wsh_input_and_witness(
-                outpoint=outpoint,
-                stack=helpers.P2WSH_WITNESS_STACK_STRING,
-                witness_script=helpers.P2WSH_SCRIPT,
-                sequence=helpers.P2WSH_SPEND_SEQUENCE_INT)
+            outpoint=outpoint,
+            stack=helpers.P2WSH_WITNESS_STACK_STRING,
+            witness_script=helpers.P2WSH_SCRIPT,
+            sequence=helpers.P2WSH_SPEND_SEQUENCE_INT)
+
         self.assertTrue(tx_in == helpers.P2WSH_SPEND_TX_IN)
         self.assertTrue(witness == helpers.P2WSH_WITNESS)
