@@ -257,3 +257,8 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
                  tx_outs=tx_outs,
                  tx_witnesses=tx_witnesses,
                  lock_time=utils.i2le_padded(lock_time, 4))
+
+
+def length_prepend(byte_string):
+    byte_string += tx.VarInt(len(byte_string)).to_bytes()
+    return byte_string
