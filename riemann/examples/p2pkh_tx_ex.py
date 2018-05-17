@@ -9,7 +9,7 @@ from riemann.tx import tx_builder as tb
 
 # Generate private key, public key, and address.
 
-# Generate private key and use to generate public key (not shown)
+# Generate private key (not shown) and use to generate public key
 # Consider using python-bitcoinlib to generate public_key
 # https://github.com/petertodd/python-bitcoinlib
 
@@ -25,13 +25,13 @@ address = addresses.make_pkh_address(bytes.fromhex(public_key))
 
 
 # Generate Unsigned TxIn
-# https://live.blockcypher.com/btc/tx/264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188/
+# https://blockchain.info/tx/264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188
+
+# Previous transaction hash
+tx_id = '264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188'
 
 # UTXO index to use
 tx_index = 0
-
-# UTXO hash of corresponding UTXO index (tx_index)
-tx_id = '264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188'
 
 # Generate outpoint
 tx_outpoint = simple.outpoint(tx_id, tx_index)
