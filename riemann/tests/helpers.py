@@ -106,11 +106,15 @@ CASHADDR_P2PKH_ADDRESS = 'bitcoincash:qr4l2ykm7qw4rwg0yqtxwrt4mp0m4wsn4qv4sm4l62
 # Use '00' * 65 and '11' * 65 as pubkeys
 PK_0 = '00' * 65
 PK_1 = '11' * 65
+PK_0_BYTES = bytes.fromhex(PK_0)
+PK_1_BYTES = bytes.fromhex(PK_1)
 PKH_0 = bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3')
 PKH_1 = bytes.fromhex('e723a0f62396b8b03dbd9e48e9b9efe2eb704aab')
 PKH_0_OUTPUT_SCRIPT = b'\x76\xa9\x14' + PKH_0 + b'\x88\xac'
+PKH_0_P2WPKH_OUTPUT_SCRIPT = b'\x00\x14' + PKH_0
 P2PKH_0 = '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV'
 P2PKH_0_CASHADDR = 'bitcoincash:qqdkpscah22q836dsxhj2hcvxq9la4065v92pm9f84'
+P2WPKH_0 = 'bc1qrdsvx8d6jspuwnvp4uj47rpsp0ldt74r72cx4u'
 P2PKH_1 = '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
 
 MSIG_TWO_TWO_SCRIPT = examples.msig_two_two.format(pk0=PK_0, pk1=PK_1)

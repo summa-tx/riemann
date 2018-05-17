@@ -221,7 +221,6 @@ def parse_hash(address):
     # Cash addresses
     try:
         if address.find(riemann.network.CASHADDR_PREFIX) == 0:
-            print(raw)
             if raw.find(riemann.network.CASHADDR_P2SH) == 0:
                 return raw[len(riemann.network.CASHADDR_P2SH):]
             if raw.find(riemann.network.CASHADDR_P2PKH) == 0:

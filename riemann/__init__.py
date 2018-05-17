@@ -1,4 +1,4 @@
-import riemann.networks as networks
+from . import networks
 
 network = networks.get_network('bitcoin_main')
 

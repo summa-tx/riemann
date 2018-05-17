@@ -23,7 +23,7 @@ def make_sh_output_script(script_string, witness=False):
         output_script.extend(script_hash)
     else:
         script_hash = utils.hash160(script_bytes)
-        output_script.extend(b'\xa9')  # OP_HASH160
+        output_script.extend(b'\xa9\x14')  # OP_HASH160 PUSH0x14
         output_script.extend(script_hash)
         output_script.extend(b'\x87')  # OP_EQUAL
 
