@@ -46,11 +46,11 @@ tx_in = simple.unsigned_input(tx_outpoint, sequence=0xFFFFFFFE)
 receiving_address = 'bc1qss5rslea60lftfe7pyk32s9j9dtr7z7mrqud3g'
 
 # Bitcoin (satoshis) to send
-value = 100000
+input_value = 100000
 
 # Allocate Bitcoin (satoshis) for miner
 tx_fee = 3100
-tx_out = simple.output(value - tx_fee, receiving_address)
+tx_out = simple.output(input_value - tx_fee, receiving_address)
 
 # Completely optional memo
 tx_return_output = tb.make_op_return_output('made with ❤ by riemann'.encode('utf-8'))
@@ -62,7 +62,7 @@ tx_return_output = tb.make_op_return_output('made with ❤ by riemann'.encode('u
 tx = simple.unsigned_tx([tx_in], [tx_out, tx_return_output])
 
 
-# Genearte Signed Tx
+# Generate Signed Tx
 # https://blockchain.info/tx/1e7acd3d4715054c8fb0fdea25c5c704986006d2c6f30b0782e9b36a7ee072ef
 
 # With the p2pkh output script from address, create the the sighash to be signed
@@ -71,7 +71,7 @@ sighash = tx.sighash_all(index=0, script=addresses.to_output_script(address))
 # Declare SIGHASH_ALL type
 SIGHASH_ALL = 0x01
 
-# Create script signature by signing the tx with private key
+# Sign the tx with private key
 # Assumes private_key is of type class bitcoin.wallet.CKey from python-bitcoinlib
 sig = private_key.sign(sighash) + bytes([SIGHASH_ALL])
 
@@ -83,7 +83,17 @@ tx_signed_input = simple.p2pkh_input(
         sequence=0xFFFFFFFE)
 
 # Recreate tx with the signed tx input
-tx_signed_tx = tx.copy(tx_ins=[tx_signed_input])
+tx_signed = tx.copy(tx_ins=[tx_signed_input])
+tx_signed_hex = tx_signed.hex()
+print(tx_signed_hex)
 
 # Transaction hash
-tx_hash = tx_signed_tx.tx_id.hex()
+tx_hash = tx_signed.tx_id.hex()
+
+# Resources to decode transaction (tx_signed_hex)
+#       https://blockchain.info/decode-tx
+#       https://live.blockcypher.com/btc/decodetx/
+
+# Resources to broadcast transaction (tx_signed_hex)
+#       https://blockchain.info/pushtx
+#       https://live.blockcypher.com/btc/pushtx/
