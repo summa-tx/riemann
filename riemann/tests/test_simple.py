@@ -1,5 +1,6 @@
 import unittest
 from riemann import simple
+from riemann.tx import tx_builder as tb
 from riemann.tests import helpers
 
 
@@ -63,3 +64,38 @@ class TestSimple(unittest.TestCase):
 
         self.assertTrue(tx_in == helpers.P2WSH_SPEND_TX_IN)
         self.assertTrue(witness == helpers.P2WSH_WITNESS)
+
+    def test_unsigned_legacy_tx(self):
+
+        outpoint = simple.outpoint(
+            tx_id=helpers.P2PKH_TX_ID,
+            index=helpers.P2PKH_TX_INDEX)
+        tx_ins = simple.unsigned_input(
+            outpoint=outpoint,
+            sequence=helpers.P2PKH_SEQUENCE)
+        tx_out = simple.output(
+            helpers.P2PKH_VALUE - helpers.P2PKH_FEE,
+            helpers.P2PKH_RECEIVE_ADDR)
+        tx_return_output = tb.make_op_return_output(helpers.P2PKH_MEMO)
+        tx = simple.unsigned_legacy_tx(
+            tx_ins=[tx_ins],
+            tx_outs=[tx_out, tx_return_output])
+
+        self.assertTrue(tx == helpers.P2PKH_UNSIGNED_TX)
+
+    def test_unsigned_witness_tx(self):
+
+        outpoint = simple.outpoint(
+            tx_id=helpers.P2WPKH_TX_ID,
+            index=helpers.P2WPKH_TX_INDEX)
+        tx_ins = simple.unsigned_input(
+            outpoint=outpoint,
+            sequence=helpers.P2WPKH_SEQUENCE)
+        tx_outs = simple.output(
+            helpers.P2WPKH_VALUE - helpers.P2WPKH_FEE,
+            helpers.P2WPKH_RECEIVE_ADDR)
+        tx = simple.unsigned_witness_tx(
+            tx_ins=[tx_ins],
+            tx_outs=[tx_outs])
+
+        self.assertTrue(tx == helpers.P2WPKH_UNSIGNED_TX)
