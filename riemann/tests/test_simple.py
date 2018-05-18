@@ -74,7 +74,7 @@ class TestSimple(unittest.TestCase):
             outpoint=outpoint,
             sequence=helpers.P2PKH_SEQUENCE)
         tx_out = simple.output(
-            helpers.P2PKH_VALUE - helpers.P2PKH_FEE,
+            helpers.P2PKH_AMOUNT,
             helpers.P2PKH_RECEIVE_ADDR)
         tx_return_output = tb.make_op_return_output(helpers.P2PKH_MEMO)
         tx = simple.unsigned_legacy_tx(
@@ -92,7 +92,7 @@ class TestSimple(unittest.TestCase):
             outpoint=outpoint,
             sequence=helpers.P2WPKH_SEQUENCE)
         tx_outs = simple.output(
-            helpers.P2WPKH_VALUE - helpers.P2WPKH_FEE,
+            helpers.P2WPKH_AMOUNT,
             helpers.P2WPKH_RECEIVE_ADDR)
         tx = simple.unsigned_witness_tx(
             tx_ins=[tx_ins],
