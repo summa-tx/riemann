@@ -70,11 +70,24 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_p2wpkh_output_script(helpers.PK_0_BYTES),
             helpers.PKH_0_P2WPKH_OUTPUT_SCRIPT)
 
-    def test_make_output(self):
-        pass
+    def test_make_decred_output(self):
+        riemann.select_network('decred_main')
+        self.assertEqual(
+            tb._make_output(
+                value=helpers.DCR_OUTPUT_VALUE,
+                output_script=helpers.DCR_OUTPUT_SCRIPT,
+                version=helpers.DCR_OUTPUT_VERSION),
+            helpers.DCR_OUTPUT)
 
     def test_make_sh_output(self):
-        pass
+        print()
+        print()
+        self.assertEqual(
+            tb.make_sh_output(
+                value=helpers.P2WSH_OUTPUT_3_VALUE_INT,
+                output_script=helpers.P2WSH_SCRIPT,
+                witness=True),
+            helpers.P2WSH_OUTPUT_3)
 
     def test_make_p2sh_output(self):
         pass

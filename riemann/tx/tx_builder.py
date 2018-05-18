@@ -73,7 +73,7 @@ def make_p2wpkh_output_script(pubkey):
     return make_pkh_output_script(pubkey, witness=True)
 
 
-def _make_output(value, script, version=None):
+def _make_output(value, output_script, version=None):
     '''
     byte-like, byte-like -> TxOut
     '''
@@ -81,24 +81,25 @@ def _make_output(value, script, version=None):
         return tx.DecredTxOut(
             value=value,
             version=version,
-            output_script=script)
-    return tx.TxOut(value=value, output_script=script)
+            output_script=output_script)
+    return tx.TxOut(value=value, output_script=output_script)
 
 
-def make_sh_output(value, script, witness=False):
+def make_sh_output(value, output_script, witness=False):
     '''
     int, str -> TxOut
     '''
-    return _make_output(value=utils.i2le_padded(value),
-                        script=make_sh_output_script(script, witness))
+    return _make_output(
+        value=utils.i2le_padded(value, 8),
+        output_script=make_sh_output_script(output_script, witness))
 
 
-def make_p2sh_output(value, script):
-    return make_sh_output(value, script, witness=False)
+def make_p2sh_output(value, output_script):
+    return make_sh_output(value, output_script, witness=False)
 
 
-def make_p2wsh_output(value, script):
-    return make_sh_output(value, script, witness=True)
+def make_p2wsh_output(value, output_script):
+    return make_sh_output(value, output_script, witness=True)
 
 
 def make_pkh_output(value, pubkey, witness=False):
