@@ -260,7 +260,7 @@ def unsigned_witness_tx(tx_ins, tx_outs, **kwargs):
         tx_ins=tx_ins,
         tx_outs=tx_outs,
         lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0,
-        tx_witnesses=[tb.make_empty_witness()])
+        tx_witnesses=[tb.make_empty_witness() for _ in tx_ins])
 
 
 def legacy_tx(tx_ins, tx_outs):
