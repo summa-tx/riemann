@@ -212,11 +212,13 @@ def make_witness_input(outpoint, sequence):
     return tx.TxIn(outpoint=outpoint,
                    stack_script=b'',
                    redeem_script=b'',
-                   sequence=sequence)
+                   sequence=utils.i2le_padded(sequence, 4))
 
 
 def make_decred_input(outpoint, sequence):
-    return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
+    return tx.DecredTxIn(
+        outpoint=outpoint,
+        sequence=utils.i2le_padded(sequence, 4))
 
 
 def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
@@ -255,3 +257,8 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
                  tx_outs=tx_outs,
                  tx_witnesses=tx_witnesses,
                  lock_time=utils.i2le_padded(lock_time, 4))
+
+
+def length_prepend(byte_string):
+    byte_string += tx.VarInt(len(byte_string)).to_bytes()
+    return byte_string
