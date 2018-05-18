@@ -80,8 +80,9 @@ def empty_output():
 def outpoint(tx_id, index, tree=None):
     '''
     hex_str, int, int -> Outpoint
+    accepts block explorer txid string
     '''
-    tx_id_le = bytes.fromhex(tx_id)[::-1]  # accepts block explorer txid string
+    tx_id_le = bytes.fromhex(tx_id)[::-1]
     return tb.make_outpoint(tx_id_le, index, tree)
 
 
@@ -198,10 +199,9 @@ def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
     '''
     if sequence is None:
         sequence = guess_sequence(witness_script)
-
-    stack = [item for item in stack]
+    stack = list(map(
+        lambda x: b'' if x == 'NONE' else bytes.fromhex(x), stack.split()))
     stack.append(script_ser.serialize(witness_script))
-
     return tb.make_witness_input_and_witness(outpoint, sequence, stack)
 
 

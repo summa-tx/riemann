@@ -1,4 +1,5 @@
 import riemann
+from ..script import serialization
 import math
 from .. import utils
 
@@ -223,9 +224,12 @@ class Outpoint(ByteData):
 
     @classmethod
     def from_bytes(Outpoint, byte_string):
+        '''
+        bytes -> Outpoint
+        '''
         return Outpoint(
             tx_id=byte_string[:32],
-            index=byte_string[32:])
+            index=byte_string[32:36])
 
 
 class DecredOutpoint(DecredByteData):
@@ -258,7 +262,7 @@ class DecredOutpoint(DecredByteData):
         return DecredOutpoint(
             tx_id=byte_string[:32],
             index=byte_string[32:36],
-            tree=byte_string[36:])
+            tree=byte_string[36:37])
 
 
 class TxIn(ByteData):
@@ -313,8 +317,52 @@ class TxIn(ByteData):
         return self.redeem_script is not b''
 
     @classmethod
+    def _parse_script_sig(TxIn, script_sig):
+        '''
+        byte_string -> (byte_string, byte_string)
+        '''
+        # Is there a better way to do this?
+        stack_script = script_sig
+        redeem_script = b''
+        try:
+            # If the last entry deserializes, it's a p2sh input
+            # There is a vanishingly small edge case where the pubkey
+            #   forms a deserializable script.
+            deserialized = serialization.deserialize(script_sig)
+            items = deserialized.split()
+            serialization.hex_deserialize(items[-1])
+            stack_script = serialization.serialize(' '.join(items[:-1]))
+            redeem_script = serialization.serialize(items[-1])
+        except (IndexError, ValueError):
+            pass
+
+        return stack_script, redeem_script
+
+    @classmethod
     def from_bytes(TxIn, byte_string):
-        raise NotImplementedError('TODO')
+        '''
+        byte_string -> TxIn
+        parses a TxIn from a byte-like object
+        '''
+        outpoint = Outpoint.from_bytes(byte_string[:36])
+
+        script_sig_len = VarInt.from_bytes(byte_string[36:45])
+        script_start = 36 + len(script_sig_len)
+        script_end = script_start + script_sig_len.number
+        script_sig = byte_string[script_start:script_end]
+
+        sequence = byte_string[script_end:script_end + 4]
+        if script_sig == b'':
+            stack_script = b''
+            redeem_script = b''
+        else:
+            stack_script, redeem_script = TxIn._parse_script_sig(script_sig)
+
+        return TxIn(
+            outpoint=outpoint,
+            stack_script=stack_script,
+            redeem_script=redeem_script,
+            sequence=sequence)
 
 
 class DecredTxIn(DecredByteData):
@@ -342,7 +390,7 @@ class DecredTxIn(DecredByteData):
     def from_bytes(DecredTxIn, byte_string):
         return DecredTxIn(
             outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
-            sequence=byte_string[37:])
+            sequence=byte_string[37:41])
 
 
 class TxOut(ByteData):
@@ -381,11 +429,13 @@ class TxOut(ByteData):
 
     @classmethod
     def from_bytes(TxOut, byte_string):
-        n = byte_string[8]
-        if n < 0xfc:  # VarInt handling
+        n = VarInt.from_bytes(byte_string[8:])
+        script_start = 8 + len(n)
+        script_end = script_start + n.number
+        if n.number < 0xfc:
             return TxOut(
                 value=byte_string[:8],
-                output_script=byte_string[9:])
+                output_script=byte_string[script_start:script_end])
         else:
             raise NotImplementedError(
                 'No support for abnormally long pk_scripts.')
@@ -421,12 +471,14 @@ class DecredTxOut(ByteData):
 
     @classmethod
     def from_bytes(DecredTxOut, byte_string):
-        n = byte_string[9]
-        if n < 0xfc:  # VarInt handling
+        n = VarInt.from_bytes(byte_string[10:])
+        script_start = 10 + len(n)
+        script_end = script_start + n.number
+        if n.number < 0xfc:
             return DecredTxOut(
                 value=byte_string[:8],
                 version=byte_string[8:10],
-                output_script=byte_string[11:])
+                output_script=byte_string[script_start:script_end])
         else:
             raise NotImplementedError(
                 'No support for abnormally long pk_scripts.')
@@ -452,16 +504,10 @@ class WitnessStackItem(ByteData):
 
     @classmethod
     def from_bytes(WitnessStackItem, byte_string):
-        WitnessStackItem.validate_bytes(byte_string, None)
-        prefix = byte_string[0]
-        if prefix <= 0xfc:
-            return WitnessStackItem(byte_string[1:])
-        elif prefix == 0xfd:
-            return WitnessStackItem(byte_string[3:])
-        elif prefix == 0xfe:
-            return WitnessStackItem(byte_string[5:])
-        elif prefix == 0xff:
-            return WitnessStackItem(byte_string[9:])
+        n = VarInt.from_bytes(byte_string)
+        item_start = len(n)
+        item_end = item_start + n.number
+        return WitnessStackItem(byte_string[item_start:item_end])
 
 
 class InputWitness(ByteData):
@@ -489,16 +535,13 @@ class InputWitness(ByteData):
 
     @classmethod
     def from_bytes(InputWitness, byte_string):
-        WitnessStackItem.validate_bytes(byte_string, None)
-        stack_len = byte_string[0]
-        current = 1
+        stack_items = VarInt.from_bytes(byte_string)
+        item_start = len(stack_items)
         items = []
-        while len(items) < stack_len:
-            item_len = VarInt.from_bytes(byte_string[current:])
-            prefixed_item_len = len(item_len) + item_len.number
-            prefixed_item = byte_string[current: current + prefixed_item_len]
-            items += [WitnessStackItem.from_bytes(prefixed_item)]
-            current += prefixed_item_len
+        while len(items) < stack_items.number:
+            item = WitnessStackItem.from_bytes(byte_string[item_start:])
+            item_start += len(item)
+            items.append(item)
         return InputWitness(items)
 
 
@@ -649,6 +692,52 @@ class Tx(ByteData):
             self.wtx_le = None
 
         self._make_immutable()
+
+    @classmethod
+    def from_bytes(Tx, byte_string):
+        version = byte_string[0:4]
+        if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:
+            tx_ins_num_loc = 6
+            flag = riemann.network.SEGWIT_TX_FLAG
+        else:
+            tx_ins_num_loc = 4
+            flag = None
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
+
+        current = tx_ins_num_loc + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        if not flag:
+            tx_witnesses = None
+        else:
+            tx_witnesses = []
+            tx_witnesses_num = tx_ins_num
+            for _ in range(tx_witnesses_num.number):
+                tx_witness = InputWitness.from_bytes(byte_string[current:])
+                current += len(tx_witness)
+                tx_witnesses.append(tx_witness)
+
+        lock_time = byte_string[current:]
+        return Tx(
+            version=version,
+            flag=flag,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            tx_witnesses=tx_witnesses,
+            lock_time=lock_time)
 
     def no_witness(self):
         '''
@@ -931,7 +1020,7 @@ class Tx(ByteData):
         return utils.hash256(data.to_bytes())
 
 
-class DecredTx(ByteData):
+class DecredTx(DecredByteData):
 
     def __init__(self, version, tx_ins, tx_outs,
                  lock_time, expiry, tx_witnesses):
@@ -1009,6 +1098,10 @@ class DecredTx(ByteData):
         # self.tx_id_full = utils.change_endianness(self.tx_id_full_le)
 
         self._make_immutable()
+
+    @classmethod
+    def from_bytes(DecredTx, byte_string):
+        raise NotImplementedError('TODO')
 
     def prefix_hash(self):
         try:
