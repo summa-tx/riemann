@@ -5,6 +5,7 @@ dist/
 
 # Virtual environment
 venv/
+.venv/
 
 # Unit test / coverage reports
 .tox/

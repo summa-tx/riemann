@@ -1,7 +1,7 @@
 ## Riemann: Multi-coin transaction generation toolbox.
 
 [![Build Status](https://travis-ci.org/summa-tx/riemann.svg?branch=master)](https://travis-ci.org/summa-tx/riemann)
-[![Coverage Status](https://coveralls.io/repos/github/summa-tx/riemann/badge.svg?branch=master)](https://coveralls.io/github/summa-tx/riemann?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/summa-tx/riemann/badge.svg)](https://coveralls.io/github/summa-tx/riemann)
 
 
 ### Contributing
