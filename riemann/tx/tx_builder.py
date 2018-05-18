@@ -106,8 +106,9 @@ def make_pkh_output(value, pubkey, witness=False):
     '''
     int, bytearray -> TxOut
     '''
-    return _make_output(value=utils.i2le_padded(value),
-                        script=make_pkh_output_script(pubkey, witness))
+    return _make_output(
+        value=utils.i2le_padded(value, 8),
+        output_script=make_pkh_output_script(pubkey, witness))
 
 
 def make_p2pkh_output(value, pubkey):
@@ -163,7 +164,7 @@ def make_decred_witness(value, height, index, stack_script, redeem_script):
 
 def make_outpoint(tx_id_le, index, tree=None):
     '''
-    byte-like, int, byte-like -> Outpoint
+    byte-like, int, int -> Outpoint
     '''
     if 'decred' in riemann.get_current_network_name():
         return tx.DecredOutpoint(tx_id=tx_id_le,
@@ -209,7 +210,9 @@ def make_witness_input(outpoint, sequence):
     Outpoint, int -> TxIn
     '''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTxIn(outpoint=outpoint, sequence=sequence)
+        return tx.DecredTxIn(
+            outpoint=outpoint,
+            sequence=utils.i2le_padded(sequence, 4))
     return tx.TxIn(outpoint=outpoint,
                    stack_script=b'',
                    redeem_script=b'',
@@ -222,7 +225,8 @@ def make_decred_input(outpoint, sequence):
         sequence=utils.i2le_padded(sequence, 4))
 
 
-def make_witness_input_and_witness(outpoint, sequence, data_list, **kwargs):
+def make_witness_input_and_witness(outpoint, sequence,
+                                   data_list=None, **kwargs):
     '''
     Outpoint, int, list(bytearray) -> (Input, InputWitness)
     '''
@@ -244,12 +248,12 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTx(version=version,
+        return tx.DecredTx(version=utils.i2le_padded(version, 4),
                            tx_ins=tx_ins,
                            tx_outs=tx_outs,
-                           lock_time=lock_time,
-                           expiry=expiry,
-                           tx_witnesses=tx_witnesses)
+                           lock_time=utils.i2le_padded(lock_time, 4),
+                           expiry=utils.i2le_padded(expiry, 4),
+                           tx_witnesses=[tx_witnesses])
     flag = riemann.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None
     return tx.Tx(version=utils.i2le_padded(version, 4),
@@ -261,5 +265,8 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
 
 
 def length_prepend(byte_string):
-    byte_string += tx.VarInt(len(byte_string)).to_bytes()
-    return byte_string
+    '''
+    bytes -> bytes
+    '''
+    length = tx.VarInt(len(byte_string))
+    return length.to_bytes() + byte_string
