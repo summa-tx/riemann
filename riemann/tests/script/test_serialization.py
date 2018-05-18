@@ -54,11 +54,11 @@ class TestSerialization(unittest.TestCase):
     def test_hex_serialize_OP_PUSHDATA1(self):
         self.assertEqual(
             ser.hex_serialize(helpers.P2SH_PUSHDATA1_SCRIPT),
-            helpers.P2SH_PUSHDATA1_SERIALIZED)
+            helpers.P2SH_PUSHDATA1_SERIALIZED_HEX)
 
     def test_hex_deserialize_OP_PUSHDATA1(self):
         self.assertEqual(
-            ser.hex_deserialize(helpers.P2SH_PUSHDATA1_SERIALIZED),
+            ser.hex_deserialize(helpers.P2SH_PUSHDATA1_SERIALIZED_HEX),
             helpers.P2SH_PUSHDATA1_SCRIPT)
 
     def test_hex_serialize_OP_PUSHDATA2(self):
