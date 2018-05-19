@@ -4,6 +4,67 @@
 # https://docs.google.com/presentation/d/1YGZf1VKKOnCdpuaVzU35CAXy8uGcztq0OBlTNMGSmkw/edit?usp=sharing
 from ..script import examples
 
+# Pay-to-Public-Key-Hash Transaction used in riemann.examples.p2pkh_tx_ex
+# https://blockchain.info/tx/264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188
+P2PKH = {
+    'version': 0,
+    'sequence': 0xFFFFFFFE,
+    'locktime': 0,
+    'segwit': False,
+    'receive_addr': 'bc1qss5rslea60lftfe7pyk32s9j9dtr7z7mrqud3g',
+    'ins': [
+    {
+        'id': 0,
+        'hash': bytes.fromhex('264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188'),
+        'index': 0,
+        'in': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff')
+        }
+    ],
+    'outs': [
+    {
+        'id': 0,
+        'amount': 96900,
+        'value': 100000,
+        'fee': 3100,
+        'out': bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb')
+        },
+    {
+        'id': 1,
+        'memo': 'made with ❤ by riemann'.encode('utf-8'),
+        'out': bytes.fromhex('00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e')
+        }
+    ],
+    'unsigned': bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000')
+}
+
+# https://blockchain.info/rawtx/d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee
+# https://blockchain.info/rawtx/1e7acd3d4715054c8fb0fdea25c5c704986006d2c6f30b0782e9b36a7ee072ef
+P2WPKH = {
+    'version': 0,
+    'sequence': 0xFFFFFFFF,
+    'locktime': 0,
+    'segwit': True,
+    'receive_addr': '3M2eEjkEw1T6mTu6v8EBf6BAHEtUv8gtPw',
+    'ins': [
+    {
+        'id': 0,
+        'hash': bytes.fromhex('d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee'),
+        'index': 0,
+        'in': bytes.fromhex('ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000ffffffff')
+        }
+    ],
+    'outs': [
+    {
+        'id': 0,
+        'amount': 116900,
+        'value': 120000,
+        'fee': 3100,
+        'tx_out': bytes.fromhex('a4c801000000000017a914d4209b3702522bd9c07b7455a670b834038f5fbe87')
+        },
+    ],
+    'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000ffffffff01a4c801000000000017a914d4209b3702522bd9c07b7455a670b834038f5fbe870000000000')
+}
+
 version = bytes.fromhex('01000000')
 num_inputs = bytes.fromhex('01')
 outpoint_tx_id = bytes.fromhex('813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1')
@@ -174,33 +235,6 @@ P2WPKH_ADDRESS = 'bc1q8cqttds2dej9zht7vupd3467ndhur92fudlyql'
 P2WPKH_PUBKEY = bytes.fromhex('03dc3dbabbf8c5e15d1eb3606a6a42c6d3a8c546f2a196a80a08b9a9021e2be33d')
 P2WPKH_PKH = bytes.fromhex('3e00b5b60a6e64515d7e6702d8d75e9b6fc19549')
 P2WPKH_OUTPUT_SCRIPT = b'\x00\x14' + P2WPKH_PKH
-
-# https://blockchain.info/rawtx/d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee
-P2WPKH_TX_ID = 'd2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee'
-P2WPKH_TX_INDEX = 0
-P2WPKH_SEQUENCE = 0xFFFFFFFF
-P2WPKH_VALUE = 120000
-P2WPKH_FEE = 3100
-P2WPKH_RECEIVE_ADDR = '3M2eEjkEw1T6mTu6v8EBf6BAHEtUv8gtPw'
-P2WPKH_TXIN_STRING = 'ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000ffffffff'
-P2WPKH_TXOUT_STRING = 'a4c801000000000017a914d4209b3702522bd9c07b7455a670b834038f5fbe87'
-P2WPKH_UNSIGNED_TX = bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000ffffffff01a4c801000000000017a914d4209b3702522bd9c07b7455a670b834038f5fbe870000000000')
-P2WPKH_AMOUNT = P2WPKH_VALUE - P2WPKH_FEE
-
-# https://blockchain.info/tx/264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188
-P2PKH_TX_ID = '264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188'
-P2PKH_TX_INDEX = 0
-P2PKH_SEQUENCE = 0xFFFFFFFE
-P2PKH_VALUE = 100000
-P2PKH_FEE = 3100
-P2PKH_MEMO = 'made with ❤ by riemann'.encode('utf-8')
-P2PKH_RECEIVE_ADDR = 'bc1qss5rslea60lftfe7pyk32s9j9dtr7z7mrqud3g'
-P2PKH_TXIN_STRING = bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff')
-P2PKH_TXOUT_STRING = bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb')
-P2PKH_TXMEMO_STRING = bytes.fromhex('00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e')
-P2PKH_UNSIGNED_TX = bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000')
-P2PKH_AMOUNT = P2PKH_VALUE - P2PKH_FEE
-
 
 # DCR helpers
 # http://explorer.dcrdata.org/api/tx/decoded/49245425967b7e39c1eb27d261c7fe972675cccacff19ae9cc21f434ccddd986?indent=true

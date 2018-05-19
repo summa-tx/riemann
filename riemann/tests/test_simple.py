@@ -68,34 +68,34 @@ class TestSimple(unittest.TestCase):
     def test_unsigned_legacy_tx(self):
 
         outpoint = simple.outpoint(
-            tx_id=helpers.P2PKH_TX_ID,
-            index=helpers.P2PKH_TX_INDEX)
+            tx_id=helpers.P2PKH['ins'][0]['hash'].hex(),
+            index=helpers.P2PKH['ins'][0]['index'])
         tx_ins = simple.unsigned_input(
             outpoint=outpoint,
-            sequence=helpers.P2PKH_SEQUENCE)
+            sequence=helpers.P2PKH['sequence'])
         tx_out = simple.output(
-            helpers.P2PKH_AMOUNT,
-            helpers.P2PKH_RECEIVE_ADDR)
-        tx_return_output = tb.make_op_return_output(helpers.P2PKH_MEMO)
+            helpers.P2PKH['outs'][0]['amount'],
+            helpers.P2PKH['receive_addr'])
+        tx_return_output = tb.make_op_return_output(
+            helpers.P2PKH['outs'][1]['memo'])
         tx = simple.unsigned_legacy_tx(
             tx_ins=[tx_ins],
             tx_outs=[tx_out, tx_return_output])
 
-        self.assertTrue(tx == helpers.P2PKH_UNSIGNED_TX)
+        self.assertTrue(tx == helpers.P2PKH['unsigned'])
 
     def test_unsigned_witness_tx(self):
-
         outpoint = simple.outpoint(
-            tx_id=helpers.P2WPKH_TX_ID,
-            index=helpers.P2WPKH_TX_INDEX)
+            tx_id=helpers.P2WPKH['ins'][0]['hash'].hex(),
+            index=helpers.P2WPKH['ins'][0]['index'])
         tx_ins = simple.unsigned_input(
             outpoint=outpoint,
-            sequence=helpers.P2WPKH_SEQUENCE)
+            sequence=helpers.P2WPKH['sequence'])
         tx_outs = simple.output(
-            helpers.P2WPKH_AMOUNT,
-            helpers.P2WPKH_RECEIVE_ADDR)
+            helpers.P2WPKH['outs'][0]['amount'],
+            helpers.P2WPKH['receive_addr'])
         tx = simple.unsigned_witness_tx(
             tx_ins=[tx_ins],
             tx_outs=[tx_outs])
 
-        self.assertTrue(tx == helpers.P2WPKH_UNSIGNED_TX)
+        self.assertTrue(tx == helpers.P2WPKH['unsigned'])
