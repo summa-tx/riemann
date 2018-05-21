@@ -17,12 +17,16 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_sh_output_script('OP_IF'),
             helpers.OP_IF_OUTPUT_SCRIPT)
         self.assertEqual(
-            tb.make_sh_output_script(helpers.P2WSH_SCRIPT, witness=True),
-            helpers.P2WSH_OUTPUT_SCRIPT)
+            tb.make_sh_output_script(
+                helpers.P2WSH['wit']['wit_script']['human'],
+                witness=True),
+            helpers.P2WSH['ins'][0]['script'])
 
         riemann.select_network('bitcoin_cash_main')
         with self.assertRaises(ValueError) as context:
-            tb.make_sh_output_script(helpers.P2WSH_SCRIPT, witness=True)
+            tb.make_sh_output_script(
+                helpers.P2WSH['wit']['wit_script']['human'],
+                witness=True)
 
         self.assertIn(
             'Network bitcoin_cash_main does not support witness scripts.',
@@ -62,8 +66,9 @@ class TestTxBuilder(unittest.TestCase):
 
     def test_make_p2wsh_output_script(self):
         self.assertEqual(
-            tb.make_p2wsh_output_script(helpers.P2WSH_SCRIPT),
-            helpers.P2WSH_OUTPUT_SCRIPT)
+            tb.make_p2wsh_output_script(
+                helpers.P2WSH['wit']['wit_script']['human']),
+            helpers.P2WSH['ins'][0]['script'])
 
     def test_make_p2wpkh_output_script(self):
         self.assertEqual(
@@ -92,9 +97,9 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_p2wsh_output(self):
         self.assertEqual(
             tb.make_p2wsh_output(
-                value=helpers.P2WSH_OUTPUT_3_VALUE_INT,
-                output_script=helpers.P2WSH_SCRIPT),
-            helpers.P2WSH_OUTPUT_3)
+                value=helpers.P2WSH['outs'][3]['value'],
+                output_script=helpers.P2WSH['wit']['wit_script']['human']),
+            helpers.P2WSH['outs'][3]['output'])
 
     def test_make_pkh_output(self):
         pass  # covered by next 2
@@ -162,9 +167,9 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_script_sig(self):
         self.assertEqual(
             tb.make_script_sig(
-                stack_script=helpers.P2SH_PUSHDATA1_STACK_SCRIPT,
-                redeem_script=helpers.P2SH_PUSHDATA1_REDEEM_SCRIPT),
-            helpers.P2SH_PUSHDATA1_SERIALIZED)
+                stack_script=helpers.P2SH_PD1['stack_script']['human'],
+                redeem_script=helpers.P2SH_PD1['redeem_script']['human']),
+            helpers.P2SH_PD1['script']['serialized'])
 
     def test_make_legacy_input(self):
         outpoint = tb.make_outpoint(

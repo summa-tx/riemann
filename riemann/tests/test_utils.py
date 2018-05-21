@@ -69,8 +69,8 @@ class TestUtils(unittest.TestCase):
             utils.sha256('abc'.encode('utf-8')),
             bytes.fromhex('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'))  # noqa: E501
         self.assertEqual(
-            utils.sha256(helpers.P2WSH_SERIALIZED_SCRIPT),
-            helpers.P2WSH_SCRIPT_HASH)
+            utils.sha256(helpers.P2WSH['wit']['wit_script']['serialized']),
+            helpers.P2WSH['ins'][0]['script'][2:])
 
     def test_hash160(self):
         self.assertEqual(

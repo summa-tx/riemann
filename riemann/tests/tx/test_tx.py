@@ -263,10 +263,12 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(tx_in.redeem_script, helpers.P2SH_SPEND_REDEEM_SCRIPT)
 
     def test_from_bytes_wsh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2WSH_SPEND_TX_IN)
-        self.assertEqual(tx_in, helpers.P2WSH_SPEND_TX_IN)
-        self.assertEqual(tx_in.outpoint, helpers.P2WSH_SPEND_OUTPOINT)
-        self.assertEqual(tx_in.sequence, helpers.P2WSH_SPEND_SEQUENCE)
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['tx']['in'])
+        self.assertEqual(tx_in, helpers.P2WSH['tx']['in'])
+        self.assertEqual(tx_in.outpoint, helpers.P2WSH['ins'][0]['outpoint'])
+        self.assertEqual(
+            tx_in.sequence,
+            utils.i2be(helpers.P2WSH['sequence']))
         self.assertEqual(tx_in.stack_script, b'')
         self.assertEqual(tx_in.redeem_script, b'')
 
@@ -314,7 +316,7 @@ class TestTxOut(unittest.TestCase):
 class TestWitnessStackItem(unittest.TestCase):
 
     def setUp(self):
-        self.stack_item_bytes = helpers.P2WSH_WITNESS_STACK_ITEMS[1]
+        self.stack_item_bytes = helpers.P2WSH['wit']['stack_items'][1]
 
     def test_create_stack_item(self):
         w = tx.WitnessStackItem(self.stack_item_bytes)
@@ -349,7 +351,7 @@ class TestInputWitness(unittest.TestCase):
 
     def setUp(self):
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH_WITNESS_STACK_ITEMS]
+                      for b in helpers.P2WSH['wit']['stack_items']]
 
     def test_create_witness(self):
         iw = tx.InputWitness(self.stack)
@@ -365,7 +367,7 @@ class TestInputWitness(unittest.TestCase):
                       str(context.exception))
 
     def test_from_bytes(self):
-        iw = tx.InputWitness.from_bytes(helpers.P2WSH_WITNESS)
+        iw = tx.InputWitness.from_bytes(helpers.P2WSH['tx']['witness'])
         self.assertEqual(len(iw.stack), len(self.stack))
         for item, expected in zip([s.item for s in iw.stack],
                                   [s.item for s in self.stack]):
@@ -403,7 +405,7 @@ class TestTx(unittest.TestCase):
 
         self.segwit_flag = b'\x00\x01'
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH_WITNESS_STACK_ITEMS]
+                      for b in helpers.P2WSH['wit']['stack_items']]
         self.tx_witnesses = [tx.InputWitness(self.stack)]
 
     def tearDown(self):
@@ -603,16 +605,16 @@ class TestTx(unittest.TestCase):
         self.assertEqual(t, helpers.P2SH_SPEND)
 
     def test_from_bytes_wsh(self):
-        t = tx.Tx.from_bytes(helpers.P2WSH_SPEND)
-        self.assertEqual(t.version, helpers.P2WSH_SPEND_VERSION)
-        self.assertEqual(t.tx_ins[0], helpers.P2WSH_SPEND_TX_IN)
-        self.assertEqual(t.tx_outs[0], helpers.P2WSH_OUTPUT_0)
-        self.assertEqual(t.tx_outs[1], helpers.P2WSH_OUTPUT_1)
-        self.assertEqual(t.tx_outs[2], helpers.P2WSH_OUTPUT_2)
-        self.assertEqual(t.tx_outs[3], helpers.P2WSH_OUTPUT_3)
-        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH_WITNESS)
+        t = tx.Tx.from_bytes(helpers.P2WSH['tx']['signed'])
+        self.assertEqual(t.version, utils.i2le_padded(helpers.P2WSH['version'], 4))
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH['tx']['in'])
+        self.assertEqual(t.tx_outs[0], helpers.P2WSH['outs'][0]['output'])
+        self.assertEqual(t.tx_outs[1], helpers.P2WSH['outs'][1]['output'])
+        self.assertEqual(t.tx_outs[2], helpers.P2WSH['outs'][2]['output'])
+        self.assertEqual(t.tx_outs[3], helpers.P2WSH['outs'][3]['output'])
+        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH['tx']['witness'])
         self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
-        self.assertEqual(t, helpers.P2WSH_SPEND)
+        self.assertEqual(t, helpers.P2WSH['tx']['signed'])
 
     def test_calculate_fee(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,

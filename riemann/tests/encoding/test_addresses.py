@@ -33,8 +33,9 @@ class TestAddresses(unittest.TestCase):
         self.assertEqual(a, helpers.MSIG_TWO_TWO_P2SH)
 
     def test_make_p2wsh_address(self):
-        a = addr.make_p2wsh_address(helpers.P2WSH_SCRIPT)
-        self.assertEqual(a, helpers.P2WSH_ADDRESS)
+        a = addr.make_p2wsh_address(
+            helpers.P2WSH['wit']['wit_script']['human'])
+        self.assertEqual(a, helpers.P2WSH['ins'][0]['addr'])
 
     def test_make_p2pkh_address(self):
         a = addr.make_p2pkh_address(b'\x00' * 65)
@@ -51,8 +52,8 @@ class TestAddresses(unittest.TestCase):
                          b'\x05' + helpers.OP_IF_SCRIPT_HASH)
         self.assertEqual(addr.parse(helpers.MSIG_TWO_TWO_P2SH),
                          b'\x05' + helpers.MSIG_TWO_TWO_SCRIPT_HASH)
-        self.assertEqual(addr.parse(helpers.P2WSH_ADDRESS),
-                         b'\x00\x20' + helpers.P2WSH_SCRIPT_HASH)
+        self.assertEqual(addr.parse(helpers.P2WSH['ins'][0]['addr']),
+                         b'\x00\x20' + helpers.P2WSH['ins'][0]['script'][2:])
         self.assertEqual(addr.parse(helpers.P2WPKH_ADDRESS),
                          b'\x00\x14' + helpers.P2WPKH_PKH)
         self.assertEqual(addr.parse(helpers.P2PKH_0),
@@ -69,8 +70,8 @@ class TestAddresses(unittest.TestCase):
                          helpers.OP_IF_SCRIPT_HASH)
         self.assertEqual(addr.parse_hash(helpers.MSIG_TWO_TWO_P2SH),
                          helpers.MSIG_TWO_TWO_SCRIPT_HASH)
-        self.assertEqual(addr.parse_hash(helpers.P2WSH_ADDRESS),
-                         helpers.P2WSH_SCRIPT_HASH)
+        self.assertEqual(addr.parse_hash(helpers.P2WSH['ins'][0]['addr']),
+                         helpers.P2WSH['ins'][0]['script'][2:])
         self.assertEqual(addr.parse_hash(helpers.P2WPKH_ADDRESS),
                          helpers.P2WPKH_PKH)
         self.assertEqual(addr.parse_hash(helpers.P2PKH_0),
@@ -121,8 +122,8 @@ class TestAddresses(unittest.TestCase):
             addr.from_output_script(helpers.OP_IF_OUTPUT_SCRIPT),
             helpers.OP_IF_P2SH)
         self.assertEqual(
-            addr.from_output_script(helpers.P2WSH_OUTPUT_SCRIPT),
-            helpers.P2WSH_ADDRESS)
+            addr.from_output_script(helpers.P2WSH['ins'][0]['script']),
+            helpers.P2WSH['ins'][0]['addr'])
         self.assertEqual(
             addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
             helpers.P2PKH_0)
@@ -150,8 +151,8 @@ class TestAddresses(unittest.TestCase):
             addr.to_output_script(helpers.OP_IF_P2SH),
             helpers.OP_IF_OUTPUT_SCRIPT)
         self.assertEqual(
-            addr.to_output_script(helpers.P2WSH_ADDRESS),
-            helpers.P2WSH_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.P2WSH['ins'][0]['addr']),
+            helpers.P2WSH['ins'][0]['script'])
         self.assertEqual(
             addr.to_output_script(helpers.P2PKH_0),
             helpers.PKH_0_OUTPUT_SCRIPT)
