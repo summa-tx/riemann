@@ -1317,7 +1317,7 @@ class TestDecredTx(DecredTestCase):
             tx_ins=tx_ins,
             tx_outs=tx_outs,
             lock_time=helpers.DCR_2_LOCKTIME,
-            expiry=helpers.DCR_2_EXPIRTY,
+            expiry=helpers.DCR_2_EXPIRY,
             tx_witnesses=tx_witnesses)
 
         # self.assertEqual(

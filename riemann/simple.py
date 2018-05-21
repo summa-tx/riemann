@@ -209,21 +209,58 @@ def empty_input_witness():
     return tb.make_witness([])
 
 
-def unsigned_tx(tx_ins, tx_outs, **kwargs):
-    '''
-    list(TxIn), list(TxOut) -> Tx
-    Create an unsigned transaction
+def unsigned_legacy_tx(tx_ins, tx_outs, **kwargs):
+    '''Create an unsigned transaction
     Use this to generate sighashes for unsigned TxIns
     Gotcha: it requires you to know the timelock and version
             it will _not_ guess them
             becuase it may not have acess to all scripts
     Hint: set version to 2 if using sequence number relative time locks
+
+    Args:
+        tx_ins      list(TxIn instances): list of transaction inputs
+        tx_outs     list(TxOut instances): list of transaction outputs
+
+        **kwargs:
+        version     (int): transaction version number
+        locktime    (hex): transaction locktime
+
+    Returns:
+        (Tx instance): unsigned transaction
     '''
     return tb.make_tx(
         version=kwargs['version'] if 'version' in kwargs else 1,
         tx_ins=tx_ins,
         tx_outs=tx_outs,
         lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0)
+
+
+def unsigned_witness_tx(tx_ins, tx_outs, **kwargs):
+    '''Create an unsigned segwit transaction
+    Create an unsigned segwit transaction
+    Use this to generate sighashes for unsigned TxIns
+    Gotcha: it requires you to know the timelock and version
+            it will _not_ guess them
+            becuase it may not have acess to all scripts
+    Hint: set version to 2 if using sequence number relative time locks
+
+    Args:
+        tx_ins      list(TxIn instances): list of transaction inputs
+        tx_outs     list(TxOut instances): list of transaction outputs
+
+        **kwargs:
+        version     (int): transaction version number
+        locktime    (hex): transaction locktime
+
+    Returns:
+        (Tx instance): unsigned transaction with empty witness
+    '''
+    return tb.make_tx(
+        version=kwargs['version'] if 'version' in kwargs else 1,
+        tx_ins=tx_ins,
+        tx_outs=tx_outs,
+        lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0,
+        tx_witnesses=[tb.make_empty_witness() for _ in tx_ins])
 
 
 def legacy_tx(tx_ins, tx_outs):
