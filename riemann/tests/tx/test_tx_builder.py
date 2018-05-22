@@ -15,17 +15,17 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_sh_output_script(self):
         self.assertEqual(
             tb.make_sh_output_script('OP_IF'),
-            helpers.OP_IF_OUTPUT_SCRIPT)
+            helpers.OP_IF['output_script'])
         self.assertEqual(
             tb.make_sh_output_script(
-                helpers.P2WSH['wit']['wit_script']['human'],
+                helpers.P2WSH['human']['wit_script'],
                 witness=True),
-            helpers.P2WSH['ins'][0]['script'])
+            helpers.P2WSH['ser']['ins'][0]['script'])
 
         riemann.select_network('bitcoin_cash_main')
         with self.assertRaises(ValueError) as context:
             tb.make_sh_output_script(
-                helpers.P2WSH['wit']['wit_script']['human'],
+                helpers.P2WSH['human']['wit_script'],
                 witness=True)
 
         self.assertIn(
@@ -57,7 +57,7 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_p2sh_output_script(self):
         self.assertEqual(
             tb.make_p2sh_output_script('OP_IF'),
-            helpers.OP_IF_OUTPUT_SCRIPT)
+            helpers.OP_IF['output_script'])
 
     def test_make_p2pkh_output_script(self):
         self.assertEqual(
@@ -67,8 +67,8 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_p2wsh_output_script(self):
         self.assertEqual(
             tb.make_p2wsh_output_script(
-                helpers.P2WSH['wit']['wit_script']['human']),
-            helpers.P2WSH['ins'][0]['script'])
+                helpers.P2WSH['human']['wit_script']),
+            helpers.P2WSH['ser']['ins'][0]['script'])
 
     def test_make_p2wpkh_output_script(self):
         self.assertEqual(
@@ -90,16 +90,16 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_p2sh_output(self):
         self.assertEqual(
             tb.make_p2sh_output(
-                value=helpers.output_value_0_int,
+                value=helpers.P2PKH1['human']['outs'][0]['value'],
                 output_script='OP_IF'),
-            helpers.OP_IF_OUTPUT)
+            helpers.OP_IF['output'])
 
     def test_make_p2wsh_output(self):
         self.assertEqual(
             tb.make_p2wsh_output(
-                value=helpers.P2WSH['outs'][3]['value'],
-                output_script=helpers.P2WSH['wit']['wit_script']['human']),
-            helpers.P2WSH['outs'][3]['output'])
+                value=helpers.P2WSH['human']['outs'][3]['value'],
+                output_script=helpers.P2WSH['human']['wit_script']),
+            helpers.P2WSH['ser']['outs'][3]['output'])
 
     def test_make_pkh_output(self):
         pass  # covered by next 2
@@ -107,14 +107,14 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_p2pkh_output(self):
         self.assertEqual(
             tb.make_p2pkh_output(
-                value=helpers.output_value_0_int,
+                value=helpers.P2PKH1['human']['outs'][0]['value'],
                 pubkey=helpers.PK_0_BYTES),
             helpers.PK_0_P2PKH_OUTPUT)
 
     def test_make_p2wpkh_output(self):
         self.assertEqual(
             tb.make_p2wpkh_output(
-                value=helpers.output_value_0_int,
+                value=helpers.P2PKH1['human']['outs'][0]['value'],
                 pubkey=helpers.PK_0_BYTES),
             helpers.PK_0_P2WPKH_OUTPUT)
 
@@ -148,12 +148,12 @@ class TestTxBuilder(unittest.TestCase):
 
     def test_make_outpoint(self):
         outpoint = tb.make_outpoint(
-            tx_id_le=helpers.outpoint_tx_id,
-            index=helpers.outpoint_index_int)
+            tx_id_le=helpers.P2PKH1['ser']['ins'][0]['hash'],
+            index=helpers.P2PKH1['human']['ins'][0]['index'])
 
         self.assertEqual(
             outpoint,
-            helpers.outpoint)
+            helpers.P2PKH1['ser']['ins'][0]['outpoint'])
 
     def test_make_decred_outpoint(self):
         riemann.select_network('decred_main')
@@ -167,22 +167,22 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_script_sig(self):
         self.assertEqual(
             tb.make_script_sig(
-                stack_script=helpers.P2SH_PD1['stack_script']['human'],
-                redeem_script=helpers.P2SH_PD1['redeem_script']['human']),
-            helpers.P2SH_PD1['script']['serialized'])
+                stack_script=helpers.P2SH_PD1['human']['stack_script'],
+                redeem_script=helpers.P2SH_PD1['human']['redeem_script']),
+            helpers.P2SH_PD1['ser']['script'])
 
     def test_make_legacy_input(self):
         outpoint = tb.make_outpoint(
-            tx_id_le=helpers.outpoint_tx_id,
-            index=helpers.outpoint_index_int)
+            tx_id_le=helpers.P2PKH1['ser']['ins'][0]['hash'],
+            index=helpers.P2PKH1['human']['ins'][0]['index'])
 
         tx_in = tb.make_legacy_input(
             outpoint=outpoint,
-            stack_script=helpers.stack_script,
-            redeem_script=helpers.redeem_script,
-            sequence=helpers.sequence_int)
+            stack_script=helpers.P2PKH1['ser']['stack_script'],
+            redeem_script=helpers.P2PKH1['ser']['redeem_script'],
+            sequence=helpers.P2PKH1['human']['sequence'])
 
-        self.assertEqual(tx_in, helpers.tx_in)
+        self.assertEqual(tx_in, helpers.P2PKH1['ser']['tx']['in'])
 
     def test_make_legacy_input_and_empty_witness(self):
         pass

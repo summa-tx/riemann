@@ -26,16 +26,16 @@ class TestAddresses(unittest.TestCase):
 
     def test_make_p2sh_address(self):
         a = addr.make_p2sh_address('OP_IF')
-        self.assertEqual(a, helpers.OP_IF_P2SH)
+        self.assertEqual(a, helpers.OP_IF['p2sh'])
 
     def test_make_p2sh_address_msig(self):
-        a = addr.make_p2sh_address(helpers.MSIG_TWO_TWO_SCRIPT)
-        self.assertEqual(a, helpers.MSIG_TWO_TWO_P2SH)
+        a = addr.make_p2sh_address(helpers.MSIG_2_2['script'])
+        self.assertEqual(a, helpers.MSIG_2_2['p2sh'])
 
     def test_make_p2wsh_address(self):
         a = addr.make_p2wsh_address(
-            helpers.P2WSH['wit']['wit_script']['human'])
-        self.assertEqual(a, helpers.P2WSH['ins'][0]['addr'])
+            helpers.P2WSH['human']['wit_script'])
+        self.assertEqual(a, helpers.P2WSH['human']['ins'][0]['addr'])
 
     def test_make_p2pkh_address(self):
         a = addr.make_p2pkh_address(b'\x00' * 65)
@@ -44,18 +44,18 @@ class TestAddresses(unittest.TestCase):
         self.assertEqual(b, helpers.P2PKH_1)
 
     def test_make_p2wpkh_address(self):
-        a = addr.make_p2wpkh_address(helpers.P2WPKH_PUBKEY)
-        self.assertEqual(a, helpers.P2WPKH_ADDRESS)
+        a = addr.make_p2wpkh_address(helpers.P2WPKH_ADDR['pubkey'])
+        self.assertEqual(a, helpers.P2WPKH_ADDR['address'])
 
     def test_parse(self):
-        self.assertEqual(addr.parse(helpers.OP_IF_P2SH),
-                         b'\x05' + helpers.OP_IF_SCRIPT_HASH)
-        self.assertEqual(addr.parse(helpers.MSIG_TWO_TWO_P2SH),
-                         b'\x05' + helpers.MSIG_TWO_TWO_SCRIPT_HASH)
-        self.assertEqual(addr.parse(helpers.P2WSH['ins'][0]['addr']),
-                         b'\x00\x20' + helpers.P2WSH['ins'][0]['script'][2:])
-        self.assertEqual(addr.parse(helpers.P2WPKH_ADDRESS),
-                         b'\x00\x14' + helpers.P2WPKH_PKH)
+        self.assertEqual(addr.parse(helpers.OP_IF['p2sh']),
+                         b'\x05' + helpers.OP_IF['script_hash'])
+        self.assertEqual(addr.parse(helpers.MSIG_2_2['p2sh']),
+                         b'\x05' + helpers.MSIG_2_2['script_hash'])
+        self.assertEqual(addr.parse(helpers.P2WSH['human']['ins'][0]['addr']),
+                         b'\x00\x20' + helpers.P2WSH['ser']['ins'][0]['script'][2:])
+        self.assertEqual(addr.parse(helpers.P2WPKH_ADDR['address']),
+                         b'\x00\x14' + helpers.P2WPKH_ADDR['pkh'])
         self.assertEqual(addr.parse(helpers.P2PKH_0),
                          b'\x00' + helpers.PKH_0)
 
@@ -66,14 +66,14 @@ class TestAddresses(unittest.TestCase):
                       str(context.exception))
 
     def test_parse_hash(self):
-        self.assertEqual(addr.parse_hash(helpers.OP_IF_P2SH),
-                         helpers.OP_IF_SCRIPT_HASH)
-        self.assertEqual(addr.parse_hash(helpers.MSIG_TWO_TWO_P2SH),
-                         helpers.MSIG_TWO_TWO_SCRIPT_HASH)
-        self.assertEqual(addr.parse_hash(helpers.P2WSH['ins'][0]['addr']),
-                         helpers.P2WSH['ins'][0]['script'][2:])
-        self.assertEqual(addr.parse_hash(helpers.P2WPKH_ADDRESS),
-                         helpers.P2WPKH_PKH)
+        self.assertEqual(addr.parse_hash(helpers.OP_IF['p2sh']),
+                         helpers.OP_IF['script_hash'])
+        self.assertEqual(addr.parse_hash(helpers.MSIG_2_2['p2sh']),
+                         helpers.MSIG_2_2['script_hash'])
+        self.assertEqual(addr.parse_hash(helpers.P2WSH['human']['ins'][0]['addr']),
+                         helpers.P2WSH['ser']['ins'][0]['script'][2:])
+        self.assertEqual(addr.parse_hash(helpers.P2WPKH_ADDR['address']),
+                         helpers.P2WPKH_ADDR['pkh'])
         self.assertEqual(addr.parse_hash(helpers.P2PKH_0),
                          helpers.PKH_0)
 
@@ -86,12 +86,12 @@ class TestAddresses(unittest.TestCase):
         # Test cash addr code
         riemann.select_network('bitcoin_cash_main')
         self.assertEqual(
-            addr.parse_hash(helpers.OP_IF_P2SH),
-            helpers.OP_IF_SCRIPT_HASH)
+            addr.parse_hash(helpers.OP_IF['p2sh']),
+            helpers.OP_IF['script_hash'])
 
         self.assertEqual(
-            addr.parse_hash(helpers.OP_IF_CASHADDR),
-            helpers.OP_IF_SCRIPT_HASH)
+            addr.parse_hash(helpers.OP_IF['cashaddr']),
+            helpers.OP_IF['script_hash'])
 
         self.assertEqual(
             addr.parse_hash(helpers.CASHADDR_P2PKH_ADDRESS),
@@ -102,11 +102,11 @@ class TestAddresses(unittest.TestCase):
 
         self.assertEqual(
             addr.make_legacy_p2sh_address('OP_IF'),
-            helpers.OP_IF_P2SH)
+            helpers.OP_IF['p2sh'])
 
         self.assertEqual(
             addr.make_sh_address('OP_IF'),
-            helpers.OP_IF_CASHADDR)
+            helpers.OP_IF['cashaddr'])
 
         self.assertEqual(
             addr.make_legacy_p2pkh_address(helpers.CASHADDR_PUBKEY),
@@ -119,17 +119,17 @@ class TestAddresses(unittest.TestCase):
     def test_from_output_script(self):
 
         self.assertEqual(
-            addr.from_output_script(helpers.OP_IF_OUTPUT_SCRIPT),
-            helpers.OP_IF_P2SH)
+            addr.from_output_script(helpers.OP_IF['output_script']),
+            helpers.OP_IF['p2sh'])
         self.assertEqual(
-            addr.from_output_script(helpers.P2WSH['ins'][0]['script']),
-            helpers.P2WSH['ins'][0]['addr'])
+            addr.from_output_script(helpers.P2WSH['ser']['ins'][0]['script']),
+            helpers.P2WSH['human']['ins'][0]['addr'])
         self.assertEqual(
             addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
             helpers.P2PKH_0)
         self.assertEqual(
-            addr.from_output_script(helpers.P2WPKH_OUTPUT_SCRIPT),
-            helpers.P2WPKH_ADDRESS)
+            addr.from_output_script(helpers.P2WPKH_ADDR['output']),
+            helpers.P2WPKH_ADDR['address'])
 
         with self.assertRaises(ValueError) as context:
             addr.from_output_script(b'\x8e' * 34)
@@ -143,22 +143,22 @@ class TestAddresses(unittest.TestCase):
             addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
             helpers.P2PKH_0_CASHADDR)
         self.assertEqual(
-            addr.from_output_script(helpers.OP_IF_OUTPUT_SCRIPT),
-            helpers.OP_IF_CASHADDR)
+            addr.from_output_script(helpers.OP_IF['output_script']),
+            helpers.OP_IF['cashaddr'])
 
     def test_to_output_script(self):
         self.assertEqual(
-            addr.to_output_script(helpers.OP_IF_P2SH),
-            helpers.OP_IF_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.OP_IF['p2sh']),
+            helpers.OP_IF['output_script'])
         self.assertEqual(
-            addr.to_output_script(helpers.P2WSH['ins'][0]['addr']),
-            helpers.P2WSH['ins'][0]['script'])
+            addr.to_output_script(helpers.P2WSH['human']['ins'][0]['addr']),
+            helpers.P2WSH['ser']['ins'][0]['script'])
         self.assertEqual(
             addr.to_output_script(helpers.P2PKH_0),
             helpers.PKH_0_OUTPUT_SCRIPT)
         self.assertEqual(
-            addr.to_output_script(helpers.P2WPKH_ADDRESS),
-            helpers.P2WPKH_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.P2WPKH_ADDR['address']),
+            helpers.P2WPKH_ADDR['output'])
 
         with self.assertRaises(ValueError) as context:
             # Junk B58 w valid checksum
@@ -172,8 +172,8 @@ class TestAddresses(unittest.TestCase):
         riemann.select_network('bitcoin_cash_main')
 
         self.assertEqual(
-            addr.to_output_script(helpers.OP_IF_CASHADDR),
-            helpers.OP_IF_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.OP_IF['cashaddr']),
+            helpers.OP_IF['output_script'])
 
         self.assertEqual(
             addr.to_output_script(helpers.P2PKH_0_CASHADDR),

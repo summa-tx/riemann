@@ -69,8 +69,8 @@ class TestUtils(unittest.TestCase):
             utils.sha256('abc'.encode('utf-8')),
             bytes.fromhex('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'))  # noqa: E501
         self.assertEqual(
-            utils.sha256(helpers.P2WSH['wit']['wit_script']['serialized']),
-            helpers.P2WSH['ins'][0]['script'][2:])
+            utils.sha256(helpers.P2WSH['ser']['wit_script']),
+            helpers.P2WSH['ser']['ins'][0]['script'][2:])
 
     def test_hash160(self):
         self.assertEqual(
@@ -80,8 +80,8 @@ class TestUtils(unittest.TestCase):
             utils.hash160(bytes.fromhex(helpers.PK_1)),
             helpers.PKH_1)
         self.assertEqual(
-            utils.hash160(helpers.P2WPKH_PUBKEY),
-            helpers.P2WPKH_PKH)
+            utils.hash160(helpers.P2WPKH_ADDR['pubkey']),
+            helpers.P2WPKH_ADDR['pkh'])
 
     def test_hash256(self):
         '''

@@ -141,8 +141,8 @@ class TestOutpoint(unittest.TestCase):
         pass
 
     def test_create_outpoint(self):
-        outpoint_index = helpers.outpoint_index
-        outpoint_tx_id = helpers.outpoint_tx_id
+        outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
+        outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
         outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
@@ -151,7 +151,7 @@ class TestOutpoint(unittest.TestCase):
         self.assertEqual(outpoint, outpoint_tx_id + outpoint_index)
 
     def test_create_outpoint_short_tx_id(self):
-        outpoint_index = helpers.outpoint_index
+        outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
         outpoint_tx_id = bytearray(b'\xff')
 
         with self.assertRaises(ValueError) as context:
@@ -161,7 +161,7 @@ class TestOutpoint(unittest.TestCase):
                       str(context.exception))
 
     def test_create_outpoint_str_tx_id(self):
-        outpoint_index = helpers.outpoint_index
+        outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
         outpoint_tx_id = 'Hello world'
 
         with self.assertRaises(ValueError) as context:
@@ -172,7 +172,7 @@ class TestOutpoint(unittest.TestCase):
 
     def test_create_outpoint_long_index(self):
         outpoint_index = utils.i2le_padded(0, 5)
-        outpoint_tx_id = helpers.outpoint_tx_id
+        outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
@@ -182,7 +182,7 @@ class TestOutpoint(unittest.TestCase):
 
     def test_create_outpoint_no_index(self):
         outpoint_index = None
-        outpoint_tx_id = helpers.outpoint_tx_id
+        outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
         with self.assertRaises(ValueError) as context:
             tx.Outpoint(outpoint_tx_id, outpoint_index)
@@ -191,8 +191,8 @@ class TestOutpoint(unittest.TestCase):
                       str(context.exception))
 
     def test_copy(self):
-        outpoint_index = helpers.outpoint_index
-        outpoint_tx_id = helpers.outpoint_tx_id
+        outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
+        outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
         res = tx.Outpoint(outpoint_tx_id, outpoint_index)
         copy = res.copy()
@@ -200,21 +200,21 @@ class TestOutpoint(unittest.TestCase):
         self.assertIsNot(res, copy)
 
     def test_from_bytes(self):
-        outpoint = tx.Outpoint.from_bytes(helpers.outpoint)
-        self.assertEqual(outpoint, helpers.outpoint)
-        self.assertEqual(outpoint.tx_id, helpers.outpoint_tx_id)
-        self.assertEqual(outpoint.index, helpers.outpoint_index)
+        outpoint = tx.Outpoint.from_bytes(helpers.P2PKH1['ser']['ins'][0]['outpoint'])
+        self.assertEqual(outpoint, helpers.P2PKH1['ser']['ins'][0]['outpoint'])
+        self.assertEqual(outpoint.tx_id, helpers.P2PKH1['ser']['ins'][0]['hash'])
+        self.assertEqual(outpoint.index, helpers.P2PKH1['ser']['ins'][0]['index'])
 
 
 class TestTxIn(unittest.TestCase):
 
     def setUp(self):
-        outpoint_index = helpers.outpoint_index
-        outpoint_tx_id = helpers.outpoint_tx_id
+        outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
+        outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
-        self.stack_script = helpers.stack_script
-        self.redeem_script = helpers.redeem_script
-        self.sequence = helpers.sequence
+        self.stack_script = helpers.P2PKH1['ser']['stack_script']
+        self.redeem_script = helpers.P2PKH1['ser']['redeem_script']
+        self.sequence = helpers.P2PKH1['ser']['sequence']
         self.outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
     def test_create_input(self):
@@ -225,7 +225,7 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(tx_in.stack_script, self.stack_script)
         self.assertEqual(tx_in.redeem_script, self.redeem_script)
         self.assertEqual(tx_in.sequence, self.sequence)
-        self.assertEqual(tx_in, helpers.tx_in)
+        self.assertEqual(tx_in,  helpers.P2PKH1['ser']['tx']['in'])
 
     def test_copy(self):
         tx_in = tx.TxIn(self.outpoint, self.stack_script,
@@ -247,28 +247,28 @@ class TestTxIn(unittest.TestCase):
             str(context.exception))
 
     def test_from_bytes_pkh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.tx_in)
-        self.assertEqual(tx_in, helpers.tx_in)
-        self.assertEqual(tx_in.outpoint, helpers.outpoint)
-        self.assertEqual(tx_in.sequence, helpers.sequence)
-        self.assertEqual(tx_in.stack_script, helpers.stack_script)
-        self.assertEqual(tx_in.redeem_script, helpers.redeem_script)
+        tx_in = tx.TxIn.from_bytes( helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(tx_in,  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(tx_in.outpoint, helpers.P2PKH1['ser']['ins'][0]['outpoint'])
+        self.assertEqual(tx_in.sequence, helpers.P2PKH1['ser']['sequence'])
+        self.assertEqual(tx_in.stack_script, helpers.P2PKH1['ser']['stack_script'])
+        self.assertEqual(tx_in.redeem_script, helpers.P2PKH1['ser']['redeem_script'])
 
     def test_from_bytes_sh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2SH_SPEND_INPUT)
-        self.assertEqual(tx_in, helpers.P2SH_SPEND_INPUT)
-        self.assertEqual(tx_in.outpoint, helpers.P2SH_SPEND_OUTPOINT)
-        self.assertEqual(tx_in.sequence, helpers.P2SH_SPEND_SEQUENCE)
-        self.assertEqual(tx_in.stack_script, helpers.P2SH_SPEND_STACK_SCRIPT)
-        self.assertEqual(tx_in.redeem_script, helpers.P2SH_SPEND_REDEEM_SCRIPT)
+        tx_in = tx.TxIn.from_bytes(helpers.P2SH['ser']['tx']['in'])
+        self.assertEqual(tx_in, helpers.P2SH['ser']['tx']['in'])
+        self.assertEqual(tx_in.outpoint, helpers.P2SH['ser']['ins'][0]['outpoint'])
+        self.assertEqual(tx_in.sequence, helpers.P2SH['ser']['sequence'])
+        self.assertEqual(tx_in.stack_script, helpers.P2SH['ser']['stack_script'])
+        self.assertEqual(tx_in.redeem_script, helpers.P2SH['ser']['redeem_script'])
 
     def test_from_bytes_wsh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['tx']['in'])
-        self.assertEqual(tx_in, helpers.P2WSH['tx']['in'])
-        self.assertEqual(tx_in.outpoint, helpers.P2WSH['ins'][0]['outpoint'])
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['ser']['tx']['in'])
+        self.assertEqual(tx_in, helpers.P2WSH['ser']['tx']['in'])
+        self.assertEqual(tx_in.outpoint, helpers.P2WSH['ser']['ins'][0]['outpoint'])
         self.assertEqual(
             tx_in.sequence,
-            utils.i2be(helpers.P2WSH['sequence']))
+            utils.i2be(helpers.P2WSH['human']['sequence']))
         self.assertEqual(tx_in.stack_script, b'')
         self.assertEqual(tx_in.redeem_script, b'')
 
@@ -276,12 +276,12 @@ class TestTxIn(unittest.TestCase):
 class TestTxOut(unittest.TestCase):
 
     def setUp(self):
-        self.value = helpers.output_value_0
-        self.output_script = helpers.output_script_0
+        self.value = helpers.P2PKH1['ser']['outs'][0]['value']
+        self.output_script = helpers.P2PKH1['ser']['outs'][0]['script']
 
     def test_create_output(self):
         tx_out = tx.TxOut(self.value, self.output_script)
-        self.assertEqual(tx_out, helpers.tx_out_0)
+        self.assertEqual(tx_out, helpers.P2PKH1['ser']['outs'][0]['out'])
 
     def test_copy(self):
         tx_out = tx.TxOut(self.value, self.output_script)
@@ -300,10 +300,10 @@ class TestTxOut(unittest.TestCase):
             str(context.exception))
 
     def test_from_bytes(self):
-        output = helpers.output_value_0 + b'\x19' + helpers.output_script_0
+        output = helpers.P2PKH1['ser']['outs'][0]['value'] + b'\x19' + helpers.P2PKH1['ser']['outs'][0]['script']
         tx_out = tx.TxOut.from_bytes(output)
-        self.assertEqual(tx_out.value, helpers.output_value_0)
-        self.assertEqual(tx_out.output_script, helpers.output_script_0)
+        self.assertEqual(tx_out.value, helpers.P2PKH1['ser']['outs'][0]['value'])
+        self.assertEqual(tx_out.output_script, helpers.P2PKH1['ser']['outs'][0]['script'])
 
     def test_from_bytes_long(self):
         with self.assertRaises(NotImplementedError) as context:
@@ -316,7 +316,7 @@ class TestTxOut(unittest.TestCase):
 class TestWitnessStackItem(unittest.TestCase):
 
     def setUp(self):
-        self.stack_item_bytes = helpers.P2WSH['wit']['stack_items'][1]
+        self.stack_item_bytes = helpers.P2WSH['ser']['wit_stack_items'][1]
 
     def test_create_stack_item(self):
         w = tx.WitnessStackItem(self.stack_item_bytes)
@@ -351,7 +351,7 @@ class TestInputWitness(unittest.TestCase):
 
     def setUp(self):
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH['wit']['stack_items']]
+                      for b in helpers.P2WSH['ser']['wit_stack_items']]
 
     def test_create_witness(self):
         iw = tx.InputWitness(self.stack)
@@ -367,7 +367,7 @@ class TestInputWitness(unittest.TestCase):
                       str(context.exception))
 
     def test_from_bytes(self):
-        iw = tx.InputWitness.from_bytes(helpers.P2WSH['tx']['witness'])
+        iw = tx.InputWitness.from_bytes(helpers.P2WSH['ser']['tx']['witness'])
         self.assertEqual(len(iw.stack), len(self.stack))
         for item, expected in zip([s.item for s in iw.stack],
                                   [s.item for s in self.stack]):
@@ -377,35 +377,35 @@ class TestInputWitness(unittest.TestCase):
 class TestTx(unittest.TestCase):
 
     def setUp(self):
-        self.outpoint_index = helpers.outpoint_index
-        self.outpoint_tx_id = helpers.outpoint_tx_id
+        self.outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
+        self.outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
-        self.stack_script = helpers.stack_script
-        self.redeem_script = helpers.redeem_script
-        self.sequence = helpers.sequence
+        self.stack_script = helpers.P2PKH1['ser']['stack_script']
+        self.redeem_script = helpers.P2PKH1['ser']['redeem_script']
+        self.sequence = helpers.P2PKH1['ser']['sequence']
         self.outpoint = tx.Outpoint(self.outpoint_tx_id, self.outpoint_index)
 
         self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
                              self.redeem_script, self.sequence)
 
-        self.value_0 = helpers.output_value_0
-        self.output_script_0 = helpers.output_script_0
-        self.value_1 = helpers.output_value_1
-        self.output_script_1 = helpers.output_script_1
+        self.value_0 = helpers.P2PKH1['ser']['outs'][0]['value']
+        self.output_script_0 = helpers.P2PKH1['ser']['outs'][0]['script']
+        self.value_1 = helpers.P2PKH1['ser']['outs'][1]['value']
+        self.output_script_1 = helpers.P2PKH1['ser']['outs'][1]['script']
 
         self.tx_out_0 = tx.TxOut(self.value_0, self.output_script_0)
         self.tx_out_1 = tx.TxOut(self.value_1, self.output_script_1)
 
-        self.version = helpers.version
+        self.version = helpers.P2PKH1['ser']['version']
         self.none_flag = None
         self.tx_ins = [self.tx_in]
         self.tx_outs = [self.tx_out_0, self.tx_out_1]
         self.none_witnesses = None
-        self.lock_time = helpers.lock_time
+        self.lock_time = helpers.P2PKH1['ser']['locktime']
 
         self.segwit_flag = b'\x00\x01'
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH['wit']['stack_items']]
+                      for b in helpers.P2WSH['ser']['wit_stack_items']]
         self.tx_witnesses = [tx.InputWitness(self.stack)]
 
     def tearDown(self):
@@ -481,7 +481,7 @@ class TestTx(unittest.TestCase):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 
-        self.assertEqual(t, helpers.P2PKH_SPEND)
+        self.assertEqual(t, helpers.P2PKH1['ser']['tx']['signed'])
 
         with self.assertRaises(ValueError) as context:
             tx.Tx(self.version, b'\x00\x00', self.tx_ins, self.tx_outs,
@@ -583,38 +583,38 @@ class TestTx(unittest.TestCase):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 
-        self.assertEqual(t.tx_id, helpers.tx_id)
-        self.assertEqual(t.tx_id_le, helpers.tx_id_le)
+        self.assertEqual(t.tx_id, helpers.P2PKH1['ser']['tx']['hash'])
+        self.assertEqual(t.tx_id_le, helpers.P2PKH1['ser']['tx']['hash_le'])
 
     def test_from_bytes_pkh(self):
-        t = tx.Tx.from_bytes(helpers.P2PKH_SPEND)
-        self.assertEqual(t.version, helpers.version)
-        self.assertEqual(t.tx_ins[0], helpers.tx_in)
-        self.assertEqual(t.tx_outs[0], helpers.tx_out_0)
-        self.assertEqual(t.tx_outs[1], helpers.tx_out_1)
-        self.assertEqual(t.lock_time, helpers.lock_time)
-        self.assertEqual(t, helpers.P2PKH_SPEND)
+        t = tx.Tx.from_bytes(helpers.P2PKH1['ser']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2PKH1['ser']['version'])
+        self.assertEqual(t.tx_ins[0],  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(t.tx_outs[0], helpers.P2PKH1['ser']['outs'][0]['out'])
+        self.assertEqual(t.tx_outs[1], helpers.P2PKH1['ser']['outs'][1]['out'])
+        self.assertEqual(t.lock_time, helpers.P2PKH1['ser']['locktime'])
+        self.assertEqual(t, helpers.P2PKH1['ser']['tx']['signed'])
 
     def test_from_bytes_sh(self):
-        t = tx.Tx.from_bytes(helpers.P2SH_SPEND)
-        self.assertEqual(t.version, helpers.P2SH_SPEND_VERSION)
-        self.assertEqual(t.tx_ins[0], helpers.P2SH_SPEND_INPUT)
-        self.assertEqual(t.tx_outs[0], helpers.P2SH_SPEND_OUTPUT_0)
-        self.assertEqual(t.tx_outs[1], helpers.P2SH_SPEND_OUTPUT_1)
-        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
-        self.assertEqual(t, helpers.P2SH_SPEND)
+        t = tx.Tx.from_bytes(helpers.P2SH['ser']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2SH['ser']['version'])
+        self.assertEqual(t.tx_ins[0], helpers.P2SH['ser']['tx']['in'])
+        self.assertEqual(t.tx_outs[0], helpers.P2SH['ser']['outs'][0]['output'])
+        self.assertEqual(t.tx_outs[1], helpers.P2SH['ser']['outs'][1]['output'])
+        self.assertEqual(t.lock_time, helpers.P2SH['ser']['locktime'])
+        self.assertEqual(t, helpers.P2SH['ser']['tx']['signed'])
 
     def test_from_bytes_wsh(self):
-        t = tx.Tx.from_bytes(helpers.P2WSH['tx']['signed'])
-        self.assertEqual(t.version, utils.i2le_padded(helpers.P2WSH['version'], 4))
-        self.assertEqual(t.tx_ins[0], helpers.P2WSH['tx']['in'])
-        self.assertEqual(t.tx_outs[0], helpers.P2WSH['outs'][0]['output'])
-        self.assertEqual(t.tx_outs[1], helpers.P2WSH['outs'][1]['output'])
-        self.assertEqual(t.tx_outs[2], helpers.P2WSH['outs'][2]['output'])
-        self.assertEqual(t.tx_outs[3], helpers.P2WSH['outs'][3]['output'])
-        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH['tx']['witness'])
-        self.assertEqual(t.lock_time, helpers.P2SH_SPEND_LOCK_TIME)
-        self.assertEqual(t, helpers.P2WSH['tx']['signed'])
+        t = tx.Tx.from_bytes(helpers.P2WSH['ser']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2WSH['ser']['version'])
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['tx']['in'])
+        self.assertEqual(t.tx_outs[0], helpers.P2WSH['ser']['outs'][0]['output'])
+        self.assertEqual(t.tx_outs[1], helpers.P2WSH['ser']['outs'][1]['output'])
+        self.assertEqual(t.tx_outs[2], helpers.P2WSH['ser']['outs'][2]['output'])
+        self.assertEqual(t.tx_outs[3], helpers.P2WSH['ser']['outs'][3]['output'])
+        self.assertEqual(t.tx_witnesses[0], helpers.P2WSH['ser']['tx']['witness'])
+        self.assertEqual(t.lock_time, helpers.P2SH['ser']['locktime'])
+        self.assertEqual(t, helpers.P2WSH['ser']['tx']['signed'])
 
     def test_calculate_fee(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -643,35 +643,36 @@ class TestTx(unittest.TestCase):
     def test_sighash_all(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
-        self.assertEqual(t.sighash_all(0, helpers.prevout_pk_script),
-                         helpers.sighash_all)
+        
+        self.assertEqual(t.sighash_all(0, helpers.P2PKH1['ser']['ins'][0]['pk_script']),
+                         helpers.P2PKH1['ser']['sighash']['all'])
 
     def test_sighash_all_anyone_can_pay(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
         self.assertEqual(
-            t.sighash_all(0, helpers.prevout_pk_script, anyone_can_pay=True),
-            helpers.sighash_all_anyonecanpay)
+            t.sighash_all(0, helpers.P2PKH1['ser']['ins'][0]['pk_script'], anyone_can_pay=True),
+            helpers.P2PKH1['ser']['sighash']['all_anyonecanpay'])
 
     def test_sighash_single(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
-        self.assertEqual(t.sighash_single(0, helpers.prevout_pk_script),
-                         helpers.sighash_single)
+        self.assertEqual(t.sighash_single(0, helpers.P2PKH1['ser']['ins'][0]['pk_script']),
+                         helpers.P2PKH1['ser']['sighash']['single'])
 
     def test_sighash_single_anyone_can_pay(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
         self.assertEqual(
             t.sighash_single(
-                0, helpers.prevout_pk_script, anyone_can_pay=True),
-            helpers.sighash_single_anyonecanpay)
+                0, helpers.P2PKH1['ser']['ins'][0]['pk_script'], anyone_can_pay=True),
+            helpers.P2PKH1['ser']['sighash']['single_anyonecanpay'])
 
     def test_sighash_single_bug(self):
         with self.assertRaises(NotImplementedError) as context:
             t = tx.Tx(self.version, self.none_flag, self.tx_ins * 3,
                       self.tx_outs, self.none_witnesses, self.lock_time)
-            t.sighash_single(2, helpers.prevout_pk_script)
+            t.sighash_single(2, helpers.P2PKH1['ser']['ins'][0]['pk_script'])
 
         self.assertIn(
             'I refuse to implement the SIGHASH_SINGLE bug.',
@@ -684,12 +685,12 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_single(
             index=0,
-            script=helpers.prevout_pk_script,
-            prevout_value=helpers.prevout_value)
+            script=helpers.P2PKH1['ser']['ins'][0]['pk_script'],
+            prevout_value=helpers.P2PKH1['ser']['ins'][0]['value'])
 
         self.assertEqual(
             sighash,
-            helpers.sighash_forkid_single)
+            helpers.SIGHASH_FORKID['single'])
 
     def test_sighash_forkid_single_anyone_can_pay(self):
         riemann.select_network('bitcoin_cash_main')
@@ -698,13 +699,13 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_single(
             index=0,
-            script=helpers.prevout_pk_script,
-            prevout_value=helpers.prevout_value,
+            script=helpers.P2PKH1['ser']['ins'][0]['pk_script'],
+            prevout_value=helpers.P2PKH1['ser']['ins'][0]['value'],
             anyone_can_pay=True)
 
         self.assertEqual(
             sighash,
-            helpers.sighash_forkid_single_anyone_can_pay)
+            helpers.SIGHASH_FORKID['single_anyone_can_pay'])
 
     def test_sighash_forkid_all(self):
         riemann.select_network('bitcoin_cash_main')
@@ -713,12 +714,12 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_all(
             index=0,
-            script=helpers.prevout_pk_script,
-            prevout_value=helpers.prevout_value)
+            script=helpers.P2PKH1['ser']['ins'][0]['pk_script'],
+            prevout_value=helpers.P2PKH1['ser']['ins'][0]['value'])
 
         self.assertEqual(
             sighash,
-            helpers.sighash_forkid_all)
+            helpers.SIGHASH_FORKID['all'])
 
     def test_sighash_forkid_all_anyone_can_pay(self):
         riemann.select_network('bitcoin_cash_main')
@@ -727,13 +728,13 @@ class TestTx(unittest.TestCase):
 
         sighash = t.sighash_all(
             index=0,
-            script=helpers.prevout_pk_script,
-            prevout_value=helpers.prevout_value,
+            script=helpers.P2PKH1['ser']['ins'][0]['pk_script'],
+            prevout_value=helpers.P2PKH1['ser']['ins'][0]['value'],
             anyone_can_pay=True)
 
         self.assertEqual(
             sighash,
-            helpers.sighash_forkid_all_anyone_can_pay)
+            helpers.SIGHASH_FORKID['all_anyone_can_pay'])
 
 
 class DecredTestCase(unittest.TestCase):
