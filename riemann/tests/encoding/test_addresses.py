@@ -39,9 +39,9 @@ class TestAddresses(unittest.TestCase):
 
     def test_make_p2pkh_address(self):
         a = addr.make_p2pkh_address(b'\x00' * 65)
-        self.assertEqual(a, helpers.P2PKH_0)
+        self.assertEqual(a, helpers.ADDR[0]['p2pkh'])
         b = addr.make_p2pkh_address(b'\x11' * 65)
-        self.assertEqual(b, helpers.P2PKH_1)
+        self.assertEqual(b, helpers.ADDR[1]['p2pkh'])
 
     def test_make_p2wpkh_address(self):
         a = addr.make_p2wpkh_address(helpers.P2WPKH_ADDR['pubkey'])
@@ -56,8 +56,8 @@ class TestAddresses(unittest.TestCase):
                          b'\x00\x20' + helpers.P2WSH['ser']['ins'][0]['script'][2:])
         self.assertEqual(addr.parse(helpers.P2WPKH_ADDR['address']),
                          b'\x00\x14' + helpers.P2WPKH_ADDR['pkh'])
-        self.assertEqual(addr.parse(helpers.P2PKH_0),
-                         b'\x00' + helpers.PKH_0)
+        self.assertEqual(addr.parse(helpers.ADDR[0]['p2pkh']),
+                         b'\x00' + helpers.PK['ser'][0]['pkh'])
 
         with self.assertRaises(ValueError) as context:
             addr.parse('This is not a valid address.')
@@ -74,8 +74,8 @@ class TestAddresses(unittest.TestCase):
                          helpers.P2WSH['ser']['ins'][0]['script'][2:])
         self.assertEqual(addr.parse_hash(helpers.P2WPKH_ADDR['address']),
                          helpers.P2WPKH_ADDR['pkh'])
-        self.assertEqual(addr.parse_hash(helpers.P2PKH_0),
-                         helpers.PKH_0)
+        self.assertEqual(addr.parse_hash(helpers.ADDR[0]['p2pkh']),
+                         helpers.PK['ser'][0]['pkh'])
 
         with self.assertRaises(ValueError) as context:
             addr.parse('bc1blahblahblah')
@@ -94,8 +94,8 @@ class TestAddresses(unittest.TestCase):
             helpers.OP_IF['script_hash'])
 
         self.assertEqual(
-            addr.parse_hash(helpers.CASHADDR_P2PKH_ADDRESS),
-            utils.hash160(helpers.CASHADDR_PUBKEY))
+            addr.parse_hash(helpers.CASHADDR['p2pkh']),
+            utils.hash160(helpers.CASHADDR['pubkey']))
 
     def test_cashaddrs(self):
         riemann.select_network('bitcoin_cash_main')
@@ -109,12 +109,12 @@ class TestAddresses(unittest.TestCase):
             helpers.OP_IF['cashaddr'])
 
         self.assertEqual(
-            addr.make_legacy_p2pkh_address(helpers.CASHADDR_PUBKEY),
-            helpers.LEGACY_P2PKH_ADDRESS)
+            addr.make_legacy_p2pkh_address(helpers.CASHADDR['pubkey']),
+            helpers.CASHADDR['legacy_p2pkh'])
 
         self.assertEqual(
-            addr.make_pkh_address(helpers.CASHADDR_PUBKEY),
-            helpers.CASHADDR_P2PKH_ADDRESS)
+            addr.make_pkh_address(helpers.CASHADDR['pubkey']),
+            helpers.CASHADDR['p2pkh'])
 
     def test_from_output_script(self):
 
@@ -125,8 +125,8 @@ class TestAddresses(unittest.TestCase):
             addr.from_output_script(helpers.P2WSH['ser']['ins'][0]['script']),
             helpers.P2WSH['human']['ins'][0]['addr'])
         self.assertEqual(
-            addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
-            helpers.P2PKH_0)
+            addr.from_output_script(helpers.PK['ser'][0]['pkh_output']),
+            helpers.ADDR[0]['p2pkh'])
         self.assertEqual(
             addr.from_output_script(helpers.P2WPKH_ADDR['output']),
             helpers.P2WPKH_ADDR['address'])
@@ -140,8 +140,8 @@ class TestAddresses(unittest.TestCase):
     def test_cashaddr_from_output_script(self):
         riemann.select_network('bitcoin_cash_main')
         self.assertEqual(
-            addr.from_output_script(helpers.PKH_0_OUTPUT_SCRIPT),
-            helpers.P2PKH_0_CASHADDR)
+            addr.from_output_script(helpers.PK['ser'][0]['pkh_output']),
+            helpers.ADDR[0]['p2pkh_cashaddr'])
         self.assertEqual(
             addr.from_output_script(helpers.OP_IF['output_script']),
             helpers.OP_IF['cashaddr'])
@@ -154,8 +154,8 @@ class TestAddresses(unittest.TestCase):
             addr.to_output_script(helpers.P2WSH['human']['ins'][0]['addr']),
             helpers.P2WSH['ser']['ins'][0]['script'])
         self.assertEqual(
-            addr.to_output_script(helpers.P2PKH_0),
-            helpers.PKH_0_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.ADDR[0]['p2pkh']),
+            helpers.PK['ser'][0]['pkh_output'])
         self.assertEqual(
             addr.to_output_script(helpers.P2WPKH_ADDR['address']),
             helpers.P2WPKH_ADDR['output'])
@@ -176,5 +176,5 @@ class TestAddresses(unittest.TestCase):
             helpers.OP_IF['output_script'])
 
         self.assertEqual(
-            addr.to_output_script(helpers.P2PKH_0_CASHADDR),
-            helpers.PKH_0_OUTPUT_SCRIPT)
+            addr.to_output_script(helpers.ADDR[0]['p2pkh_cashaddr']),
+            helpers.PK['ser'][0]['pkh_output'])

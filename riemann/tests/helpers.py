@@ -568,38 +568,37 @@ OP_IF = {
         'output': bytes.fromhex('a135ef0100000000') + b'\x17' + b'\xa9\x14' + bytes.fromhex('dccafab9536343713ef4b9a1d443a1b6ca8c8dd1') + b'\x87'
         }
 
-CASHADDR_PUBKEY = bytes.fromhex('02f0899f0bbd104a12efa06d10eece1584887a6cfaf31cd168c78d0c15d8357aa7')
-LEGACY_P2PKH_ADDRESS = '1NWdP6dqMUjK5VCDELo6vFhaGkJFLEY5Gw'
-CASHADDR_P2PKH_ADDRESS = 'bitcoincash:qr4l2ykm7qw4rwg0yqtxwrt4mp0m4wsn4qv4sm4l62'
+PK = {
+        'human': [
+            {
+                'pk': '00' * 65,
+                'pkh': '1b60c31dba9403c74d81af255f0c300bfed5faa3'
+                },
+            {
+                'pk': '11' * 65,
+                'pkh': 'e723a0f62396b8b03dbd9e48e9b9efe2eb704aab'
+                }
+            ],
+        'ser': [
+            {
+                'pk': bytes.fromhex('00' * 65),
+                'pkh': bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3'),
+                'pkh_output': b'\x76\xa9\x14' + bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3') + b'\x88\xac',
+                'pkh_p2wpkh_output': b'\x00\x14' + bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3'),
+                'pk_p2pkh_output': bytes.fromhex('a135ef0100000000') + b'\x19' + b'\x76\xa9\x14' + bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3') + b'\x88\xac',
+                'pk_p2wpkh_output': bytes.fromhex('a135ef0100000000') + b'\x16' + b'\x00\x14' + bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3')
+                },
+            {
+                'pk': bytes.fromhex('11' * 65),
+                'pkh': bytes.fromhex('e723a0f62396b8b03dbd9e48e9b9efe2eb704aab')
+                }
+            ]
+        }
 
-# From blockchain.info
-# https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
-
-RAW_P2SH_TO_P2PKH = bytes.fromhex( '010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000')
-
-old_output_value_0 = bytes.fromhex('a135ef0100000000')      # from P2PKH1
-old_output_value_0_int = 32454049                           # from P2PKH1
-
-# Use '00' * 65 and '11' * 65 as pubkeys
-PK_0 = '00' * 65
-PK_1 = '11' * 65
-PK_0_BYTES = bytes.fromhex(PK_0)
-PK_1_BYTES = bytes.fromhex(PK_1)
-PKH_0 = bytes.fromhex('1b60c31dba9403c74d81af255f0c300bfed5faa3')
-PKH_1 = bytes.fromhex('e723a0f62396b8b03dbd9e48e9b9efe2eb704aab')
-PKH_0_OUTPUT_SCRIPT = b'\x76\xa9\x14' + PKH_0 + b'\x88\xac'
-PKH_0_P2WPKH_OUTPUT_SCRIPT = b'\x00\x14' + PKH_0
-PK_0_P2PKH_OUTPUT = old_output_value_0 + b'\x19' + PKH_0_OUTPUT_SCRIPT
-PK_0_P2WPKH_OUTPUT = old_output_value_0 + b'\x16' + PKH_0_P2WPKH_OUTPUT_SCRIPT
-
-P2PKH_0 = '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV'
-P2PKH_0_CASHADDR = 'bitcoincash:qqdkpscah22q836dsxhj2hcvxq9la4065v92pm9f84'
-P2WPKH_0 = 'bc1qrdsvx8d6jspuwnvp4uj47rpsp0ldt74r72cx4u'
-P2PKH_1 = '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
 
 
 MSIG_2_2 = {
-        'script': examples.msig_two_two.format(pk0=PK_0, pk1=PK_1),
+        'script': examples.msig_two_two.format(pk0=PK['human'][0]['pk'], pk1=PK['human'][1]['pk']),
         'ser_script': bytes.fromhex('5241000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111152ae'),
         'p2sh': '3R23EEkAzy7HPWKN8rcL4ZzSjEWNsipxWV',
         'script_hash': bytes.fromhex('ffe3e2be6ba8d465041d3da1cdfe472b901b215a'),
@@ -615,6 +614,29 @@ P2WPKH_ADDR = {
         'pkh': bytes.fromhex('3e00b5b60a6e64515d7e6702d8d75e9b6fc19549'),
         'output': b'\x00\x14' + bytes.fromhex('3e00b5b60a6e64515d7e6702d8d75e9b6fc19549') 
         }
+
+ADDR = [
+        {
+            'p2pkh': '13VmALKHkCdSN1JULkP6RqW3LcbpWvgryV',
+            'p2pkh_cashaddr': 'bitcoincash:qqdkpscah22q836dsxhj2hcvxq9la4065v92pm9f84',
+            'p2wpkh': 'bc1qrdsvx8d6jspuwnvp4uj47rpsp0ldt74r72cx4u'
+            },
+        {
+            'p2pkh': '1N59mqr5yg38K11PTY2HdZTN7KmAHeCyHE'
+            }
+        ]
+
+CASHADDR = {
+        'pubkey': bytes.fromhex('02f0899f0bbd104a12efa06d10eece1584887a6cfaf31cd168c78d0c15d8357aa7'),
+        'p2pkh': 'bitcoincash:qr4l2ykm7qw4rwg0yqtxwrt4mp0m4wsn4qv4sm4l62',
+        'legacy_p2pkh': '1NWdP6dqMUjK5VCDELo6vFhaGkJFLEY5Gw'
+        }
+
+# From blockchain.info
+# https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
+
+RAW_P2SH_TO_P2PKH = bytes.fromhex( '010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000')
+
 
 # DCR helpers
 # http://explorer.dcrdata.org/api/tx/decoded/49245425967b7e39c1eb27d261c7fe972675cccacff19ae9cc21f434ccddd986?indent=true

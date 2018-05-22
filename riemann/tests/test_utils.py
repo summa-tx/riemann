@@ -74,11 +74,11 @@ class TestUtils(unittest.TestCase):
 
     def test_hash160(self):
         self.assertEqual(
-            utils.hash160(bytes.fromhex(helpers.PK_0)),
-            helpers.PKH_0)
+            utils.hash160(bytes.fromhex(helpers.PK['human'][0]['pk'])),
+            helpers.PK['ser'][0]['pkh'])
         self.assertEqual(
-            utils.hash160(bytes.fromhex(helpers.PK_1)),
-            helpers.PKH_1)
+            utils.hash160(bytes.fromhex(helpers.PK['human'][1]['pk'])),
+            helpers.PK['ser'][1]['pkh'])
         self.assertEqual(
             utils.hash160(helpers.P2WPKH_ADDR['pubkey']),
             helpers.P2WPKH_ADDR['pkh'])

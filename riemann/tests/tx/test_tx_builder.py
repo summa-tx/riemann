@@ -34,15 +34,15 @@ class TestTxBuilder(unittest.TestCase):
 
     def test_make_pkh_output_script(self):
         self.assertEqual(
-            tb.make_pkh_output_script(helpers.PK_0_BYTES),
-            helpers.PKH_0_OUTPUT_SCRIPT)
+            tb.make_pkh_output_script(helpers.PK['ser'][0]['pk']),
+            helpers.PK['ser'][0]['pkh_output'])
         self.assertEqual(
-            tb.make_pkh_output_script(helpers.PK_0_BYTES, witness=True),
-            helpers.PKH_0_P2WPKH_OUTPUT_SCRIPT)
+            tb.make_pkh_output_script(helpers.PK['ser'][0]['pk'], witness=True),
+            helpers.PK['ser'][0]['pkh_p2wpkh_output'])
 
         riemann.select_network('bitcoin_cash_main')
         with self.assertRaises(ValueError) as context:
-            tb.make_pkh_output_script(helpers.PK_0_BYTES, witness=True)
+            tb.make_pkh_output_script(helpers.PK['ser'][0]['pk'], witness=True)
 
         self.assertIn(
             'Network bitcoin_cash_main does not support witness scripts.',
@@ -61,8 +61,8 @@ class TestTxBuilder(unittest.TestCase):
 
     def test_make_p2pkh_output_script(self):
         self.assertEqual(
-            tb.make_p2pkh_output_script(helpers.PK_0_BYTES),
-            helpers.PKH_0_OUTPUT_SCRIPT)
+            tb.make_p2pkh_output_script(helpers.PK['ser'][0]['pk']),
+            helpers.PK['ser'][0]['pkh_output'])
 
     def test_make_p2wsh_output_script(self):
         self.assertEqual(
@@ -72,8 +72,8 @@ class TestTxBuilder(unittest.TestCase):
 
     def test_make_p2wpkh_output_script(self):
         self.assertEqual(
-            tb.make_p2wpkh_output_script(helpers.PK_0_BYTES),
-            helpers.PKH_0_P2WPKH_OUTPUT_SCRIPT)
+            tb.make_p2wpkh_output_script(helpers.PK['ser'][0]['pk']),
+            helpers.PK['ser'][0]['pkh_p2wpkh_output'])
 
     def test_make_decred_output(self):
         riemann.select_network('decred_main')
@@ -108,15 +108,15 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb.make_p2pkh_output(
                 value=helpers.P2PKH1['human']['outs'][0]['value'],
-                pubkey=helpers.PK_0_BYTES),
-            helpers.PK_0_P2PKH_OUTPUT)
+                pubkey=helpers.PK['ser'][0]['pk']),
+            helpers.PK['ser'][0]['pk_p2pkh_output'])
 
     def test_make_p2wpkh_output(self):
         self.assertEqual(
             tb.make_p2wpkh_output(
                 value=helpers.P2PKH1['human']['outs'][0]['value'],
-                pubkey=helpers.PK_0_BYTES),
-            helpers.PK_0_P2WPKH_OUTPUT)
+                pubkey=helpers.PK['ser'][0]['pk']),
+            helpers.PK['ser'][0]['pk_p2wpkh_output'])
 
     def test_make_op_return_output_error(self):
         with self.assertRaises(ValueError) as context:
