@@ -181,10 +181,10 @@ class BLAKE(object):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def __init__(self, hashbitlen):
-        """
+        '''
           load the hashSate structure (copy hashbitlen...)
           hashbitlen: length of the hash output
-        """
+        '''
         if hashbitlen not in [224, 256, 384, 512]:
             raise Exception('hash length not 224, 256, 384 or 512')
 
@@ -327,7 +327,7 @@ class BLAKE(object):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def addsalt(self, salt):
-        """ adds a salt to the hash function (OPTIONAL)
+        ''' adds a salt to the hash function (OPTIONAL)
             should be called AFTER Init, and BEFORE update
             salt:  a bytestring, length determined by hashbitlen.
                    if not of sufficient length, the bytestring
@@ -338,7 +338,7 @@ class BLAKE(object):
 
               if hashbitlen=224 or 256, then salt will be 16 bytes
               if hashbitlen=384 or 512, then salt will be 32 bytes
-        """
+        '''
         # fail if addsalt() was not called at the right time
         if self.state != 1:
             raise Exception('addsalt() not called after init() and before update()')
@@ -359,12 +359,12 @@ class BLAKE(object):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def update(self, data):
-        """ update the state with new data, storing excess data
+        ''' update the state with new data, storing excess data
             as necessary.  may be called multiple times and if a
             call sends less than a full block in size, the leftover
             is cached and will be consumed in the next call
             data:  data to be hashed (bytestring)
-        """
+        '''
         self.state = 2
 
         BLKBYTES = self.BLKBYTES   # de-referenced for improved readability
@@ -417,9 +417,9 @@ class BLAKE(object):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def final(self, data=''):
-        """ finalize the hash -- pad and hash remaining data
+        ''' finalize the hash -- pad and hash remaining data
             returns hashval, the digest
-        """
+        '''
         if self.state == 3:
             # we have already finalized so simply return the
             # previously calculated/stored hash value
@@ -510,23 +510,23 @@ class BLAKE(object):
     # utility functions
 
     def _fourByte2int(self, bytestr):      # see also long2byt() below
-        """ convert a 4-byte string to an int (long) """
+        ''' convert a 4-byte string to an int (long) '''
         return struct.unpack('!L', bytestr)[0]
 
     def _eightByte2int(self, bytestr):
-        """ convert a 8-byte string to an int (long long) """
+        ''' convert a 8-byte string to an int (long long) '''
         return struct.unpack('!Q', bytestr)[0]
 
     def _int2fourByte(self, x):            # see also long2byt() below
-        """ convert a number to a 4-byte string, high order
+        ''' convert a number to a 4-byte string, high order
             truncation possible (in Python x could be a BIGNUM)
-        """
+        '''
         return struct.pack('!L', x)
 
     def _int2eightByte(self, x):
-        """ convert a number to a 8-byte string, high order
+        ''' convert a number to a 8-byte string, high order
             truncation possible (in Python x could be a BIGNUM)
-        """
+        '''
         return struct.pack('!Q', x)
 
 

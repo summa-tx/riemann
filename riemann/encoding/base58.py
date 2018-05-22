@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-"""Implementation of Base58 encoding with checksum"""
+'''Implementation of Base58 encoding with checksum'''
 
 from .. import utils
 
@@ -30,13 +30,13 @@ BASE58_LOOKUP = dict((c, i) for i, c in enumerate(BASE58_ALPHABET))
 
 
 def encode(data, checksum=True):
-    """Convert binary to base58 using BASE58_ALPHABET.
+    '''Convert binary to base58 using BASE58_ALPHABET.
     Args:
         data:      (bytes)
         checksum:  (bool)
     Returns:
         str
-    """
+    '''
 
     if checksum:
         data = data + utils.hash256(data)[:4]
@@ -46,13 +46,13 @@ def encode(data, checksum=True):
 
 
 def decode(s, checksum=True):
-    """Convert base58 to binary using BASE58_ALPHABET.
+    '''Convert base58 to binary using BASE58_ALPHABET.
     Args:
         s:         (str)
         checksum:  (bool)
     Returns:
         bytes
-    """
+    '''
     v, prefix = to_long(
         BASE58_BASE, lambda c: BASE58_LOOKUP[c], s.encode("utf8"))
 
@@ -68,7 +68,7 @@ def decode(s, checksum=True):
 
 
 def encode_with_checksum(data):
-    """
+    '''
     A "hashed_base58" structure is a base58 integer (which looks like a string)
     with four bytes of hash data at the end.
     This function turns data into its hashed_base58 equivalent.
@@ -77,12 +77,12 @@ def encode_with_checksum(data):
         data: (bytes)
     Returns:
         str
-    """
+    '''
     return encode(data, checksum=True)
 
 
 def decode_with_checksum(s):
-    """If the passed string is hashed_base58, return the binary data.
+    '''If the passed string is hashed_base58, return the binary data.
 
     Args:
         s: (str)
@@ -90,18 +90,18 @@ def decode_with_checksum(s):
         bytes
     Raises:
         ValueError: If s is not hashed_base58
-    """
+    '''
     return decode(s, checksum=True)
 
 
 def has_checksum(base58):
-    """Return True if and only if base58 is valid hashed_base58.
+    '''Return True if and only if base58 is valid hashed_base58.
 
     Args:
         base58: (str)
     Returns:
         bool
-    """
+    '''
     try:
         decode_with_checksum(base58)
     except ValueError:
@@ -110,7 +110,7 @@ def has_checksum(base58):
 
 
 def from_long(v, prefix, base, charset):
-    """The inverse of to_long. Convert an integer to an arbitrary base.
+    '''The inverse of to_long. Convert an integer to an arbitrary base.
 
     Args:
         v        (int): the integer value to convert
@@ -121,7 +121,7 @@ def from_long(v, prefix, base, charset):
         bytes
     Raises:
         ValueError
-    """
+    '''
     ba = bytearray()
     while v > 0:
         try:
@@ -136,7 +136,7 @@ def from_long(v, prefix, base, charset):
 
 
 def to_long(base, lookup_f, s):
-    """Convert an array to a (possibly bignum) integer,
+    '''Convert an array to a (possibly bignum) integer,
     along with a prefix value of how many prefixed zeros there are.
 
     Args:
@@ -149,7 +149,7 @@ def to_long(base, lookup_f, s):
         int, int
     Raises:
         ValueError
-    """
+    '''
     prefix = 0
     v = 0
     for c in s:

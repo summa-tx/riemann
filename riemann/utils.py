@@ -5,7 +5,10 @@ from . import blake256 as b256
 
 def i2le(number):
     '''
-    int -> bytearray
+    Args:
+        number (int)
+    Returns:
+        bytearray
     '''
     if number == 0:
         return b'\x00'
@@ -14,35 +17,53 @@ def i2le(number):
 
 def i2le_padded(number, length):
     '''
-    int, int -> bytearray
+    Args:
+        number (int)
+        length (int)
+    Returns:
+        bytearray
     '''
     return number.to_bytes(length, 'little')
 
 
 def le2i(b, signed=False):
     '''
-    byte-like, bool -> int
+    Args:
+        b (byte-like)
+        signed (bool)
+    Returns:
+        int
     '''
     return int.from_bytes(b, 'little', signed=signed)
 
 
 def be2i(b, signed=False):
     '''
-    byte-like, bool -> int
+    Args:
+        b (byte-like)
+        signed (bool)
+    Returns:
+        int
     '''
     return int.from_bytes(b, 'big', signed=signed)
 
 
 def change_endianness(b):
     '''
-    iter -> iter
+    Args:
+        b (iter)
+    Returns:
+        iter
     '''
     return b[::-1]
 
 
 def rmd160(msg_bytes):
     '''
-    byte-like -> bytes
+    Args:
+        msg_bytes (byte-like)
+    Returns:
+        bytes
     '''
     h = hashlib.new('ripemd160')
     h.update(msg_bytes)
@@ -51,14 +72,20 @@ def rmd160(msg_bytes):
 
 def sha256(msg_bytes):
     '''
-    byte-like -> bytes
+    Args:
+        msg_bytes (byte-like)
+    Returns:
+        bytes
     '''
     return hashlib.sha256(msg_bytes).digest()
 
 
 def hash160(msg_bytes):
     '''
-    byte-like -> bytes
+    Args:
+        msg_bytes (byte-like)
+    Returns:
+        bytes
     '''
     h = hashlib.new('ripemd160')
     if 'decred' in riemann.get_current_network_name():
@@ -70,7 +97,10 @@ def hash160(msg_bytes):
 
 def hash256(msg_bytes):
     '''
-    byte-like -> bytes
+    Args:
+        msg_bytes (byte-like)
+    Returns:
+        bytes
     '''
     if 'decred' in riemann.get_current_network_name():
         return blake256(blake256(msg_bytes))
@@ -79,6 +109,9 @@ def hash256(msg_bytes):
 
 def blake256(msg_bytes):
     '''
-    byte-like -> bytes
+    Args:
+        msg_bytes (byte-like)
+    Returns:
+        bytes
     '''
     return b256.blake_hash(msg_bytes)

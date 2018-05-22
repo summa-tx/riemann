@@ -151,7 +151,7 @@ def b32decode(inputs):
 def b32encode(inputs):
     '''
     Args:
-        inputs ()
+        inputs (list of int)
     Returns:
         str
     '''
