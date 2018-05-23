@@ -2,6 +2,7 @@
 *.egg-info/
 build/
 dist/
+MANIFEST.in
 
 # Virtual environment
 venv/
