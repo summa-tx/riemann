@@ -549,10 +549,8 @@ class GroestlcoinMain(Network):
     SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
-    # BECH32_HRP = 'grs'
-    # some wallets have bech32 addresses w/prefix 'grs',
-    # but bech32 is not active in groestl at this time.
-    # no value for testnet/regnet exists
+    BECH32_HRP = 'grs'
+    # BECH32 & HRPs are active on groestlcoin as of version 2.16.0 May 13, 2018
 
 
 class GroestlcoinTest(Network):
@@ -565,6 +563,7 @@ class GroestlcoinTest(Network):
     SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
+    BECH32_HRP = 'tgrs'
 
 
 class GroestlcoinRegtest(Network):
@@ -577,6 +576,7 @@ class GroestlcoinRegtest(Network):
     SEGWIT_ENCODER = base58
     P2WSH_PREFIX = b'\x00\x20'
     P2WPKH_PREFIX = b'\x00\x14'
+    BECH32_HRP = 'grsrt'
 
 
 class MonacoinMain(Network):
