@@ -10,11 +10,11 @@ from ..script import examples
 P2PKH = {
         'human': {
             'version': 0,
-            'sequence': 0xFFFFFFFE,
             'locktime': 00000000,
             'ins': [
                 {
                     'id': 0,
+                    'sequence': 0xFFFFFFFE,
                     'addr': '18mTD3dVy4Y69knfyRi5vKtDxqtFWmgg7v',
                     'hash': '264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188',
                     'hash_le': '',
@@ -23,7 +23,7 @@ P2PKH = {
                     'outpoint': '885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b2600000000',
                     'signature': '3045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e386701',
                     'pubkey': '02bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca',
-                    'sequence': 0xFFFFFFFE
+                    'stack_script': '3045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e386701 02bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca'
                     }
                 ],
             'outs': [
@@ -43,18 +43,19 @@ P2PKH = {
             },
         'ser': {
             'version': bytes.fromhex('00000000'),
-            'sequence': bytes.fromhex('feffffff'),
             'locktime': bytes.fromhex('00000000'),
             'ins': [
                 {
                     'id': 0,
                     'hash': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26'),
+                    'sequence': bytes.fromhex('feffffff'),
                     'index': bytes.fromhex('00000000'),
                     'pk_script': bytes.fromhex('a91455310f53d91c7a6034b2c9abff3e0b9cf3fcee1e88ac'),
                     'value': bytes.fromhex('a086010000000000'),
                     'outpoint': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b2600000000'),
                     'stack_script': bytes.fromhex('483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca'),
                     'redeem_script': bytes.fromhex(''),
+                    'input': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26000000006b483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38cafeffffff')
                     }
                 ],
             'outs': [
@@ -72,7 +73,6 @@ P2PKH = {
                     }
                 ],
             'tx': {
-                'in': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26000000006b483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38cafeffffff'),
                 'out': bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
                 'unsigned': bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
                 'signed': bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26000000006b483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38cafeffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
@@ -88,11 +88,11 @@ P2PKH = {
 P2PKH1 = {
         'human': {
             'version': 1,
-            'sequence': 0xFFFFFFFE,
             'locktime': 19430600,
             'ins': [
                 {
                     'id': 0,
+                    'sequence': 0xFFFFFFFE,
                     'addr': '1GKN6gJBgvet8S92qiQjVxEaVJ5eoJE9s2',
                     'hash': 'd1c789a9c60383bf715f3f6ad9d14b91fe55f3deb369fe5d9280cb1a01793f81',
                     'hash_le': '813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1',
@@ -119,11 +119,11 @@ P2PKH1 = {
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
-            'sequence': bytes.fromhex('feffffff'),
             'locktime': bytes.fromhex('19430600'),
             'ins': [
                 {
                     'id': 0,
+                    'sequence': bytes.fromhex('feffffff'),
                     'hash': bytes.fromhex('813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1'),
                     'index': bytes.fromhex('00000000'),
                     'pk_script': bytes.fromhex('a91424d6008f143af0cca57344069c46661aa4fcea2387'),
@@ -169,10 +169,10 @@ P2PKH1 = {
 P2SH = {
         'human': {
             'version': 1,
-            'sequence': 0xFFFFFFFE,
             'locktime': 00000000,
             'ins': [
                 {
+                    'sequence': 0xFFFFFFFE,
                     'id': 0,
                     'addr': '',
                     'hash': '',
@@ -199,10 +199,10 @@ P2SH = {
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('00000000'),
             'ins': [
                 {
+                    'sequence': bytes.fromhex('ffffffff'),
                     'id': 0,
                     'hash': bytes.fromhex(''),
                     'index': bytes.fromhex(''),
@@ -213,6 +213,7 @@ P2SH = {
                     'stack_script': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501'),
                     'redeem_script': bytes.fromhex('475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
                     'script_sig': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
+                    'input': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff'),
                     }
                 ],
             'outs': [
@@ -230,7 +231,6 @@ P2SH = {
                     }
                 ],
             'tx': {
-                'in': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff'),
                 'out': bytes.fromhex(''),
                 'unsigned': bytes.fromhex(''),
                 'signed': bytes.fromhex('01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'),
@@ -245,8 +245,7 @@ P2SH = {
 # https://blockchain.info/rawtx/1d204bc09e183741bf4c8fbe9034067d160e369e373ec9669ea51bfe6d0567df
 P2WPKH = {
         'human': {
-            'version': 0,
-            'sequence': 0xFFFFFFFF,
+            'version': 1,
             'locktime': 0,
             'ins': [
                 {
@@ -255,7 +254,8 @@ P2WPKH = {
                     'hash': 'd2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee',
                     'index': 0,
                     'value': 120000,
-                    'script': '0014758ce550380d964051086798d6546bebdca27a73'
+                    'pk_script': '0014758ce550380d964051086798d6546bebdca27a73',
+                    'sequence': 0xFFFFFFFd
                     }
                 ],
             'outs': [
@@ -263,14 +263,20 @@ P2WPKH = {
                     'id': 0,
                     'addr': '3JoCkhfh6juGAp43jWftoSqJwoPptJ7GwF',
                     'value': 119667,
-                    'script': 'a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187',
+                    'pk_script': 'a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187',
                     'output': '73d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187'
                     },
+                ],
+            'witnesses': [
+                {
+                    'signature': '3045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd6601',
+                    'pubkey': '027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67',
+                    'stack': '3045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd6601 027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'
+                    }
                 ]
             },
         'ser': {
             'version': bytes.fromhex('00000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('00000000'),
             'ins': [
                 {
@@ -278,7 +284,9 @@ P2WPKH = {
                     'hash': bytes.fromhex('d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee'),
                     'index': bytes.fromhex('00000000'),
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('0014758ce550380d964051086798d6546bebdca27a73')
+                    'pk_script': bytes.fromhex('0014758ce550380d964051086798d6546bebdca27a73'),
+                    'sequence': bytes.fromhex('fffffffd'),
+                    'input': bytes.fromhex('ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff')
                     }
                 ],
             'outs': [
@@ -289,9 +297,16 @@ P2WPKH = {
                     'output': bytes.fromhex('73d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187')
                     },
                 ],
+            'witnesses': [
+                {
+                    'signature': bytes.fromhex('3045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd6601'),
+                    'pubkey': bytes.fromhex('027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'),
+                    'stack': bytes.fromhex('483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'),
+                    'witness': bytes.fromhex('02483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'),
+                    }
+                ],
             'tx': {
-                'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000ffffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f1870000000000'),
-                'witness': bytes.fromhex('02483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'),
+                'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f1870000000000'),
                 'signed': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18702483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d6700000000')
                 }
             }
@@ -303,10 +318,10 @@ P2WPKH = {
 P2WSH = {
         'human': {
             'version': 1,
-            'sequence': 0xFFFFFFFF,
             'locktime': 0,
             'ins': [
                 {
+                    'sequence': 0xFFFFFFFF,
                     'id': 0,
                     'hash': '3e28c6fa977034c2035ddede799ae32bc301efa03b5b033eaf983ac9c1aece1f',
                     'index': 1,
@@ -355,17 +370,18 @@ P2WSH = {
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('00000000'),
             'segwit_flag': bytes.fromhex('0001'),
             'ins': [
                 {
+                    'sequence': bytes.fromhex('ffffffff'),
                     'id': 0,
                     'hash': bytes.fromhex('3e28c6fa977034c2035ddede799ae32bc301efa03b5b033eaf983ac9c1aece1f'),
                     'index': bytes.fromhex('01000000'),
                     'outpoint': bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e01000000'),
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d')
+                    'script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
+                    'input': bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff'),
                     }
                 ],
             'outs': [
@@ -406,12 +422,13 @@ P2WSH = {
                     }
             ],
             'tx': {
-                'in': bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff'),
                 'witness': bytes.fromhex('040047304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601483045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae'),
                 'signed': bytes.fromhex('010000000001011fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff0440548900000000001976a9146199463742d1359a505881821d82f5d4148e3fc588ac60361e000000000017a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87502b7000000000001976a914f447146b86373c781a946d7ebd88cbbb79ec810288ac0370040000000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d040047304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601483045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae00000000')
                 }
             }
     }
+
+INPUT_FOR_WITNESS_SEQUENCE_GUESSING = bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000feffffff')
 
 # P2SH OP_PUSHDATA1
 # UTXOs: https://blockchain.info/rawtx/6293ab0c51e73fd12c20ea93de23005966f651556fa745f8b139833328f53e12
@@ -419,10 +436,10 @@ P2WSH = {
 P2SH_PD1 = {
         'human': {
             'version': 0,
-            'sequence': 0xFFFFFFFF,
             'locktime': 0,
             'ins': [
                 {
+                    'sequence': 0xFFFFFFFF,
                     'id': 0,
                     'hash': '6293ab0c51e73fd12c20ea93de23005966f651556fa745f8b139833328f53e12',
                     'index': 0,
@@ -451,11 +468,11 @@ P2SH_PD1 = {
             },
         'ser': {
             'version': bytes.fromhex('00000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('00000000'),
             'ins': [
                 {
                     'id': 0,
+                    'sequence': bytes.fromhex('ffffffff'),
                     'hash': bytes.fromhex('6293ab0c51e73fd12c20ea93de23005966f651556fa745f8b139833328f53e12'),
                     'index': bytes.fromhex('01000000'),
                     'value': bytes.fromhex(''),
@@ -463,6 +480,7 @@ P2SH_PD1 = {
                     'stack_script': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801'),
                     'redeem_script': bytes.fromhex('4c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
                     'script': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
+                    'input': bytes.fromhex('123ef528338339b1f845a76f5551f666590023de93ea202cd13fe7510cab936200000000fc00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853aeffffffff'),
                     }
                 ],
             'outs': [
@@ -480,7 +498,6 @@ P2SH_PD1 = {
                     }
                 ],
             'tx': {
-                'in': bytes.fromhex('123ef528338339b1f845a76f5551f666590023de93ea202cd13fe7510cab936200000000fc00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853aeffffffff'),
                 'unsinged': bytes.fromhex('')
                 }
             }
@@ -490,11 +507,11 @@ P2SH_PD1 = {
 P2SH_PD2 = {
         'human': {
             'version': 0,
-            'sequence': 0xFFFFFFFF,
             'locktime': 0,
             'ins': [
                 {
                     'id': 0,
+                    'sequence': 0xFFFFFFFF,
                     'addr': '3Hd8JLLJVFw9sNhzaxPfp5t13gMfoJEVqG',
                     'index': 0,
                     'value': 938948354,
@@ -504,11 +521,11 @@ P2SH_PD2 = {
             },
         'ser': {
             'version': bytes.fromhex('00000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('00000000'),
             'ins': [
                 {
                     'id': 0,
+                    'sequence': bytes.fromhex('ffffffff'),
                     'hash': bytes.fromhex(''),
                     'index': bytes.fromhex('01000000'),
                     'value': bytes.fromhex(''),
@@ -655,12 +672,12 @@ RAW_P2SH_TO_P2PKH = bytes.fromhex( '010000000101d15c2cc4621b2a319ba53714e2709f8b
 DCR = {
         'human': {
             'version': '01000000',
-            'sequence': 0xFFFFFFFF,
             'locktime': 0x59c2e2cd,
             'expiry': 0,
             'ins': [
                 {
                     'id': 0,
+                    'sequence': 0xFFFFFFFF,
                     'hash': '0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd',
                     'index': 0,
                     'outpoint': '0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000'
@@ -669,12 +686,12 @@ DCR = {
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
-            'sequence': bytes.fromhex('ffffffff'),
             'locktime': bytes.fromhex('cde2c259'),
             'expiry': bytes.fromhex('00000000'),
             'ins': [
                 {
                     'id': 0,
+                    'sequence': bytes.fromhex('ffffffff'),
                     'hash': bytes.fromhex('0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd'),
                     'index': bytes.fromhex('00000000'),
                     'tree': bytes.fromhex('00'),

@@ -1,6 +1,5 @@
 import riemann
 from . import utils
-from .script import examples
 from .script import serialization as script_ser
 from .tx import tx_builder as tb
 from .encoding import addresses as addr
@@ -128,7 +127,7 @@ def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     OutPoint, hex_string, hex_string, int -> TxIn
     Create a signed legacy TxIn from a p2pkh prevout
     '''
-    stack_script = examples.p2pkh_script_sig.format(sig=sig, pk=pubkey)
+    stack_script = '{sig} {pk}'.format(sig=sig, pk=pubkey)
     stack_script = script_ser.serialize(stack_script)
     return tb.make_legacy_input(outpoint, stack_script, b'', sequence)
 
@@ -140,9 +139,12 @@ def p2pkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     Create an empty InputWitness for it
     Useful for transactions spending some witness and some legacy prevouts
     '''
-    script_sig = examples.p2pkh_script_sig.format(sig, pubkey)
+    stack_script = '{sig} {pk}'.format(sig=sig, pk=pubkey)
     return tb.make_legacy_input_and_empty_witness(
-        outpoint, script_sig, b'', sequence)
+        outpoint=outpoint,
+        stack_script=script_ser.serialize(stack_script),
+        redeem_script=b'',
+        sequence=sequence)
 
 
 def p2sh_input(outpoint, stack_script, redeem_script, sequence=None):
@@ -191,7 +193,10 @@ def p2wpkh_input_and_witness(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
     Outpoint, hex_string, hex_string, int -> (TxIn, InputWitness)
     Create a signed witness TxIn and InputWitness from a p2wpkh prevout
     '''
-    return tb.make_witness_input_and_witness(outpoint, sequence, [sig, pubkey])
+    return tb.make_witness_input_and_witness(
+        outpoint=outpoint,
+        sequence=sequence,
+        stack=[bytes.fromhex(sig), bytes.fromhex(pubkey)])
 
 
 def p2wsh_input_and_witness(outpoint, stack, witness_script, sequence=None):
@@ -272,7 +277,8 @@ def legacy_tx(tx_ins, tx_outs):
     '''
 
     # Look at each input to guess lock_time and version
-    deser = [script_ser.deserialize(txin.script) for txin in tx_ins]
+    deser = [script_ser.deserialize(tx_in.redeem_script)
+             for tx_in in tx_ins if tx_in.redeem_script is not None]
     version = max([guess_version(d) for d in deser])
     lock_time = max([guess_locktime(d) for d in deser])
 
@@ -291,7 +297,10 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     # Parse legacy scripts AND witness scripts for OP_CLTV
     deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins
              if tx_in is not None]
-    deser += [script_ser.deserialize(wit[::-1]) for wit in tx_witnesses]
+    try:
+        deser += [script_ser.deserialize(w.stack[::-1]) for w in tx_witnesses]
+    except NotImplementedError:
+        pass
     version = max([guess_version(d) for d in deser])
     lock_time = max([guess_locktime(d) for d in deser])
 

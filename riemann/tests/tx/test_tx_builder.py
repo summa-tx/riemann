@@ -185,7 +185,7 @@ class TestTxBuilder(unittest.TestCase):
             outpoint=outpoint,
             stack_script=helpers.P2PKH1['ser']['ins'][0]['stack_script'],
             redeem_script=helpers.P2PKH1['ser']['ins'][0]['redeem_script'],
-            sequence=helpers.P2PKH1['human']['sequence'])
+            sequence=helpers.P2PKH1['human']['ins'][0]['sequence'])
 
         self.assertEqual(tx_in, helpers.P2PKH1['ser']['tx']['in'])
 
@@ -201,7 +201,7 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb.make_decred_input(
                 outpoint=outpoint,
-                sequence=helpers.DCR['human']['sequence']),
+                sequence=helpers.DCR['human']['ins'][0]['sequence']),
             helpers.DCR['ser']['tx']['in_unsigned'])
 
     def test_make_decred_input(self):
@@ -213,7 +213,7 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb.make_witness_input(
                 outpoint=outpoint,
-                sequence=helpers.DCR['human']['sequence']),
+                sequence=helpers.DCR['human']['ins'][0]['sequence']),
             helpers.DCR['ser']['tx']['in_unsigned'])
 
     def test_make_witness_input_and_witness(self):
@@ -227,7 +227,7 @@ class TestTxBuilder(unittest.TestCase):
             tree=0)
         tx_in, witness = tb.make_witness_input_and_witness(
             outpoint=outpoint,
-            sequence=helpers.DCR['human']['sequence'],
+            sequence=helpers.DCR['human']['ins'][0]['sequence'],
             value=helpers.DCR['ser']['witnesses'][0]['value'],
             height=helpers.DCR['ser']['witnesses'][0]['height'],
             index=helpers.DCR['ser']['witnesses'][0]['index'],
@@ -249,7 +249,7 @@ class TestTxBuilder(unittest.TestCase):
             tree=0)
         tx_in, witness = tb.make_witness_input_and_witness(
             outpoint=outpoint,
-            sequence=helpers.DCR['human']['sequence'],
+            sequence=helpers.DCR['human']['ins'][0]['sequence'],
             value=helper_witness['value'],
             height=helper_witness['height'],
             index=helper_witness['index'],

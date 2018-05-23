@@ -219,7 +219,7 @@ class TestTxIn(unittest.TestCase):
 
         self.stack_script = helpers.P2PKH1['ser']['ins'][0]['stack_script']
         self.redeem_script = helpers.P2PKH1['ser']['ins'][0]['redeem_script']
-        self.sequence = helpers.P2PKH1['ser']['sequence']
+        self.sequence = helpers.P2PKH1['ser']['ins'][0]['sequence']
         self.outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
     def test_create_input(self):
@@ -257,7 +257,9 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2PKH1['ser']['ins'][0]['outpoint'])
-        self.assertEqual(tx_in.sequence, helpers.P2PKH1['ser']['sequence'])
+        self.assertEqual(
+            tx_in.sequence,
+            helpers.P2PKH1['ser']['ins'][0]['sequence'])
         self.assertEqual(
             tx_in.stack_script,
             helpers.P2PKH1['ser']['ins'][0]['stack_script'])
@@ -266,12 +268,14 @@ class TestTxIn(unittest.TestCase):
             helpers.P2PKH1['ser']['ins'][0]['redeem_script'])
 
     def test_from_bytes_sh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2SH['ser']['tx']['in'])
-        self.assertEqual(tx_in, helpers.P2SH['ser']['tx']['in'])
+        tx_in = tx.TxIn.from_bytes(helpers.P2SH['ser']['ins'][0]['input'])
+        self.assertEqual(tx_in, helpers.P2SH['ser']['ins'][0]['input'])
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2SH['ser']['ins'][0]['outpoint'])
-        self.assertEqual(tx_in.sequence, helpers.P2SH['ser']['sequence'])
+        self.assertEqual(
+            tx_in.sequence,
+            helpers.P2SH['ser']['ins'][0]['sequence'])
         self.assertEqual(
             tx_in.stack_script,
             helpers.P2SH['ser']['ins'][0]['stack_script'])
@@ -280,14 +284,14 @@ class TestTxIn(unittest.TestCase):
             helpers.P2SH['ser']['ins'][0]['redeem_script'])
 
     def test_from_bytes_wsh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['ser']['tx']['in'])
-        self.assertEqual(tx_in, helpers.P2WSH['ser']['tx']['in'])
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['ser']['ins'][0]['input'])
+        self.assertEqual(tx_in, helpers.P2WSH['ser']['ins'][0]['input'])
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2WSH['ser']['ins'][0]['outpoint'])
         self.assertEqual(
             tx_in.sequence,
-            utils.i2be(helpers.P2WSH['human']['sequence']))
+            utils.i2be(helpers.P2WSH['human']['ins'][0]['sequence']))
         self.assertEqual(tx_in.stack_script, b'')
         self.assertEqual(tx_in.redeem_script, b'')
 
@@ -408,7 +412,7 @@ class TestTx(unittest.TestCase):
 
         self.stack_script = helpers.P2PKH1['ser']['ins'][0]['stack_script']
         self.redeem_script = helpers.P2PKH1['ser']['ins'][0]['redeem_script']
-        self.sequence = helpers.P2PKH1['ser']['sequence']
+        self.sequence = helpers.P2PKH1['ser']['ins'][0]['sequence']
         self.outpoint = tx.Outpoint(self.outpoint_tx_id, self.outpoint_index)
 
         self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
@@ -625,7 +629,9 @@ class TestTx(unittest.TestCase):
     def test_from_bytes_sh(self):
         t = tx.Tx.from_bytes(helpers.P2SH['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2SH['ser']['version'])
-        self.assertEqual(t.tx_ins[0], helpers.P2SH['ser']['tx']['in'])
+        self.assertEqual(
+            t.tx_ins[0],
+            helpers.P2SH['ser']['ins'][0]['input'])
         self.assertEqual(
             t.tx_outs[0],
             helpers.P2SH['ser']['outs'][0]['output'])
@@ -638,7 +644,7 @@ class TestTx(unittest.TestCase):
     def test_from_bytes_wsh(self):
         t = tx.Tx.from_bytes(helpers.P2WSH['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2WSH['ser']['version'])
-        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['tx']['in'])
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['ins'][0]['input'])
         self.assertEqual(
             t.tx_outs[0],
             helpers.P2WSH['ser']['outs'][0]['output'])
@@ -904,7 +910,7 @@ class TestDecredTxIn(DecredTestCase):
         outpoint_tx_id = helpers.DCR['ser']['ins'][0]['hash']
         outpoint_tree = helpers.DCR['ser']['ins'][0]['tree']
 
-        self.sequence = helpers.DCR['ser']['sequence']
+        self.sequence = helpers.DCR['ser']['ins'][0]['sequence']
 
         self.outpoint = tx.DecredOutpoint(
             outpoint_tx_id, outpoint_index, outpoint_tree)
@@ -1058,7 +1064,7 @@ class TestDecredTx(DecredTestCase):
         self.outpoint_index = helpers.DCR['ser']['ins'][0]['index']
         self.outpoint_tx_id = helpers.DCR['ser']['ins'][0]['hash']
         self.outpoint_tree = helpers.DCR['ser']['ins'][0]['tree']
-        self.sequence = helpers.DCR['ser']['sequence']
+        self.sequence = helpers.DCR['ser']['ins'][0]['sequence']
 
         self.outpoint = tx.DecredOutpoint(
             self.outpoint_tx_id, self.outpoint_index, self.outpoint_tree)
