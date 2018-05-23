@@ -92,7 +92,7 @@ class TestUtils(unittest.TestCase):
             bytes.fromhex('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'))  # noqa: E501
         self.assertEqual(
             utils.sha256(helpers.P2WSH['ser']['witnesses'][0]['wit_script']),
-            helpers.P2WSH['ser']['ins'][0]['script'][2:])
+            helpers.P2WSH['ser']['ins'][0]['pk_script'][2:])
 
     def test_hash160(self):
         self.assertEqual(

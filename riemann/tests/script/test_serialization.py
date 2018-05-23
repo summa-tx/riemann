@@ -11,7 +11,7 @@ class TestSerialization(unittest.TestCase):
 
     def test_serialize(self):
         self.assertEqual(
-            ser.serialize(helpers.MSIG_2_2['script']),
+            ser.serialize(helpers.MSIG_2_2['redeem_script']),
             helpers.MSIG_2_2['ser_script'])
         self.assertEqual(
             ser.serialize('OP_IF'),
@@ -44,7 +44,7 @@ class TestSerialization(unittest.TestCase):
 
     def test_hex_serialize(self):
         self.assertEqual(
-            ser.hex_serialize(helpers.MSIG_2_2['script']),
+            ser.hex_serialize(helpers.MSIG_2_2['redeem_script']),
             helpers.MSIG_2_2['ser_script'].hex())
 
         self.assertEqual(
@@ -54,30 +54,30 @@ class TestSerialization(unittest.TestCase):
     def test_hex_serialize_OP_PUSHDATA1(self):
         self.assertEqual(
             ser.hex_serialize(
-                helpers.P2SH_PD1['human']['ins'][0]['script']),
-            helpers.P2SH_PD1['ser']['ins'][0]['script'].hex())
+                helpers.P2SH_PD1['human']['ins'][0]['script_sig']),
+            helpers.P2SH_PD1['ser']['ins'][0]['script_sig'].hex())
 
     def test_hex_deserialize_OP_PUSHDATA1(self):
         self.assertEqual(
             ser.hex_deserialize(
-                helpers.P2SH_PD1['ser']['ins'][0]['script'].hex()),
-            helpers.P2SH_PD1['human']['ins'][0]['script'])
+                helpers.P2SH_PD1['ser']['ins'][0]['script_sig'].hex()),
+            helpers.P2SH_PD1['human']['ins'][0]['script_sig'])
 
     def test_hex_serialize_OP_PUSHDATA2(self):
         self.assertEqual(
             ser.hex_serialize(
-                helpers.P2SH_PD2['human']['ins'][0]['script']),
-            helpers.P2SH_PD2['ser']['ins'][0]['script'].hex())
+                helpers.P2SH_PD2['human']['ins'][0]['script_sig']),
+            helpers.P2SH_PD2['ser']['ins'][0]['script_sig'].hex())
 
     def test_hex_deserialize_OP_PUSHDATA2(self):
         self.assertEqual(
             ser.hex_deserialize(
-                helpers.P2SH_PD2['ser']['ins'][0]['script'].hex()),
-            helpers.P2SH_PD2['human']['ins'][0]['script'])
+                helpers.P2SH_PD2['ser']['ins'][0]['script_sig'].hex()),
+            helpers.P2SH_PD2['human']['ins'][0]['script_sig'])
 
     def test_deserialize(self):
         self.assertEqual(
-            helpers.MSIG_2_2['script'],
+            helpers.MSIG_2_2['redeem_script'],
             ser.deserialize(helpers.MSIG_2_2['ser_script']))
 
         self.assertEqual(
@@ -105,7 +105,7 @@ class TestSerialization(unittest.TestCase):
 
     def test_hex_deserialize(self):
         self.assertEqual(
-            helpers.MSIG_2_2['script'],
+            helpers.MSIG_2_2['redeem_script'],
             ser.hex_deserialize(helpers.MSIG_2_2['ser_script'].hex()))
 
         self.assertEqual(

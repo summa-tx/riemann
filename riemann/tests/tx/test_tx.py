@@ -300,7 +300,7 @@ class TestTxOut(unittest.TestCase):
 
     def setUp(self):
         self.value = helpers.P2PKH1['ser']['outs'][0]['value']
-        self.output_script = helpers.P2PKH1['ser']['outs'][0]['script']
+        self.output_script = helpers.P2PKH1['ser']['outs'][0]['pk_script']
 
     def test_create_output(self):
         tx_out = tx.TxOut(self.value, self.output_script)
@@ -324,14 +324,14 @@ class TestTxOut(unittest.TestCase):
 
     def test_from_bytes(self):
         output = helpers.P2PKH1['ser']['outs'][0]['value'] + \
-            b'\x19' + helpers.P2PKH1['ser']['outs'][0]['script']
+            b'\x19' + helpers.P2PKH1['ser']['outs'][0]['pk_script']
         tx_out = tx.TxOut.from_bytes(output)
         self.assertEqual(
             tx_out.value,
             helpers.P2PKH1['ser']['outs'][0]['value'])
         self.assertEqual(
             tx_out.output_script,
-            helpers.P2PKH1['ser']['outs'][0]['script'])
+            helpers.P2PKH1['ser']['outs'][0]['pk_script'])
 
     def test_from_bytes_long(self):
         with self.assertRaises(NotImplementedError) as context:
@@ -419,9 +419,11 @@ class TestTx(unittest.TestCase):
                              self.redeem_script, self.sequence)
 
         self.value_0 = helpers.P2PKH1['ser']['outs'][0]['value']
-        self.output_script_0 = helpers.P2PKH1['ser']['outs'][0]['script']
+        self.output_script_0 = \
+            helpers.P2PKH1['ser']['outs'][0]['pk_script']
         self.value_1 = helpers.P2PKH1['ser']['outs'][1]['value']
-        self.output_script_1 = helpers.P2PKH1['ser']['outs'][1]['script']
+        self.output_script_1 = \
+            helpers.P2PKH1['ser']['outs'][1]['pk_script']
 
         self.tx_out_0 = tx.TxOut(self.value_0, self.output_script_0)
         self.tx_out_1 = tx.TxOut(self.value_1, self.output_script_1)
@@ -945,7 +947,7 @@ class TestDecredTxOut(DecredTestCase):
         super().setUp()
         self.value = helpers.DCR['ser']['outs'][0]['value']
         self.version = helpers.DCR['ser']['outs'][0]['version']
-        self.output_script = helpers.DCR['ser']['outs'][0]['script']
+        self.output_script = helpers.DCR['ser']['outs'][0]['pk_script']
 
     def test_init(self):
         tx_out = tx.DecredTxOut(
@@ -1007,7 +1009,7 @@ class TestDecredInputWitness(DecredTestCase):
 
         self.assertEqual(
             input_witness,
-            helpers.DCR['ser']['witnesses'][0]['script'])
+            helpers.DCR['ser']['witnesses'][0]['witness'])
 
     def test_init_errors(self):
 
@@ -1072,7 +1074,7 @@ class TestDecredTx(DecredTestCase):
 
         self.output_value = helpers.DCR['ser']['outs'][0]['value']
         self.output_version = helpers.DCR['ser']['outs'][0]['version']
-        self.output_script = helpers.DCR['ser']['outs'][0]['script']
+        self.output_script = helpers.DCR['ser']['outs'][0]['pk_script']
         self.tx_out = tx.DecredTxOut(
             self.output_value, self.output_version, self.output_script)
 
@@ -1258,7 +1260,7 @@ class TestDecredTx(DecredTestCase):
             expiry=self.expiry,
             tx_witnesses=[self.witness])
         tx_wit = b'\x01\x00' + b'\x02\x00' + b'\x01' + \
-            helpers.DCR['ser']['witnesses'][0]['script']
+            helpers.DCR['ser']['witnesses'][0]['witness']
         self.assertEqual(transaction.witness(), tx_wit)
 
     def test_witness_hash(self):

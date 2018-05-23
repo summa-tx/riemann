@@ -20,7 +20,7 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_sh_output_script(
                 helpers.P2WSH['human']['witnesses'][0]['wit_script'],
                 witness=True),
-            helpers.P2WSH['ser']['ins'][0]['script'])
+            helpers.P2WSH['ser']['ins'][0]['pk_script'])
 
         riemann.select_network('bitcoin_cash_main')
         with self.assertRaises(ValueError) as context:
@@ -70,7 +70,7 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb.make_p2wsh_output_script(
                 helpers.P2WSH['human']['witnesses'][0]['wit_script']),
-            helpers.P2WSH['ser']['ins'][0]['script'])
+            helpers.P2WSH['ser']['ins'][0]['pk_script'])
 
     def test_make_p2wpkh_output_script(self):
         self.assertEqual(
@@ -82,7 +82,7 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb._make_output(
                 value=helpers.DCR['ser']['outs'][0]['value'],
-                output_script=helpers.DCR['ser']['outs'][0]['script'],
+                output_script=helpers.DCR['ser']['outs'][0]['pk_script'],
                 version=helpers.DCR['ser']['outs'][0]['version']),
             helpers.DCR['ser']['outs'][0]['output'])
 
@@ -148,7 +148,7 @@ class TestTxBuilder(unittest.TestCase):
                 index=helper_witness['index'],
                 stack_script=helper_witness['stack_script'],
                 redeem_script=helper_witness['redeem_script']),
-            helper_witness['script'])
+            helper_witness['witness'])
 
     def test_make_outpoint(self):
         outpoint = tb.make_outpoint(
@@ -174,7 +174,7 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_script_sig(
                 stack_script=tx_in['stack_script'],
                 redeem_script=tx_in['redeem_script']),
-            helpers.P2SH_PD1['ser']['ins'][0]['script'])
+            helpers.P2SH_PD1['ser']['ins'][0]['script_sig'])
 
     def test_make_legacy_input(self):
         outpoint = tb.make_outpoint(
@@ -238,7 +238,7 @@ class TestTxBuilder(unittest.TestCase):
             helpers.DCR['ser']['tx']['in_unsigned'])
         self.assertEqual(
             witness,
-            helpers.DCR['ser']['witnesses'][0]['script'])
+            helpers.DCR['ser']['witnesses'][0]['witness'])
 
     def test_make_decred_tx(self):
         riemann.select_network('decred_main')
@@ -257,7 +257,7 @@ class TestTxBuilder(unittest.TestCase):
             redeem_script=helper_witness['redeem_script'])
         tx_out = tb._make_output(
             value=helpers.DCR['ser']['outs'][0]['value'],
-            output_script=helpers.DCR['ser']['outs'][0]['script'],
+            output_script=helpers.DCR['ser']['outs'][0]['pk_script'],
             version=helpers.DCR['ser']['outs'][0]['version'])
         self.assertEqual(
             tb.make_tx(

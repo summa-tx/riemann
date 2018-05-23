@@ -31,13 +31,13 @@ P2PKH = {
                     'id': 0,
                     'addr': 'bc1qss5rslea60lftfe7pyk32s9j9dtr7z7mrqud3g',
                     'value': 96900,
-                    'script': '00148428387f3dd3fe95a73e092d1540b22b563f0bdb'
+                    'pk_script': '00148428387f3dd3fe95a73e092d1540b22b563f0bdb'
                     },
                 {
                     'id': 1,
                     'memo': 'made with ❤ by riemann'.encode('utf-8'),
                     'value': 0,
-                    'script': '6a4c186d616465207769746820e29da4206279207269656d616e6e'
+                    'pk_script': '6a4c186d616465207769746820e29da4206279207269656d616e6e'
                     }
                 ]
             },
@@ -62,13 +62,13 @@ P2PKH = {
                 {
                     'id': 0,
                     'value': bytes.fromhex('847a010000000000'),
-                    'script': bytes.fromhex('00148428387f3dd3fe95a73e092d1540b22b563f0bdb'),
+                    'pk_script': bytes.fromhex('00148428387f3dd3fe95a73e092d1540b22b563f0bdb'),
                     'output': bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex('0000000000000000'),
-                    'script': bytes.fromhex('6a4c186d616465207769746820e29da4206279207269656d616e6e'),
+                    'pk_script': bytes.fromhex('6a4c186d616465207769746820e29da4206279207269656d616e6e'),
                     'output': bytes.fromhex('00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e')
                     }
                 ],
@@ -107,13 +107,13 @@ P2PKH1 = {
                     'id': 0,
                     'addr': '1JAHBxA51vwp5C2zpSB15VbxSZK3hVJs2H',
                     'value': 32454049,
-                    'script': '76a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac'
+                    'pk_script': '76a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac'
                     },
                 {
                     'id': 1,
                     'addr': '13achaY7hdFTEHCzWC1Cvuo1FDKzDtAvRt',
                     'value': 10011545,
-                    'script': '76a9141c4bc762dd5423e332166702cb75f40df79fea1288ac'
+                    'pk_script': '76a9141c4bc762dd5423e332166702cb75f40df79fea1288ac'
                     }
                 ]
             },
@@ -138,13 +138,13 @@ P2PKH1 = {
                 {
                     'id': 0,
                     'value': bytes.fromhex('a135ef0100000000'),
-                    'script': bytes.fromhex('76a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac'),
+                    'pk_script': bytes.fromhex('76a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac'),
                     'out': bytes.fromhex('a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex('99c3980000000000'),
-                    'script': bytes.fromhex('76a9141c4bc762dd5423e332166702cb75f40df79fea1288ac'),
+                    'pk_script': bytes.fromhex('76a9141c4bc762dd5423e332166702cb75f40df79fea1288ac'),
                     'out': bytes.fromhex('99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac')
                     }
                 ],
@@ -187,13 +187,13 @@ P2SH = {
                     'id': 0,
                     'addr': '',
                     'value': 0,
-                    'script': ''
+                    'pk_script': ''
                     },
                 {
                     'id': 1,
                     'addr': '',
                     'value': 0,
-                    'script': ''
+                    'pk_script': ''
                     }
                 ]
             },
@@ -220,13 +220,13 @@ P2SH = {
                 {
                     'id': 0,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex(''),
+                    'pk_script': bytes.fromhex(''),
                     'output': bytes.fromhex('70c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e87')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex(''),
+                    'pk_script': bytes.fromhex(''),
                     'output': bytes.fromhex('0c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d87')
                     }
                 ],
@@ -293,7 +293,7 @@ P2WPKH = {
                 {
                     'id': 0,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187'),
+                    'pk_script': bytes.fromhex('a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187'),
                     'output': bytes.fromhex('73d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187')
                     },
                 ],
@@ -328,7 +328,7 @@ P2WSH = {
                     'outpoint': '1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e01000000',
                     'addr': 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej',
                     'value': 18661939,
-                    'script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'
+                    'pk_script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'
                     }
                 ],
             'outs': [
@@ -336,28 +336,28 @@ P2WSH = {
                     'id': 0,
                     'addr': '19u4AHtrWf4YfABuo1vCKcpizdngMxNJcF',
                     'value': 9000000,
-                    'script': '76a9146199463742d1359a505881821d82f5d4148e3fc588ac',
+                    'pk_script': '76a9146199463742d1359a505881821d82f5d4148e3fc588ac',
                     'output': '40548900000000001976a9146199463742d1359a505881821d82f5d4148e3fc588ac'
                     },
                 {
                     'id': 1,
                     'addr': '32xum18WdAepEed6DNEBbNKBDU1gPUusqr',
                     'value': 1980000,
-                    'script': 'a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87',
+                    'pk_script': 'a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87',
                     'output': '60361e000000000017a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87'
                     },
                 {
                     'id': 2,
                     'addr': '1PGd2WtYtEXNb6mFjesZr5WV7NXyAeb5Nj',
                     'value': 7351120,
-                    'script': '76a914f447146b86373c781a946d7ebd88cbbb79ec810288ac',
+                    'pk_script': '76a914f447146b86373c781a946d7ebd88cbbb79ec810288ac',
                     'output': '502b7000000000001976a914f447146b86373c781a946d7ebd88cbbb79ec810288ac'
                     },
                 {
                     'id': 3,
                     'addr': 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej',
                     'value': 290819,
-                    'script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d',
+                    'pk_script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d',
                     'output': '0370040000000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'
                     }
                 ],
@@ -380,7 +380,7 @@ P2WSH = {
                     'index': bytes.fromhex('01000000'),
                     'outpoint': bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e01000000'),
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
+                    'pk_script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
                     'input': bytes.fromhex('1fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff'),
                     }
                 ],
@@ -388,25 +388,25 @@ P2WSH = {
                 {
                     'id': 0,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('76a9146199463742d1359a505881821d82f5d4148e3fc588ac'),
+                    'pk_script': bytes.fromhex('76a9146199463742d1359a505881821d82f5d4148e3fc588ac'),
                     'output': bytes.fromhex('40548900000000001976a9146199463742d1359a505881821d82f5d4148e3fc588ac')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87'),
+                    'pk_script': bytes.fromhex('a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87'),
                     'output': bytes.fromhex('60361e000000000017a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87')
                     },
                 {
                     'id': 2,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('76a914f447146b86373c781a946d7ebd88cbbb79ec810288ac'),
+                    'pk_script': bytes.fromhex('76a914f447146b86373c781a946d7ebd88cbbb79ec810288ac'),
                     'output': bytes.fromhex('502b7000000000001976a914f447146b86373c781a946d7ebd88cbbb79ec810288ac')
                     },
                 {
                     'id': 3,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
+                    'pk_script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
                     'output': bytes.fromhex('0370040000000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d')
                     }
                 ],
@@ -448,7 +448,7 @@ P2SH_PD1 = {
                     'pk_script': 'a914aec5abbd414bb04de2dd55dd8048b05c3a76ec6387',
                     'stack_script': 'OP_0 3044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe5001 30440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801',
                     'redeem_script': 'OP_2 02975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd83535854 03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880 03e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de748 OP_3 OP_CHECKMULTISIG',
-                    'script': 'OP_0 3044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe5001 30440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801 522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae',
+                    'script_sig': 'OP_0 3044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe5001 30440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801 522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae',
                     }
                 ],
             'outs': [
@@ -456,13 +456,13 @@ P2SH_PD1 = {
                     'id': 0,
                     'addr': 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej',
                     'value': 904975000,
-                    'script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d',
+                    'pk_script': '0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d',
                     },
                 {
                     'id': 1,
                     'addr': 'bc1qyy30guv6m5ez7ntj0ayr08u23w3k5s8vg3elmxdzlh8a3xskupyqn2lp5w',
                     'value': 33915754,
-                    'script': '00202122f4719add322f4d727f48379f8a8ba36a40ec4473fd99a2fdcfd89a16e048',
+                    'pk_script': '00202122f4719add322f4d727f48379f8a8ba36a40ec4473fd99a2fdcfd89a16e048',
                     }
                 ],
             },
@@ -479,7 +479,7 @@ P2SH_PD1 = {
                     'pk_script': bytes.fromhex('a914aec5abbd414bb04de2dd55dd8048b05c3a76ec6387'),
                     'stack_script': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801'),
                     'redeem_script': bytes.fromhex('4c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
-                    'script': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
+                    'script_sig': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
                     'input': bytes.fromhex('123ef528338339b1f845a76f5551f666590023de93ea202cd13fe7510cab936200000000fc00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014c69522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853aeffffffff'),
                     }
                 ],
@@ -487,13 +487,13 @@ P2SH_PD1 = {
                 {
                     'id': 0,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
+                    'pk_script': bytes.fromhex('0020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d'),
                     'output': bytes.fromhex('')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('00202122f4719add322f4d727f48379f8a8ba36a40ec4473fd99a2fdcfd89a16e048'),
+                    'pk_script': bytes.fromhex('00202122f4719add322f4d727f48379f8a8ba36a40ec4473fd99a2fdcfd89a16e048'),
                     'output': bytes.fromhex('')
                     }
                 ],
@@ -515,7 +515,7 @@ P2SH_PD2 = {
                     'addr': '3Hd8JLLJVFw9sNhzaxPfp5t13gMfoJEVqG',
                     'index': 0,
                     'value': 938948354,
-                    'script': 'OP_0 3044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe5001 30440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801 522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae',
+                    'script_sig': 'OP_0 3044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe5001 30440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf801 522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae',
                     }
                 ],
             },
@@ -529,7 +529,7 @@ P2SH_PD2 = {
                     'hash': bytes.fromhex(''),
                     'index': bytes.fromhex('01000000'),
                     'value': bytes.fromhex(''),
-                    'script': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014d3901522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
+                    'script_sig': bytes.fromhex('00473044022024bb241b26586a4c614ba38fec83a50904d5daeed0975e25eae095e5e911989e022073d99364454fc572a189a2dcf11c6b182a45c5177e746b731448abe3d9e4fe50014730440220319dbd5a69bcaa73e569c5e068edb03f6c52344cd9068d248925256463608c8f02201b4f35ee176d85395aa1eb49aa80adc22cad820d26d62cf462889b791b98aaf8014d3901522102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae2102975ddf75126ef880d1b56ea194141ea0ceb2d9e12298b74d54432cbd835358542103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f8802103e5dc75b59e4c67bfea266314d0b1da1e317f5b7d1e4cf1975442b79e542de74853ae'),
                     }
                 ],
             'tx': {
@@ -625,7 +625,7 @@ PK = {
 
 
 MSIG_2_2 = {
-        'script': examples.msig_two_two.format(pk0=PK['human'][0]['pk'], pk1=PK['human'][1]['pk']),
+        'redeem_script': examples.msig_two_two.format(pk0=PK['human'][0]['pk'], pk1=PK['human'][1]['pk']),
         'ser_script': bytes.fromhex('5241000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111152ae'),
         'p2sh': '3R23EEkAzy7HPWKN8rcL4ZzSjEWNsipxWV',
         'script_hash': bytes.fromhex('ffe3e2be6ba8d465041d3da1cdfe472b901b215a'),
@@ -705,7 +705,7 @@ DCR = {
                     'value': bytes.fromhex('a8ab570e00000000'),
                     'output': bytes.fromhex('a8ab570e0000000000001976a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88ac'),
                     'script_len': bytes.fromhex('19'),
-                    'script': bytes.fromhex('76a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88ac')
+                    'pk_script': bytes.fromhex('76a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88ac')
                     }
                 ],
             'witnesses': [
@@ -713,7 +713,7 @@ DCR = {
                     'value': bytes.fromhex('202e580e00000000'),
                     'height': bytes.fromhex('97970200'),
                     'index': bytes.fromhex('06000000'),
-                    'script': bytes.fromhex('202e580e000000009797020006000000e0483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
+                    'witness': bytes.fromhex('202e580e000000009797020006000000e0483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
                     'hash': bytes.fromhex('ef6ea13e5e65874ef767eed3e3b93af63121b3c63207bdfff980b01d9878572e'),
                     'stack_script': bytes.fromhex('483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed951'),
                     'redeem_script': bytes.fromhex('4c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
@@ -784,7 +784,7 @@ DCR1 = {
                     'value': bytes.fromhex(''),
                     'output': bytes.fromhex('e05d6a2f0000000000001976a9142fc06df75ec010d3ff25c3de77713fca4e731d4088ac'),
                     'script_len': bytes.fromhex(''),
-                    'script': bytes.fromhex('')
+                    'pk_script': bytes.fromhex('')
                     },
                 {
                     'id': 1,
@@ -792,7 +792,7 @@ DCR1 = {
                     'value': bytes.fromhex(''),
                     'output': bytes.fromhex('e09cede90500000000001976a914c2a65fb57cd570a53ff6cc721d854d5d7549f23f88ac'),
                     'script_len': bytes.fromhex(''),
-                    'script': bytes.fromhex('')
+                    'pk_script': bytes.fromhex('')
                     }
                 ],
             'witness': [
