@@ -598,10 +598,19 @@ class TestTx(unittest.TestCase):
             tx_outs = [self.tx_outs[0] for _ in range(255)]
             tx.Tx(self.version, self.none_flag, tx_ins, tx_outs,
                   None, self.lock_time)
-
         self.assertIn(
             'Tx is too large. Expect less than 100kB. Got: ',
             str(context.exception))
+
+    def test_tx_inout_mutation(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        with self.assertRaises(TypeError, msg='That\'s immutable, honey'):
+            t.tx_ins = t.tx_ins + (1,)
+
+        with self.assertRaises(TypeError, msg='That\'s immutable, honey'):
+            t.tx_outs = t.tx_outs + (1,)
 
     def test_tx_id(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
