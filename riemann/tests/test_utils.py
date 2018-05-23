@@ -40,6 +40,28 @@ class TestUtils(unittest.TestCase):
                          0x01000000000000)
         self.assertEqual(utils.be2i(b'\xef\xcd\xab\x00\x00'), 0xefcdab0000)
 
+    def test_i2be(self):
+        self.assertEqual(
+            utils.i2be(0),
+            b'\x00')
+        self.assertEqual(
+            utils.i2be(0xff),
+            b'\xff')
+        self.assertEqual(
+            utils.i2be(0xffff),
+            b'\xff\xff')
+
+    def test_i2be_padded(self):
+        self.assertEqual(
+            utils.i2be_padded(0, 5),
+            b'\x00' * 5)
+        self.assertEqual(
+            utils.i2be_padded(0xff, 3),
+            b'\x00\x00\xff')
+        self.assertEqual(
+            utils.i2be_padded(0xffff, 2),
+            b'\xff\xff')
+
     def test_change_endianness(self):
         self.assertEqual(utils.change_endianness(b'\x00'), b'\x00')
         self.assertEqual(utils.change_endianness(b'\x00\xaa'), b'\xaa\x00')
@@ -69,8 +91,8 @@ class TestUtils(unittest.TestCase):
             utils.sha256('abc'.encode('utf-8')),
             bytes.fromhex('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'))  # noqa: E501
         self.assertEqual(
-            utils.sha256(helpers.P2WSH['ser']['wit_script']),
-            helpers.P2WSH['ser']['ins'][0]['script'][2:])
+            utils.sha256(helpers.P2WSH['ser']['witnesses'][0]['wit_script']),
+            helpers.P2WSH['ser']['ins'][0]['pk_script'][2:])
 
     def test_hash160(self):
         self.assertEqual(
