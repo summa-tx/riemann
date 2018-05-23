@@ -52,8 +52,9 @@ class TestAddresses(unittest.TestCase):
                          b'\x05' + helpers.OP_IF['script_hash'])
         self.assertEqual(addr.parse(helpers.MSIG_2_2['p2sh']),
                          b'\x05' + helpers.MSIG_2_2['script_hash'])
-        self.assertEqual(addr.parse(helpers.P2WSH['human']['ins'][0]['addr']),
-                         b'\x00\x20' + helpers.P2WSH['ser']['ins'][0]['script'][2:])
+        self.assertEqual(addr.parse(
+            helpers.P2WSH['human']['ins'][0]['addr']),
+            b'\x00\x20' + helpers.P2WSH['ser']['ins'][0]['script'][2:])
         self.assertEqual(addr.parse(helpers.P2WPKH_ADDR['address']),
                          b'\x00\x14' + helpers.P2WPKH_ADDR['pkh'])
         self.assertEqual(addr.parse(helpers.ADDR[0]['p2pkh']),
@@ -70,8 +71,10 @@ class TestAddresses(unittest.TestCase):
                          helpers.OP_IF['script_hash'])
         self.assertEqual(addr.parse_hash(helpers.MSIG_2_2['p2sh']),
                          helpers.MSIG_2_2['script_hash'])
-        self.assertEqual(addr.parse_hash(helpers.P2WSH['human']['ins'][0]['addr']),
-                         helpers.P2WSH['ser']['ins'][0]['script'][2:])
+        self.assertEqual(
+            addr.parse_hash(
+                helpers.P2WSH['human']['ins'][0]['addr']),
+            helpers.P2WSH['ser']['ins'][0]['script'][2:])
         self.assertEqual(addr.parse_hash(helpers.P2WPKH_ADDR['address']),
                          helpers.P2WPKH_ADDR['pkh'])
         self.assertEqual(addr.parse_hash(helpers.ADDR[0]['p2pkh']),
