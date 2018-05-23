@@ -40,6 +40,28 @@ class TestUtils(unittest.TestCase):
                          0x01000000000000)
         self.assertEqual(utils.be2i(b'\xef\xcd\xab\x00\x00'), 0xefcdab0000)
 
+    def test_i2be(self):
+        self.assertEqual(
+            utils.i2be(0),
+            b'\x00')
+        self.assertEqual(
+            utils.i2be(0xff),
+            b'\xff')
+        self.assertEqual(
+            utils.i2be(0xffff),
+            b'\xff\xff')
+
+    def test_i2be_padded(self):
+        self.assertEqual(
+            utils.i2be_padded(0, 5),
+            b'\x00' * 5)
+        self.assertEqual(
+            utils.i2be_padded(0xff, 3),
+            b'\x00\x00\xff')
+        self.assertEqual(
+            utils.i2be_padded(0xffff, 2),
+            b'\xff\xff')
+
     def test_change_endianness(self):
         self.assertEqual(utils.change_endianness(b'\x00'), b'\x00')
         self.assertEqual(utils.change_endianness(b'\x00\xaa'), b'\xaa\x00')

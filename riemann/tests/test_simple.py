@@ -1,4 +1,5 @@
 import unittest
+import riemann
 from riemann import simple
 from riemann.tx import tx_builder as tb
 from riemann.tests import helpers
@@ -8,6 +9,110 @@ class TestSimple(unittest.TestCase):
 
     def setUp(self):
         pass
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
+    def test_guess_version(self):
+        self.assertEqual(
+            simple.guess_version('OP_IF'),
+            1)
+        self.assertEqual(
+            simple.guess_version('OP_CHECKSEQUENCEVERIFY'),
+            2)
+
+        riemann.select_network('zcash_main')
+        self.assertEqual(
+            simple.guess_version('OP_IF'),
+            1)
+
+    def test_guess_sequence(self):
+        self.assertEqual(
+            simple.guess_sequence('OP_IF'),
+            0xFFFFFFFE)
+        self.assertEqual(
+            simple.guess_sequence('0000FFEE OP_CHECKSEQUENCEVERIFY'),
+            0x0000FFEE)
+
+    def test_guess_locktime(self):
+        self.assertEqual(
+            simple.guess_locktime('OP_IF'),
+            0)
+        self.assertEqual(
+            simple.guess_locktime('0000FFEE OP_CHECKLOCKTIMEVERIFY'),
+            0x0000FFEE)
+
+    def test_output(self):
+        for i in range(len(helpers.P2WSH['human']['outs'])):
+            self.assertEqual(
+                simple.output(
+                    value=helpers.P2WSH['human']['outs'][i]['value'],
+                    address=helpers.P2WSH['human']['outs'][i]['addr']),
+                helpers.P2WSH['ser']['outs'][i]['output'])
+
+    def test_empty_output(self):
+        self.assertEqual(
+            simple.empty_output(),
+            b'\xff' * 8 + b'\x00')
+
+    def test_outpoint(self):
+        self.assertEqual(
+            simple.outpoint(
+                tx_id=helpers.P2PKH['human']['ins'][0]['hash'],
+                index=helpers.P2PKH['human']['ins'][0]['index']),
+            helpers.P2PKH['ser']['ins'][0]['outpoint'])
+
+    def test_empty_outpoint(self):
+        self.assertEqual(
+            simple.empty_outpoint(),
+            b'\x00' * 36)
+
+    def test_unsigned_input(self):
+        outpoint = simple.outpoint(
+            tx_id=helpers.P2PKH['human']['ins'][0]['hash'],
+            index=helpers.P2PKH['human']['ins'][0]['index'])
+
+        self.assertEqual(
+            simple.unsigned_input(
+                outpoint=outpoint),
+            outpoint.to_bytes() + b'\x00' + b'\xFE\xFF\xFF\xFF')
+
+        self.assertEqual(
+            simple.unsigned_input(
+                outpoint=outpoint,
+                sequence=0x1234abcd),
+            outpoint.to_bytes() + b'\x00' + b'\xcd\xab\x34\x12')
+
+        self.assertEqual(
+            simple.unsigned_input(
+                outpoint=outpoint,
+                redeem_script='11AA OP_CHECKSEQUENCEVERIFY'),
+            outpoint.to_bytes() + b'\x00' + b'\xaa\x11\x00\x00')
+
+        self.assertEqual(
+            simple.unsigned_input(
+                outpoint=outpoint,
+                redeem_script='11AA OP_CHECKSEQUENCEVERIFY',
+                sequence=0x1234abcd),
+            outpoint.to_bytes() + b'\x00' + b'\xcd\xab\x34\x12')
+
+    def test_empty_input(self):
+        self.assertEqual(
+            simple.empty_input(),
+            b'\x00' * 41)
+
+    def test_p2pkh_input(self):
+        outpoint = simple.outpoint(
+            tx_id=helpers.P2PKH['human']['ins'][0]['hash'],
+            index=helpers.P2PKH['human']['ins'][0]['index']),
+
+        self.assertEqual(
+            simple.p2pkh_input(
+                outpoint=outpoint,
+                sig=helpers.P2PKH['human']['ins'][0]['sig'],
+                pubkey=helpers.P2PKH['human']['ins'][0]['pubkey'],
+            )
+        )
 
     def test_p2sh_input(self):
 

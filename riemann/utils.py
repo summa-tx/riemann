@@ -55,6 +55,8 @@ def i2be(number):
     Returns:
                 (bytearray): bytearray in b.e. format
     '''
+    if number == 0:
+        return b'\x00'
     return number.to_bytes((number.bit_length() + 7) // 8, 'big')
 
 

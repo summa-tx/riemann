@@ -73,7 +73,7 @@ def empty_output():
     '''
     return tb._make_output(
         value=b'\xff' * 8,
-        script=b'',
+        output_script=b'',
         version=b'\x00' * 2)
 
 
@@ -97,13 +97,15 @@ def empty_outpoint():
         tree=b'\x00')
 
 
-def unsigned_input(outpoint, redeem_script=b'', sequence=0xFFFFFFFE):
+def unsigned_input(outpoint, redeem_script=b'', sequence=None):
     '''
     Outpoint, byte-like, int -> TxIn
     '''
-    if redeem_script != b'':
+    if redeem_script != b'' and sequence is None:
         sequence = guess_sequence(redeem_script)
         redeem_script = script_ser.serialize(redeem_script)
+    if sequence is None:
+        sequence = 0xFFFFFFFE
     return tb.make_legacy_input(
         outpoint=outpoint,
         stack_script=b'',
@@ -118,7 +120,7 @@ def empty_input():
     '''
     return tb.make_witness_input(
         outpoint=empty_outpoint(),
-        sequence=b'\x00' * 4)
+        sequence=0)
 
 
 def p2pkh_input(outpoint, sig, pubkey, sequence=0xFFFFFFFE):
