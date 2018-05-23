@@ -226,7 +226,7 @@ def make_decred_input(outpoint, sequence):
 
 
 def make_witness_input_and_witness(outpoint, sequence,
-                                   data_list=None, **kwargs):
+                                   stack=None, **kwargs):
     '''
     Outpoint, int, list(bytearray) -> (Input, InputWitness)
     '''
@@ -238,7 +238,7 @@ def make_witness_input_and_witness(outpoint, sequence,
                                    stack_script=kwargs['stack_script'],
                                    redeem_script=kwargs['redeem_script']))
     return (make_witness_input(outpoint, sequence),
-            make_witness(data_list))
+            make_witness(stack))
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,

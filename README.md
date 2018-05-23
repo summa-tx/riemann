@@ -1,16 +1,11 @@
-## Riemann: Multi-coin transaction generation toolbox.
+## Riemann: bitcoin transactions for humans
 
 [![Build Status](https://travis-ci.org/summa-tx/riemann.svg?branch=master)](https://travis-ci.org/summa-tx/riemann)
 [![Coverage Status](https://coveralls.io/repos/github/summa-tx/riemann/badge.svg)](https://coveralls.io/github/summa-tx/riemann)
 
-
-### Contributing
-
-Please read CONTRIBUTING.md.
-
 ### Purpose
 
-Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is compatible with many chains and **supports SegWit**.
+Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is **compatible with many chains** and **supports SegWit**.
 
 Riemann aims to make it easy to create application-specific transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for ~20 live networks and ~40 testnet or regtest nets.
 
@@ -18,11 +13,15 @@ Riemann is NOT a wallet. It does NOT handle keys or create signatures. Riemann i
 
 Riemann is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. **No networks have been thoroughly tested.**
 
+### Contributing
+
+Please read CONTRIBUTING.md.
+
 ### Installation, Development & Running Tests
 
 ```
-$ git clone $LIB_URL
-$ cd riemann-tx
+$ git clone git@github.com:summa-tx/riemann.git
+$ cd riemann
 $ virtualenv -p python3 venv
 $ source venv/bin/activate
 $ pip install -r requirements-test.txt

@@ -217,9 +217,9 @@ class TestTxIn(unittest.TestCase):
         outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
         outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
-        self.stack_script = helpers.P2PKH1['ser']['stack_script']
-        self.redeem_script = helpers.P2PKH1['ser']['redeem_script']
-        self.sequence = helpers.P2PKH1['ser']['sequence']
+        self.stack_script = helpers.P2PKH1['ser']['ins'][0]['stack_script']
+        self.redeem_script = helpers.P2PKH1['ser']['ins'][0]['redeem_script']
+        self.sequence = helpers.P2PKH1['ser']['ins'][0]['sequence']
         self.outpoint = tx.Outpoint(outpoint_tx_id, outpoint_index)
 
     def test_create_input(self):
@@ -257,37 +257,41 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2PKH1['ser']['ins'][0]['outpoint'])
-        self.assertEqual(tx_in.sequence, helpers.P2PKH1['ser']['sequence'])
+        self.assertEqual(
+            tx_in.sequence,
+            helpers.P2PKH1['ser']['ins'][0]['sequence'])
         self.assertEqual(
             tx_in.stack_script,
-            helpers.P2PKH1['ser']['stack_script'])
+            helpers.P2PKH1['ser']['ins'][0]['stack_script'])
         self.assertEqual(
             tx_in.redeem_script,
-            helpers.P2PKH1['ser']['redeem_script'])
+            helpers.P2PKH1['ser']['ins'][0]['redeem_script'])
 
     def test_from_bytes_sh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2SH['ser']['tx']['in'])
-        self.assertEqual(tx_in, helpers.P2SH['ser']['tx']['in'])
+        tx_in = tx.TxIn.from_bytes(helpers.P2SH['ser']['ins'][0]['input'])
+        self.assertEqual(tx_in, helpers.P2SH['ser']['ins'][0]['input'])
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2SH['ser']['ins'][0]['outpoint'])
-        self.assertEqual(tx_in.sequence, helpers.P2SH['ser']['sequence'])
+        self.assertEqual(
+            tx_in.sequence,
+            helpers.P2SH['ser']['ins'][0]['sequence'])
         self.assertEqual(
             tx_in.stack_script,
-            helpers.P2SH['ser']['stack_script'])
+            helpers.P2SH['ser']['ins'][0]['stack_script'])
         self.assertEqual(
             tx_in.redeem_script,
-            helpers.P2SH['ser']['redeem_script'])
+            helpers.P2SH['ser']['ins'][0]['redeem_script'])
 
     def test_from_bytes_wsh(self):
-        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['ser']['tx']['in'])
-        self.assertEqual(tx_in, helpers.P2WSH['ser']['tx']['in'])
+        tx_in = tx.TxIn.from_bytes(helpers.P2WSH['ser']['ins'][0]['input'])
+        self.assertEqual(tx_in, helpers.P2WSH['ser']['ins'][0]['input'])
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2WSH['ser']['ins'][0]['outpoint'])
         self.assertEqual(
             tx_in.sequence,
-            utils.i2be(helpers.P2WSH['human']['sequence']))
+            utils.i2be(helpers.P2WSH['human']['ins'][0]['sequence']))
         self.assertEqual(tx_in.stack_script, b'')
         self.assertEqual(tx_in.redeem_script, b'')
 
@@ -296,7 +300,7 @@ class TestTxOut(unittest.TestCase):
 
     def setUp(self):
         self.value = helpers.P2PKH1['ser']['outs'][0]['value']
-        self.output_script = helpers.P2PKH1['ser']['outs'][0]['script']
+        self.output_script = helpers.P2PKH1['ser']['outs'][0]['pk_script']
 
     def test_create_output(self):
         tx_out = tx.TxOut(self.value, self.output_script)
@@ -320,14 +324,14 @@ class TestTxOut(unittest.TestCase):
 
     def test_from_bytes(self):
         output = helpers.P2PKH1['ser']['outs'][0]['value'] + \
-            b'\x19' + helpers.P2PKH1['ser']['outs'][0]['script']
+            b'\x19' + helpers.P2PKH1['ser']['outs'][0]['pk_script']
         tx_out = tx.TxOut.from_bytes(output)
         self.assertEqual(
             tx_out.value,
             helpers.P2PKH1['ser']['outs'][0]['value'])
         self.assertEqual(
             tx_out.output_script,
-            helpers.P2PKH1['ser']['outs'][0]['script'])
+            helpers.P2PKH1['ser']['outs'][0]['pk_script'])
 
     def test_from_bytes_long(self):
         with self.assertRaises(NotImplementedError) as context:
@@ -340,7 +344,8 @@ class TestTxOut(unittest.TestCase):
 class TestWitnessStackItem(unittest.TestCase):
 
     def setUp(self):
-        self.stack_item_bytes = helpers.P2WSH['ser']['wit_stack_items'][1]
+        self.stack_item_bytes = \
+            helpers.P2WSH['ser']['witnesses'][0]['wit_stack_items'][1]
 
     def test_create_stack_item(self):
         w = tx.WitnessStackItem(self.stack_item_bytes)
@@ -375,7 +380,8 @@ class TestInputWitness(unittest.TestCase):
 
     def setUp(self):
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH['ser']['wit_stack_items']]
+                      for b in
+                      helpers.P2WSH['ser']['witnesses'][0]['wit_stack_items']]
 
     def test_create_witness(self):
         iw = tx.InputWitness(self.stack)
@@ -404,18 +410,20 @@ class TestTx(unittest.TestCase):
         self.outpoint_index = helpers.P2PKH1['ser']['ins'][0]['index']
         self.outpoint_tx_id = helpers.P2PKH1['ser']['ins'][0]['hash']
 
-        self.stack_script = helpers.P2PKH1['ser']['stack_script']
-        self.redeem_script = helpers.P2PKH1['ser']['redeem_script']
-        self.sequence = helpers.P2PKH1['ser']['sequence']
+        self.stack_script = helpers.P2PKH1['ser']['ins'][0]['stack_script']
+        self.redeem_script = helpers.P2PKH1['ser']['ins'][0]['redeem_script']
+        self.sequence = helpers.P2PKH1['ser']['ins'][0]['sequence']
         self.outpoint = tx.Outpoint(self.outpoint_tx_id, self.outpoint_index)
 
         self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
                              self.redeem_script, self.sequence)
 
         self.value_0 = helpers.P2PKH1['ser']['outs'][0]['value']
-        self.output_script_0 = helpers.P2PKH1['ser']['outs'][0]['script']
+        self.output_script_0 = \
+            helpers.P2PKH1['ser']['outs'][0]['pk_script']
         self.value_1 = helpers.P2PKH1['ser']['outs'][1]['value']
-        self.output_script_1 = helpers.P2PKH1['ser']['outs'][1]['script']
+        self.output_script_1 = \
+            helpers.P2PKH1['ser']['outs'][1]['pk_script']
 
         self.tx_out_0 = tx.TxOut(self.value_0, self.output_script_0)
         self.tx_out_1 = tx.TxOut(self.value_1, self.output_script_1)
@@ -429,7 +437,8 @@ class TestTx(unittest.TestCase):
 
         self.segwit_flag = b'\x00\x01'
         self.stack = [tx.WitnessStackItem(b)
-                      for b in helpers.P2WSH['ser']['wit_stack_items']]
+                      for b in
+                      helpers.P2WSH['ser']['witnesses'][0]['wit_stack_items']]
         self.tx_witnesses = [tx.InputWitness(self.stack)]
 
     def tearDown(self):
@@ -622,7 +631,9 @@ class TestTx(unittest.TestCase):
     def test_from_bytes_sh(self):
         t = tx.Tx.from_bytes(helpers.P2SH['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2SH['ser']['version'])
-        self.assertEqual(t.tx_ins[0], helpers.P2SH['ser']['tx']['in'])
+        self.assertEqual(
+            t.tx_ins[0],
+            helpers.P2SH['ser']['ins'][0]['input'])
         self.assertEqual(
             t.tx_outs[0],
             helpers.P2SH['ser']['outs'][0]['output'])
@@ -635,7 +646,7 @@ class TestTx(unittest.TestCase):
     def test_from_bytes_wsh(self):
         t = tx.Tx.from_bytes(helpers.P2WSH['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2WSH['ser']['version'])
-        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['tx']['in'])
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['ins'][0]['input'])
         self.assertEqual(
             t.tx_outs[0],
             helpers.P2WSH['ser']['outs'][0]['output'])
@@ -901,7 +912,7 @@ class TestDecredTxIn(DecredTestCase):
         outpoint_tx_id = helpers.DCR['ser']['ins'][0]['hash']
         outpoint_tree = helpers.DCR['ser']['ins'][0]['tree']
 
-        self.sequence = helpers.DCR['ser']['sequence']
+        self.sequence = helpers.DCR['ser']['ins'][0]['sequence']
 
         self.outpoint = tx.DecredOutpoint(
             outpoint_tx_id, outpoint_index, outpoint_tree)
@@ -936,7 +947,7 @@ class TestDecredTxOut(DecredTestCase):
         super().setUp()
         self.value = helpers.DCR['ser']['outs'][0]['value']
         self.version = helpers.DCR['ser']['outs'][0]['version']
-        self.output_script = helpers.DCR['ser']['outs'][0]['script']
+        self.output_script = helpers.DCR['ser']['outs'][0]['pk_script']
 
     def test_init(self):
         tx_out = tx.DecredTxOut(
@@ -981,11 +992,12 @@ class TestDecredInputWitness(DecredTestCase):
 
     def setUp(self):
         super().setUp()
-        self.value = helpers.DCR['ser']['witness']['value']
-        self.height = helpers.DCR['ser']['witness']['height']
-        self.index = helpers.DCR['ser']['witness']['index']
-        self.stack_script = helpers.DCR['ser']['stack_script']
-        self.redeem_script = helpers.DCR['ser']['redeem_script']
+        helper_witness = helpers.DCR['ser']['witnesses'][0]
+        self.value = helper_witness['value']
+        self.height = helper_witness['height']
+        self.index = helper_witness['index']
+        self.stack_script = helper_witness['stack_script']
+        self.redeem_script = helper_witness['redeem_script']
 
     def test_init(self):
         input_witness = tx.DecredInputWitness(
@@ -997,7 +1009,7 @@ class TestDecredInputWitness(DecredTestCase):
 
         self.assertEqual(
             input_witness,
-            helpers.DCR['ser']['witness']['script'])
+            helpers.DCR['ser']['witnesses'][0]['witness'])
 
     def test_init_errors(self):
 
@@ -1054,7 +1066,7 @@ class TestDecredTx(DecredTestCase):
         self.outpoint_index = helpers.DCR['ser']['ins'][0]['index']
         self.outpoint_tx_id = helpers.DCR['ser']['ins'][0]['hash']
         self.outpoint_tree = helpers.DCR['ser']['ins'][0]['tree']
-        self.sequence = helpers.DCR['ser']['sequence']
+        self.sequence = helpers.DCR['ser']['ins'][0]['sequence']
 
         self.outpoint = tx.DecredOutpoint(
             self.outpoint_tx_id, self.outpoint_index, self.outpoint_tree)
@@ -1062,18 +1074,19 @@ class TestDecredTx(DecredTestCase):
 
         self.output_value = helpers.DCR['ser']['outs'][0]['value']
         self.output_version = helpers.DCR['ser']['outs'][0]['version']
-        self.output_script = helpers.DCR['ser']['outs'][0]['script']
+        self.output_script = helpers.DCR['ser']['outs'][0]['pk_script']
         self.tx_out = tx.DecredTxOut(
             self.output_value, self.output_version, self.output_script)
 
         self.lock_time = helpers.DCR['ser']['locktime']
         self.expiry = helpers.DCR['ser']['expiry']
 
-        self.witness_value = helpers.DCR['ser']['witness']['value']
-        self.height = helpers.DCR['ser']['witness']['height']
-        self.witness_index = helpers.DCR['ser']['witness']['index']
-        self.stack_script = helpers.DCR['ser']['stack_script']
-        self.redeem_script = helpers.DCR['ser']['redeem_script']
+        self.witness_value = helpers.DCR['ser']['witnesses'][0]['value']
+        self.height = helpers.DCR['ser']['witnesses'][0]['height']
+        self.witness_index = helpers.DCR['ser']['witnesses'][0]['index']
+        self.stack_script = helpers.DCR['ser']['witnesses'][0]['stack_script']
+        self.redeem_script = \
+            helpers.DCR['ser']['witnesses'][0]['redeem_script']
         self.witness = tx.DecredInputWitness(
             value=self.witness_value,
             height=self.height,
@@ -1247,7 +1260,7 @@ class TestDecredTx(DecredTestCase):
             expiry=self.expiry,
             tx_witnesses=[self.witness])
         tx_wit = b'\x01\x00' + b'\x02\x00' + b'\x01' + \
-            helpers.DCR['ser']['witness']['script']
+            helpers.DCR['ser']['witnesses'][0]['witness']
         self.assertEqual(transaction.witness(), tx_wit)
 
     def test_witness_hash(self):
@@ -1261,7 +1274,7 @@ class TestDecredTx(DecredTestCase):
 
         self.assertEqual(
             transaction.witness_hash(),
-            helpers.DCR['ser']['witness']['hash'])  # TODO: check this better
+            helpers.DCR['ser']['witnesses'][0]['hash'])
 
     def test_sighash_none(self):
         transaction = tx.DecredTx(
@@ -1338,22 +1351,22 @@ class TestDecredTx(DecredTestCase):
         tx_outs = [tx_out_0, tx_out_1]
 
         tx_witness_0 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][0]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][0]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][0]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][0],
+            value=helpers.DCR1['ser']['witness'][0]['value'],
+            height=helpers.DCR1['ser']['witness'][0]['height'],
+            index=helpers.DCR1['ser']['witness'][0]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][0]['stack_script'],
             redeem_script=b'')
         tx_witness_1 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][1]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][1]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][1]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][1],
+            value=helpers.DCR1['ser']['witness'][1]['value'],
+            height=helpers.DCR1['ser']['witness'][1]['height'],
+            index=helpers.DCR1['ser']['witness'][1]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][1]['stack_script'],
             redeem_script=b'')
         tx_witness_2 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][2]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][2]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][2]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][2],
+            value=helpers.DCR1['ser']['witness'][2]['value'],
+            height=helpers.DCR1['ser']['witness'][2]['height'],
+            index=helpers.DCR1['ser']['witness'][2]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][2]['stack_script'],
             redeem_script=b'')
 
         tx_witnesses = [tx_witness_0, tx_witness_1, tx_witness_2]
