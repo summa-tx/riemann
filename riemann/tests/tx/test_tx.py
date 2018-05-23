@@ -1083,7 +1083,8 @@ class TestDecredTx(DecredTestCase):
         self.height = helpers.DCR['ser']['witnesses'][0]['height']
         self.witness_index = helpers.DCR['ser']['witnesses'][0]['index']
         self.stack_script = helpers.DCR['ser']['witnesses'][0]['stack_script']
-        self.redeem_script = helpers.DCR['ser']['witnesses'][0]['redeem_script']
+        self.redeem_script = \
+            helpers.DCR['ser']['witnesses'][0]['redeem_script']
         self.witness = tx.DecredInputWitness(
             value=self.witness_value,
             height=self.height,
@@ -1348,22 +1349,22 @@ class TestDecredTx(DecredTestCase):
         tx_outs = [tx_out_0, tx_out_1]
 
         tx_witness_0 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][0]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][0]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][0]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][0],
+            value=helpers.DCR1['ser']['witness'][0]['value'],
+            height=helpers.DCR1['ser']['witness'][0]['height'],
+            index=helpers.DCR1['ser']['witness'][0]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][0]['stack_script'],
             redeem_script=b'')
         tx_witness_1 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][1]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][1]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][1]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][1],
+            value=helpers.DCR1['ser']['witness'][1]['value'],
+            height=helpers.DCR1['ser']['witness'][1]['height'],
+            index=helpers.DCR1['ser']['witness'][1]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][1]['stack_script'],
             redeem_script=b'')
         tx_witness_2 = tx.DecredInputWitness(
-            value=helpers.DCR1['ser']['witness'][2]['script'][:8],
-            height=helpers.DCR1['ser']['witness'][2]['script'][8:12],
-            index=helpers.DCR1['ser']['witness'][2]['script'][12:16],
-            stack_script=helpers.DCR1['ser']['stack_items'][2],
+            value=helpers.DCR1['ser']['witness'][2]['value'],
+            height=helpers.DCR1['ser']['witness'][2]['height'],
+            index=helpers.DCR1['ser']['witness'][2]['index'],
+            stack_script=helpers.DCR1['ser']['witness'][2]['stack_script'],
             redeem_script=b'')
 
         tx_witnesses = [tx_witness_0, tx_witness_1, tx_witness_2]
