@@ -4,8 +4,11 @@ from . import blake256 as b256
 
 
 def i2le(number):
-    '''
-    int -> bytearray
+    '''Convert int to little endian (l.e.) bytearray
+    Args:
+        number  (int): int value to convert to bytes in l.e. format
+    Returns:
+                (bytearray): bytearray in l.e. format
     '''
     if number == 0:
         return b'\x00'
@@ -13,24 +16,57 @@ def i2le(number):
 
 
 def i2le_padded(number, length):
-    '''
-    int, int -> bytearray
+    '''Convert int to little endian (l.e.) bytearray with specified length
+    Args:
+        number  (int): int value to convert to l.e. bytes
+        length  (int): length of resulting bytearray
+    Returns:
+        (bytearray)
     '''
     return number.to_bytes(length, 'little')
 
 
 def le2i(b, signed=False):
-    '''
-    byte-like, bool -> int
+    '''Convert little endian (l.e.) bytearray to int
+    Args:
+        b       (bytearray): l.e. bytearray to convert to int
+        signed  (bool): two's complement flag
+    Returns:
+                (int)
     '''
     return int.from_bytes(b, 'little', signed=signed)
 
 
 def be2i(b, signed=False):
-    '''
-    byte-like, bool -> int
+    '''Convert big endian (b.e.) bytearray to int
+    Args:
+        b       (bytearray): b.e. bytearray to convert to int
+        signed  (bool): two's complement flag
+    Returns:
+                (int)
     '''
     return int.from_bytes(b, 'big', signed=signed)
+
+
+def i2be(number):
+    '''Convert int to big endian (b.e.) bytearray
+    Args:
+        number  (int): int value to convert to bytes in b.e. format
+    Returns:
+                (bytearray): bytearray in b.e. format
+    '''
+    return number.to_bytes((number.bit_length() + 7) // 8, 'big')
+
+
+def i2be_padded(number, length):
+    '''Convert int to big endian (b.e.) bytearray with specified length
+    Args:
+        number  (int): int value to convert to bytes in b.e. format
+        length  (int): length of resulting bytearray
+    Returns:
+                (bytearray): bytearray in b.e. format with specified length
+    '''
+    return number.to_bytes(length, 'big')
 
 
 def change_endianness(b):
