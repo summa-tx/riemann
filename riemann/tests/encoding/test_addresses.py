@@ -34,7 +34,7 @@ class TestAddresses(unittest.TestCase):
 
     def test_make_p2wsh_address(self):
         a = addr.make_p2wsh_address(
-            helpers.P2WSH['human']['wit_script'])
+            helpers.P2WSH['human']['witnesses'][0]['wit_script'])
         self.assertEqual(a, helpers.P2WSH['human']['ins'][0]['addr'])
 
     def test_make_p2pkh_address(self):

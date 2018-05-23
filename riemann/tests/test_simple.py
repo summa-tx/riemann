@@ -104,14 +104,15 @@ class TestSimple(unittest.TestCase):
     def test_p2pkh_input(self):
         outpoint = simple.outpoint(
             tx_id=helpers.P2PKH['human']['ins'][0]['hash'],
-            index=helpers.P2PKH['human']['ins'][0]['index']),
+            index=helpers.P2PKH['human']['ins'][0]['index'])
 
         self.assertEqual(
             simple.p2pkh_input(
                 outpoint=outpoint,
-                sig=helpers.P2PKH['human']['ins'][0]['sig'],
+                sig=helpers.P2PKH['human']['ins'][0]['signature'],
                 pubkey=helpers.P2PKH['human']['ins'][0]['pubkey'],
-            )
+            ),
+            helpers.P2PKH['ser']['tx']['in']
         )
 
     def test_p2sh_input(self):
@@ -121,8 +122,8 @@ class TestSimple(unittest.TestCase):
             index=helpers.P2SH_PD1['human']['ins'][0]['index'])
         tx_p2sh_input = simple.p2sh_input(
             outpoint=outpoint,
-            stack_script=helpers.P2SH_PD1['human']['stack_script'],
-            redeem_script=helpers.P2SH_PD1['human']['redeem_script'],
+            stack_script=helpers.P2SH_PD1['human']['ins'][0]['stack_script'],
+            redeem_script=helpers.P2SH_PD1['human']['ins'][0]['redeem_script'],
             sequence=helpers.P2SH_PD1['human']['sequence'])
 
         self.assertTrue(tx_p2sh_input.is_p2sh())
@@ -130,12 +131,12 @@ class TestSimple(unittest.TestCase):
         self.assertTrue(isinstance(tx_p2sh_input.stack_script, bytearray))
         self.assertEqual(
             tx_p2sh_input.stack_script,
-            helpers.P2SH_PD1['ser']['stack_script'])
+            helpers.P2SH_PD1['ser']['ins'][0]['stack_script'])
 
         self.assertTrue(isinstance(tx_p2sh_input.redeem_script, bytearray))
         self.assertEqual(
             tx_p2sh_input.redeem_script,
-            helpers.P2SH_PD1['ser']['redeem_script'])
+            helpers.P2SH_PD1['ser']['ins'][0]['redeem_script'])
         self.assertEqual(tx_p2sh_input, helpers.P2SH_PD1['ser']['tx']['in'])
 
     def test_p2sh_input_and_witness(self):
@@ -145,8 +146,8 @@ class TestSimple(unittest.TestCase):
             helpers.P2SH_PD1['human']['ins'][0]['index'])
         (tx_p2sh_input, witness) = simple.p2sh_input_and_witness(
             outpoint=outpoint,
-            stack_script=helpers.P2SH_PD1['human']['stack_script'],
-            redeem_script=helpers.P2SH_PD1['human']['redeem_script'],
+            stack_script=helpers.P2SH_PD1['human']['ins'][0]['stack_script'],
+            redeem_script=helpers.P2SH_PD1['human']['ins'][0]['redeem_script'],
             sequence=helpers.P2SH_PD1['human']['sequence'])
 
         self.assertTrue(tx_p2sh_input.is_p2sh())
@@ -155,24 +156,24 @@ class TestSimple(unittest.TestCase):
         self.assertTrue(isinstance(tx_p2sh_input.stack_script, bytearray))
         self.assertEqual(
             tx_p2sh_input.stack_script,
-            helpers.P2SH_PD1['ser']['stack_script'])
+            helpers.P2SH_PD1['ser']['ins'][0]['stack_script'])
 
         self.assertTrue(isinstance(tx_p2sh_input.redeem_script, bytearray))
         self.assertEqual(
             tx_p2sh_input.redeem_script,
-            helpers.P2SH_PD1['ser']['redeem_script'])
+            helpers.P2SH_PD1['ser']['ins'][0]['redeem_script'])
 
         self.assertEqual(tx_p2sh_input, helpers.P2SH_PD1['ser']['tx']['in'])
 
     def test_p2wsh_input_and_witness(self):
-
+        helper_witness = helpers.P2WSH['human']['witnesses'][0]
         outpoint = simple.outpoint(
             tx_id=helpers.P2WSH['human']['ins'][0]['hash'],
             index=helpers.P2WSH['human']['ins'][0]['index'])
         (tx_in, witness) = simple.p2wsh_input_and_witness(
             outpoint=outpoint,
-            stack=helpers.P2WSH['human']['stack_script'],
-            witness_script=helpers.P2WSH['human']['wit_script'],
+            stack=helper_witness['stack'],
+            witness_script=helper_witness['wit_script'],
             sequence=helpers.P2WSH['human']['sequence'])
 
         self.assertTrue(tx_in == helpers.P2WSH['ser']['tx']['in'])
