@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='riemann-tx',
-    version='0.9.0',
+    version='0.10.0',
     description=('Transaction creation library for Bitcoin-like coins'),
     url='https://github.com/summa-tx/riemann',
     author='James Prestwich',
