@@ -1,17 +1,17 @@
 # flake8: noqa
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='riemann-tx',
-    version='0.10.0',
+    version='0.10.1',
     description=('Transaction creation library for Bitcoin-like coins'),
     url='https://github.com/summa-tx/riemann',
     author='James Prestwich',
     author_email='james@summa.one',
     license='LGPLv3.0',
     install_requires=[],
-    packages=['riemann'],
+    packages=find_packages(),
     package_dir={'riemann': 'riemann'},
     keywords = 'bitcoin litecoin cryptocurrency decred blockchain development',
     classifiers = [
