@@ -191,6 +191,9 @@ class VarInt(ByteData):
             num = num[1:5]
         elif num[0] == 0xff:
             num = num[1:9]
+        if 'zcash' in riemann.get_current_network_name() and num[-1] == 0:
+            raise ValueError('VarInt must be compact. Got: {}'
+                             .format(byte_string.hex()))
         if len(num) == 0:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
