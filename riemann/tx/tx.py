@@ -198,7 +198,7 @@ class VarInt(ByteData):
         ret = VarInt(utils.le2i(num))
 
         if ('zcash' in riemann.get_current_network_name()
-                and len(num) != len(byte_string)):
+                and len(ret) != len(byte_string)):
             raise ValueError('VarInt must be compact. Got: {}'
                              .format(byte_string.hex()))
 
