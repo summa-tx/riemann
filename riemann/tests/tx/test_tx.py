@@ -141,7 +141,14 @@ class TestVarInt(unittest.TestCase):
         riemann.select_network('zcash_main')
 
         with self.assertRaises(ValueError) as context:
-            tx.VarInt.from_bytes(b'\xfd\x00')
+            tx.VarInt.from_bytes(b'\xfd\x00\x00')
+
+        self.assertIn(
+            'VarInt must be compact. Got:',
+            str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00\x00')
 
         self.assertIn(
             'VarInt must be compact. Got:',
