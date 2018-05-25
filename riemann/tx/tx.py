@@ -183,11 +183,6 @@ class VarInt(ByteData):
         accepts arbitrary length input, gets a VarInt off the front
         '''
         num = byte_string
-        if ('zcash' in riemann.get_current_network_name()
-                and num[-1] == 0
-                and len(num) > 1):
-            raise ValueError('VarInt must be compact. Got: {}'
-                             .format(byte_string.hex()))
         if num[0] <= 0xfc:
             num = num[0:1]
         elif num[0] == 0xfd:
@@ -200,7 +195,14 @@ class VarInt(ByteData):
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
-        return VarInt(utils.le2i(num))
+        ret = VarInt(utils.le2i(num))
+
+        if ('zcash' in riemann.get_current_network_name()
+                and len(num) != len(byte_string)):
+            raise ValueError('VarInt must be compact. Got: {}'
+                             .format(byte_string.hex()))
+
+        return ret
 
 
 class Outpoint(ByteData):
