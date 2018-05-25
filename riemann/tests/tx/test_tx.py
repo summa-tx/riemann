@@ -137,6 +137,12 @@ class TestVarInt(unittest.TestCase):
             'Malformed VarInt. Got: fe',
             str(context.exception))
 
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00')
+        self.assertIn(
+            'Malformed VarInt. Got: fe',
+            str(context.exception))
+
     def test_zcash_compact_enforcement(self):
         riemann.select_network('zcash_main')
 

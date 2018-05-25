@@ -191,7 +191,7 @@ class VarInt(ByteData):
             num = num[1:5]
         elif num[0] == 0xff:
             num = num[1:9]
-        if len(num) == 0:
+        if len(num) not in [1, 2, 4, 8]:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
