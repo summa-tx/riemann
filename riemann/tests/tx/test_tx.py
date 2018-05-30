@@ -70,6 +70,9 @@ class TestVarInt(unittest.TestCase):
     def setUp(self):
         pass
 
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
     def test_one_byte(self):
         res = tx.VarInt(0xfb)
         self.assertEqual(res, b'\xfb')
@@ -132,6 +135,29 @@ class TestVarInt(unittest.TestCase):
             tx.VarInt.from_bytes(b'\xfe')
         self.assertIn(
             'Malformed VarInt. Got: fe',
+            str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00')
+        self.assertIn(
+            'Malformed VarInt. Got: fe',
+            str(context.exception))
+
+    def test_zcash_compact_enforcement(self):
+        riemann.select_network('zcash_main')
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfd\x00\x00')
+
+        self.assertIn(
+            'VarInt must be compact. Got:',
+            str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00\x00')
+
+        self.assertIn(
+            'VarInt must be compact. Got:',
             str(context.exception))
 
 

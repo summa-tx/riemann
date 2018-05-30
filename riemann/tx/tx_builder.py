@@ -187,6 +187,10 @@ def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
     '''
     Outpoint, byte-like, byte-like, int -> TxIn
     '''
+    if 'decred' in riemann.get_current_network_name():
+        return tx.DecredTxIn(
+            outpoint=outpoint,
+            sequence=utils.i2le_padded(sequence, 4))
     return tx.TxIn(outpoint=outpoint,
                    stack_script=stack_script,
                    redeem_script=redeem_script,

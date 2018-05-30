@@ -678,8 +678,9 @@ DCR = {
                 {
                     'id': 0,
                     'sequence': 0xFFFFFFFF,
-                    'hash': '0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd',
+                    'hash': 'fdd72f5841414a9c8b4a188a98a4d484df98f84e1c120e1ed59a66e51e8ae90c',
                     'index': 0,
+                    'tree': 0,
                     'outpoint': '0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000'
                     }
                 ]

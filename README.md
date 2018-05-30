@@ -11,7 +11,7 @@ Riemann aims to make it easy to create application-specific transactions. It ser
 
 Riemann is NOT a wallet. It does NOT handle keys or create signatures. Riemann is NOT a protocol or RPC implementation. Riemann does NOT communicate with anything. Ever. Riemann is NOT a Script VM. Riemann does NOT check the validity of your scriptsigs.
 
-Riemann is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. **No networks have been thoroughly tested.**
+Riemann is _almost_ stateless. Before calling functions, you select a network. A list of supported networks is in `riemann/networks/__init__.py`. Tests are made using on-chain transactions, primarily from Bitcoin.
 
 ### Contributing
 
