@@ -191,11 +191,18 @@ class VarInt(ByteData):
             num = num[1:5]
         elif num[0] == 0xff:
             num = num[1:9]
-        if len(num) == 0:
+        if len(num) not in [1, 2, 4, 8]:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
-        return VarInt(utils.le2i(num))
+        ret = VarInt(utils.le2i(num))
+
+        if ('zcash' in riemann.get_current_network_name()
+                and len(ret) != len(byte_string)):
+            raise ValueError('VarInt must be compact. Got: {}'
+                             .format(byte_string.hex()))
+
+        return ret
 
 
 class Outpoint(ByteData):
@@ -586,7 +593,7 @@ class DecredInputWitness(DecredByteData):
 
     @classmethod
     def from_bytes(DecredInputWitness, byte_string):
-        raise NotImplementedError('TODO')
+        raise NotImplementedError('Not Implemented')
 
 
 class Tx(ByteData):

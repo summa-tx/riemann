@@ -70,6 +70,9 @@ class TestVarInt(unittest.TestCase):
     def setUp(self):
         pass
 
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
     def test_one_byte(self):
         res = tx.VarInt(0xfb)
         self.assertEqual(res, b'\xfb')
@@ -132,6 +135,29 @@ class TestVarInt(unittest.TestCase):
             tx.VarInt.from_bytes(b'\xfe')
         self.assertIn(
             'Malformed VarInt. Got: fe',
+            str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00')
+        self.assertIn(
+            'Malformed VarInt. Got: fe',
+            str(context.exception))
+
+    def test_zcash_compact_enforcement(self):
+        riemann.select_network('zcash_main')
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfd\x00\x00')
+
+        self.assertIn(
+            'VarInt must be compact. Got:',
+            str(context.exception))
+
+        with self.assertRaises(ValueError) as context:
+            tx.VarInt.from_bytes(b'\xfe\x00\x00\x00\x00')
+
+        self.assertIn(
+            'VarInt must be compact. Got:',
             str(context.exception))
 
 
@@ -607,7 +633,6 @@ class TestTx(unittest.TestCase):
             tx_outs = [self.tx_outs[0] for _ in range(255)]
             tx.Tx(self.version, self.none_flag, tx_ins, tx_outs,
                   None, self.lock_time)
-
         self.assertIn(
             'Tx is too large. Expect less than 100kB. Got: ',
             str(context.exception))
@@ -1054,6 +1079,12 @@ class TestDecredInputWitness(DecredTestCase):
 
         self.assertEqual(res, copy)
         self.assertIsNot(res, copy)
+
+    def test_from_bytes(self):
+        with self.assertRaises(NotImplementedError) as context:
+            tx.DecredInputWitness.from_bytes(self)
+
+        self.assertIn('Not Implemented', str(context.exception))
 
 
 class TestDecredTx(DecredTestCase):
