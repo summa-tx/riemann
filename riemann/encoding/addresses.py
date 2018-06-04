@@ -3,13 +3,18 @@ from .. import utils
 from ..script import serialization as script_ser
 
 
-def _make_sh_address(script_hash, witness=False, cashaddr=True):
+def _make_sh_address(script_bytes, witness=False, cashaddr=True):
     '''
     bytes, bool, bool -> str
     cashaddrs are preferred where possible
     but cashaddr is ignored in most cases
     is there a better way to structure this?
     '''
+    if witness:
+        script_hash = utils.sha256(script_bytes)
+    else:
+        script_hash = utils.hash160(script_bytes)
+
     addr_bytes = bytearray()
     if riemann.network.CASHADDR_P2SH is not None and cashaddr:
         addr_bytes.extend(riemann.network.CASHADDR_P2SH)
@@ -30,12 +35,9 @@ def make_sh_address(script_string, witness=False, cashaddr=True):
     str, bool, bool -> str
     '''
     script_bytes = script_ser.serialize(script_string)
-    if witness:
-        script_hash = utils.sha256(script_bytes)
-    else:
-        script_hash = utils.hash160(script_bytes)
+
     return _make_sh_address(
-        script_hash=script_hash,
+        script_bytes=script_bytes,
         witness=witness,
         cashaddr=cashaddr)
 
