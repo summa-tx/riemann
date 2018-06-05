@@ -132,16 +132,6 @@ class ByteData():
                              .format(length, type(data), len(data)))
 
 
-class DecredByteData(ByteData):
-
-    def __init__(self):
-        if 'decred' not in riemann.get_current_network_name():
-            raise ValueError('Decred classes not supported by network {}. '
-                             'How did you get here?'
-                             .format(riemann.get_current_network_name()))
-        super().__init__()
-
-
 class VarInt(ByteData):
     '''
     NB: number must be integer
@@ -185,20 +175,23 @@ class VarInt(ByteData):
         num = byte_string
         if num[0] <= 0xfc:
             num = num[0:1]
+            non_compact = False
         elif num[0] == 0xfd:
             num = num[1:3]
+            non_compact = (num[1] == 0)
         elif num[0] == 0xfe:
             num = num[1:5]
+            non_compact = (num[-2:] == b'\x00\x00')
         elif num[0] == 0xff:
             num = num[1:9]
+            non_compact = (num[-4:] == b'\x00\x00\x00\x00')
         if len(num) not in [1, 2, 4, 8]:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
         ret = VarInt(utils.le2i(num))
 
-        if ('zcash' in riemann.get_current_network_name()
-                and len(ret) != len(byte_string)):
+        if non_compact:
             raise ValueError('VarInt must be compact. Got: {}'
                              .format(byte_string.hex()))
 
@@ -237,39 +230,6 @@ class Outpoint(ByteData):
         return Outpoint(
             tx_id=byte_string[:32],
             index=byte_string[32:36])
-
-
-class DecredOutpoint(DecredByteData):
-
-    def __init__(self, tx_id, index, tree):
-        super().__init__()
-
-        self.validate_bytes(tx_id, 32)
-        self.validate_bytes(index, 4)
-        self.validate_bytes(tree, 1)
-
-        self += tx_id
-        self += index
-        self += tree
-
-        self.tx_id = tx_id
-        self.index = index
-        self.tree = tree
-
-        self._make_immutable()
-
-    def copy(self, tx_id=None, index=None, tree=None):
-        return DecredOutpoint(
-            tx_id=tx_id if tx_id is not None else self.tx_id,
-            index=index if index is not None else self.index,
-            tree=tree if tree is not None else self.tree)
-
-    @classmethod
-    def from_bytes(DecredOutpoint, byte_string):
-        return DecredOutpoint(
-            tx_id=byte_string[:32],
-            index=byte_string[32:36],
-            tree=byte_string[36:37])
 
 
 class TxIn(ByteData):
@@ -372,34 +332,6 @@ class TxIn(ByteData):
             sequence=sequence)
 
 
-class DecredTxIn(DecredByteData):
-
-    def __init__(self, outpoint, sequence):
-        super().__init__()
-
-        self.validate_bytes(outpoint, 37)
-        self.validate_bytes(sequence, 4)
-
-        self += outpoint
-        self += sequence
-
-        self.outpoint = outpoint
-        self.sequence = sequence
-
-        self._make_immutable()
-
-    def copy(self, outpoint=None, sequence=None):
-        return DecredTxIn(
-            outpoint=outpoint if outpoint is not None else self.outpoint,
-            sequence=sequence if sequence is not None else self.sequence)
-
-    @classmethod
-    def from_bytes(DecredTxIn, byte_string):
-        return DecredTxIn(
-            outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
-            sequence=byte_string[37:41])
-
-
 class TxOut(ByteData):
     '''
     NB: value must be little-endian
@@ -442,49 +374,6 @@ class TxOut(ByteData):
         if n.number < 0xfc:
             return TxOut(
                 value=byte_string[:8],
-                output_script=byte_string[script_start:script_end])
-        else:
-            raise NotImplementedError(
-                'No support for abnormally long pk_scripts.')
-
-
-class DecredTxOut(ByteData):
-
-    def __init__(self, value, version, output_script):
-        super().__init__()
-
-        self.validate_bytes(value, 8)
-        self.validate_bytes(version, 2)
-        self.validate_bytes(output_script, None)
-
-        self += value
-        self += version
-        self += VarInt(len(output_script))
-        self += output_script
-
-        self.value = value
-        self.version = version
-        self.output_script_len = len(output_script)
-        self.output_script = output_script
-
-        self._make_immutable()
-
-    def copy(self, value=None, version=None, output_script=None):
-        return DecredTxOut(
-            value=value if value is not None else self.value,
-            version=version if version is not None else self.version,
-            output_script=(output_script if output_script is not None
-                           else self.output_script))
-
-    @classmethod
-    def from_bytes(DecredTxOut, byte_string):
-        n = VarInt.from_bytes(byte_string[10:])
-        script_start = 10 + len(n)
-        script_end = script_start + n.number
-        if n.number < 0xfc:
-            return DecredTxOut(
-                value=byte_string[:8],
-                version=byte_string[8:10],
                 output_script=byte_string[script_start:script_end])
         else:
             raise NotImplementedError(
@@ -550,50 +439,6 @@ class InputWitness(ByteData):
             item_start += len(item)
             items.append(item)
         return InputWitness(items)
-
-
-class DecredInputWitness(DecredByteData):
-
-    def __init__(self, value, height, index, stack_script, redeem_script):
-        super().__init__()
-
-        self.validate_bytes(value, 8)
-        self.validate_bytes(height, 4)
-        self.validate_bytes(index, 4)
-        self.validate_bytes(stack_script, None)
-        self.validate_bytes(redeem_script, None)
-
-        self += value
-        self += height
-        self += index
-        self += VarInt(len(stack_script) + len(redeem_script))
-        self += stack_script
-        self += redeem_script
-
-        self.value = value
-        self.height = height
-        self.index = index
-        self.script_len = len(stack_script + redeem_script)
-        self.stack_script = stack_script
-        self.redeem_script = redeem_script
-        self.script_sig = self.stack_script + self.redeem_script
-
-        self._make_immutable()
-
-    def copy(self, value=None, height=None, index=None,
-             stack_script=None, redeem_script=None):
-        return DecredInputWitness(
-            value=value if value is not None else self.value,
-            height=height if height is not None else self.height,
-            index=index if index is not None else self.index,
-            stack_script=(stack_script if stack_script is not None
-                          else self.stack_script),
-            redeem_script=(redeem_script if redeem_script is not None
-                           else self.redeem_script))
-
-    @classmethod
-    def from_bytes(DecredInputWitness, byte_string):
-        raise NotImplementedError('TODO')
 
 
 class Tx(ByteData):
@@ -1027,6 +872,164 @@ class Tx(ByteData):
         return utils.hash256(data.to_bytes())
 
 
+class DecredByteData(ByteData):
+
+    def __init__(self):
+        if 'decred' not in riemann.get_current_network_name():
+            raise ValueError('Decred classes not supported by network {}. '
+                             'How did you get here?'
+                             .format(riemann.get_current_network_name()))
+        super().__init__()
+
+
+class DecredOutpoint(DecredByteData):
+
+    def __init__(self, tx_id, index, tree):
+        super().__init__()
+
+        self.validate_bytes(tx_id, 32)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(tree, 1)
+
+        self += tx_id
+        self += index
+        self += tree
+
+        self.tx_id = tx_id
+        self.index = index
+        self.tree = tree
+
+        self._make_immutable()
+
+    def copy(self, tx_id=None, index=None, tree=None):
+        return DecredOutpoint(
+            tx_id=tx_id if tx_id is not None else self.tx_id,
+            index=index if index is not None else self.index,
+            tree=tree if tree is not None else self.tree)
+
+    @classmethod
+    def from_bytes(DecredOutpoint, byte_string):
+        return DecredOutpoint(
+            tx_id=byte_string[:32],
+            index=byte_string[32:36],
+            tree=byte_string[36:37])
+
+
+class DecredTxIn(DecredByteData):
+
+    def __init__(self, outpoint, sequence):
+        super().__init__()
+
+        self.validate_bytes(outpoint, 37)
+        self.validate_bytes(sequence, 4)
+
+        self += outpoint
+        self += sequence
+
+        self.outpoint = outpoint
+        self.sequence = sequence
+
+        self._make_immutable()
+
+    def copy(self, outpoint=None, sequence=None):
+        return DecredTxIn(
+            outpoint=outpoint if outpoint is not None else self.outpoint,
+            sequence=sequence if sequence is not None else self.sequence)
+
+    @classmethod
+    def from_bytes(DecredTxIn, byte_string):
+        return DecredTxIn(
+            outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
+            sequence=byte_string[37:41])
+
+
+class DecredTxOut(ByteData):
+
+    def __init__(self, value, version, output_script):
+        super().__init__()
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(version, 2)
+        self.validate_bytes(output_script, None)
+
+        self += value
+        self += version
+        self += VarInt(len(output_script))
+        self += output_script
+
+        self.value = value
+        self.version = version
+        self.output_script_len = len(output_script)
+        self.output_script = output_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, version=None, output_script=None):
+        return DecredTxOut(
+            value=value if value is not None else self.value,
+            version=version if version is not None else self.version,
+            output_script=(output_script if output_script is not None
+                           else self.output_script))
+
+    @classmethod
+    def from_bytes(DecredTxOut, byte_string):
+        n = VarInt.from_bytes(byte_string[10:])
+        script_start = 10 + len(n)
+        script_end = script_start + n.number
+        if n.number < 0xfc:
+            return DecredTxOut(
+                value=byte_string[:8],
+                version=byte_string[8:10],
+                output_script=byte_string[script_start:script_end])
+        else:
+            raise NotImplementedError(
+                'No support for abnormally long pk_scripts.')
+
+
+class DecredInputWitness(DecredByteData):
+
+    def __init__(self, value, height, index, stack_script, redeem_script):
+        super().__init__()
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(height, 4)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(stack_script, None)
+        self.validate_bytes(redeem_script, None)
+
+        self += value
+        self += height
+        self += index
+        self += VarInt(len(stack_script) + len(redeem_script))
+        self += stack_script
+        self += redeem_script
+
+        self.value = value
+        self.height = height
+        self.index = index
+        self.script_len = len(stack_script + redeem_script)
+        self.stack_script = stack_script
+        self.redeem_script = redeem_script
+        self.script_sig = self.stack_script + self.redeem_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, height=None, index=None,
+             stack_script=None, redeem_script=None):
+        return DecredInputWitness(
+            value=value if value is not None else self.value,
+            height=height if height is not None else self.height,
+            index=index if index is not None else self.index,
+            stack_script=(stack_script if stack_script is not None
+                          else self.stack_script),
+            redeem_script=(redeem_script if redeem_script is not None
+                           else self.redeem_script))
+
+    @classmethod
+    def from_bytes(DecredInputWitness, byte_string):
+        raise NotImplementedError('TODO')
+
+
 class DecredTx(DecredByteData):
 
     def __init__(self, version, tx_ins, tx_outs,
@@ -1264,3 +1267,256 @@ class DecredTx(DecredByteData):
         sighash += copy_tx.prefix_hash()
         sighash += copy_tx.witness_signing_hash()
         return utils.blake256(sighash.to_bytes())
+
+
+class ZcashByteData(ByteData):
+    def __init__(self):
+        if 'zcash' not in riemann.get_current_network_name():
+            raise ValueError('Zcash classes not supported by network {}. '
+                             'How did you get here?'
+                             .format(riemann.get_current_network_name()))
+        super().__init__()
+
+
+class SproutZkproof(ZcashByteData):
+
+    def __init__(self, pi_sub_a, pi_prime_sub_a, pi_sub_b, pi_prime_sub_b,
+                 pi_sub_c, pi_prime_sub_c, pi_sub_k, pi_sub_h):
+        super().__init__()
+
+        self.validate_bytes(pi_sub_a, 33)
+        self.validate_bytes(pi_prime_sub_a, 33)
+        self.validate_bytes(pi_sub_b, 65)
+        self.validate_bytes(pi_prime_sub_b, 33)
+        self.validate_bytes(pi_sub_c, 33)
+        self.validate_bytes(pi_prime_sub_c, 33)
+        self.validate_bytes(pi_sub_k, 33)
+        self.validate_bytes(pi_sub_h, 33)
+
+        self += pi_sub_a
+        self += pi_prime_sub_a
+        self += pi_sub_b
+        self += pi_prime_sub_b
+        self += pi_sub_c
+        self += pi_prime_sub_c
+        self += pi_sub_k
+        self += pi_sub_h
+
+        self.pi_sub_a = pi_sub_a
+        self.pi_prime_sub_a = pi_prime_sub_a
+        self.pi_sub_b = pi_sub_b
+        self.pi_prime_sub_b = pi_prime_sub_b
+        self.pi_sub_c = pi_sub_c
+        self.pi_prime_sub_c = pi_prime_sub_c
+        self.pi_sub_k = pi_sub_k
+        self.pi_sub_h = pi_sub_h
+
+        self._make_immutable()
+
+    @classmethod
+    def from_bytes(SproutZkproof, byte_string):
+        return SproutZkproof(
+            pi_sub_a=byte_string[0:33],
+            pi_prime_sub_a=byte_string[33:66],
+            pi_sub_b=byte_string[66:131],
+            pi_prime_sub_b=byte_string[131:164],
+            pi_sub_c=byte_string[164:197],
+            pi_prime_sub_c=byte_string[197:230],
+            pi_sub_k=byte_string[230:263],
+            pi_sub_h=byte_string[263:296])
+
+
+class SproutJoinSplit(ZcashByteData):
+
+    def __init__(self, vpub_old, vpub_new, anchor, nullifiers, commitments,
+                 ephemeral_key, random_seed, vmacs, zkproof, cipher_texts):
+        super().__init__()
+
+        if not isinstance(zkproof, SproutZkproof):
+            raise ValueError(
+                'Invalid zkproof. '
+                'Expected instance of SproutZkproof. Got {}'
+                .format(type(zkproof).__name__))
+
+        self.validate_bytes(vpub_old, 8)
+        self.validate_bytes(vpub_new, 8)
+        self.validate_bytes(anchor, 32)
+        self.validate_bytes(nullifiers, 64)
+        self.validate_bytes(commitments, 64)
+        self.validate_bytes(ephemeral_key, 32)
+        self.validate_bytes(random_seed, 32)
+        self.validate_bytes(vmacs, 64)
+        self.validate_bytes(zkproof, 296)
+        self.validate_bytes(cipher_texts, 1202)
+
+        self += vpub_old
+        self += vpub_new
+        self += anchor
+        self += nullifiers
+        self += commitments
+        self += ephemeral_key
+        self += random_seed
+        self += vmacs
+        self += zkproof
+        self += cipher_texts
+
+        self.vpub_old = vpub_old
+        self.vpub_new = vpub_new
+        self.anchor = anchor
+        self.nullifiers = nullifiers
+        self.commitments = commitments
+        self.ephemeral_key = ephemeral_key
+        self.random_seed = random_seed
+        self.vmacs = vmacs
+        self.zkproof = zkproof
+        self.cipher_texts = cipher_texts
+
+        self._make_immutable()
+
+    @classmethod
+    def from_bytes(SproutJoinSplit, byte_string):
+        return SproutJoinSplit(
+            vpub_old=byte_string[0:8],
+            vpub_new=byte_string[8:16],
+            anchor=byte_string[16:48],
+            nullifiers=byte_string[48:112],
+            commitments=byte_string[112:176],
+            ephemeral_key=byte_string[176:208],
+            random_seed=byte_string[208:240],
+            vmacs=byte_string[240:304],
+            zkproof=SproutZkproof.from_bytes(byte_string[304:600]),
+            cipher_texts=byte_string[600:1802])
+
+
+class SproutTx(ZcashByteData):
+
+    def __init__(self, version, tx_ins, tx_outs, lock_time,
+                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+
+        super().__init__()
+
+        self.validate_bytes(version, 4)
+        self.validate_bytes(lock_time, 4)
+
+        if max(len(tx_ins), len(tx_outs)) > 255:
+            raise ValueError('Too many inputs or outputs. Stop that.')
+
+        for tx_in in tx_ins:
+            if not isinstance(tx_in, TxIn):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_in).__name__))
+
+        for tx_out in tx_outs:
+            if not isinstance(tx_out, TxOut):
+                raise ValueError(
+                    'Invalid TxOut. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_out).__name__))
+
+        for tx_joinsplit in tx_joinsplits:
+            if not isinstance(tx_joinsplit, SproutJoinSplit):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of SproutJoinSplit. Got {}'
+                    .format(type(tx_joinsplit).__name__))
+
+        if version == utils.i2le_padded(1, 4) and tx_joinsplits is not None:
+            raise ValueError('JoinSplits not allowed in version 1 txns.')
+
+        if version == utils.i2le_padded(2, 4):
+            if len(tx_joinsplits) > 5:
+                raise ValueError('Too many joinsplits. Stop that.')
+            self.validate_bytes(joinsplit_pubkey, 32)
+            self.validate_bytes(joinsplit_sig, 32)
+
+        if utils.le2i(version) not in [1, 2]:
+            raise ValueError('Version must be 1 or 2. '
+                             'Got: {}'.format(utils.le2i(version)))
+
+        self += version
+        self += VarInt(len(tx_ins))
+        for tx_in in tx_ins:
+            self += tx_in
+        self += VarInt(len(tx_outs))
+        for tx_out in tx_outs:
+            self += tx_out
+        self += lock_time
+
+        if version == utils.i2le_padded(2, 4):
+            self += VarInt(len(tx_joinsplits))
+            for tx_joinsplit in tx_joinsplits:
+                self += tx_joinsplit
+            self += joinsplit_pubkey
+            self += joinsplit_sig
+
+        self.version = version
+        self.tx_ins_len = len(tx_ins)
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
+        self.tx_outs_len = len(tx_outs)
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
+        self.lock_time = lock_time
+
+        if version == utils.i2le_padded(2, 4):
+            self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+            self.joinsplit_pubkey = joinsplit_pubkey
+            self.joinsplit_sig = joinsplit_sig
+
+        self._make_immutable()
+
+        if len(self) > 100000:
+            raise ValueError(
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    @classmethod
+    def from_bytes(SproutTx, byte_string):
+        version = byte_string[0:4]
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[4:])
+
+        current = 4 + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        lock_time = byte_string[current:current + 4]
+
+        tx_joinsplits = None
+        joinsplit_pubkey = None
+        joinsplit_sig = None
+        if utils.le2i(version) == 2:
+
+            current += 4
+
+            tx_joinsplits = []
+            tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+            current += len(tx_joinsplits_num)
+
+            for _ in range(tx_joinsplits_num.number):
+                joinsplit = SproutJoinSplit.from_bytes(byte_string[current:])
+                current += len(joinsplit)
+                tx_joinsplits.append(joinsplit)
+            joinsplit_pubkey = byte_string[current:current + 32]
+            current += 32
+            joinsplit_sig = byte_string[current:current + 32]
+
+        return SproutTx(
+            version=version,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=lock_time,
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
