@@ -1522,3 +1522,25 @@ class SproutTx(ZcashByteData):
             tx_joinsplits=tx_joinsplits,
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
+
+    def copy(self, version=None, flag=None, tx_ins=None,
+             tx_outs=None, tx_witnesses=None, lock_time=None,
+             tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
+        '''
+        Tx, byte-like, byte-like, list(TxIn),
+        list(TxOut), list(InputWitness), byte-like -> Tx
+
+        Makes a copy. Allows over-writing specific pieces.
+        '''
+        return SproutTx(
+            version=version if version is not None else self.version,
+            tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
+            tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
+            lock_time=(lock_time if lock_time is not None
+                       else self.lock_time),
+            tx_joinsplits=(tx_joinsplits if tx_joinsplits is not None
+                           else self.tx_joinsplits),
+            joinsplit_pubkey=(joinsplit_pubkey if joinsplit_pubkey is not None
+                              else self.joinsplit_pubkey),
+            joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
+                           else self.joinsplit_sig))

@@ -1615,3 +1615,10 @@ class TestSproutTx(SproutTestCase):
         self.assertEqual(
             tx.SproutTx.from_bytes(temp_ser),
             tx.SproutTx(**temp_dict))
+
+    def test_copy(self):
+        t = tx.SproutTx(**self.tx)
+        t_copy = t.copy()
+
+        self.assertEqual(t, t_copy)
+        self.assertIsNot(t, t_copy)
