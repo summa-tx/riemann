@@ -347,9 +347,6 @@ class TestSimple(unittest.TestCase):
             tx_outs=[tx_out],
             tx_witnesses=[witness])
 
-        print(tx.hex())
-        print(helpers.P2WPKH['ser']['tx']['signed'].hex())
-
         self.assertEqual(
             tx,
             helpers.P2WPKH['ser']['tx']['signed'])

@@ -1329,10 +1329,10 @@ class SproutZkproof(ZcashByteData):
             pi_sub_h=byte_string[263:296])
 
 
-class SproutJoinSplit(ZcashByteData):
+class SproutJoinsplit(ZcashByteData):
 
     def __init__(self, vpub_old, vpub_new, anchor, nullifiers, commitments,
-                 ephemeral_key, random_seed, vmacs, zkproof, cipher_texts):
+                 ephemeral_key, random_seed, vmacs, zkproof, encoded_notes):
         super().__init__()
 
         if not isinstance(zkproof, SproutZkproof):
@@ -1349,8 +1349,7 @@ class SproutJoinSplit(ZcashByteData):
         self.validate_bytes(ephemeral_key, 32)
         self.validate_bytes(random_seed, 32)
         self.validate_bytes(vmacs, 64)
-        self.validate_bytes(zkproof, 296)
-        self.validate_bytes(cipher_texts, 1202)
+        self.validate_bytes(encoded_notes, 1202)
 
         self += vpub_old
         self += vpub_new
@@ -1361,7 +1360,7 @@ class SproutJoinSplit(ZcashByteData):
         self += random_seed
         self += vmacs
         self += zkproof
-        self += cipher_texts
+        self += encoded_notes
 
         self.vpub_old = vpub_old
         self.vpub_new = vpub_new
@@ -1372,13 +1371,13 @@ class SproutJoinSplit(ZcashByteData):
         self.random_seed = random_seed
         self.vmacs = vmacs
         self.zkproof = zkproof
-        self.cipher_texts = cipher_texts
+        self.encoded_notes = encoded_notes
 
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SproutJoinSplit, byte_string):
-        return SproutJoinSplit(
+    def from_bytes(SproutJoinsplit, byte_string):
+        return SproutJoinsplit(
             vpub_old=byte_string[0:8],
             vpub_new=byte_string[8:16],
             anchor=byte_string[16:48],
@@ -1388,7 +1387,7 @@ class SproutJoinSplit(ZcashByteData):
             random_seed=byte_string[208:240],
             vmacs=byte_string[240:304],
             zkproof=SproutZkproof.from_bytes(byte_string[304:600]),
-            cipher_texts=byte_string[600:1802])
+            encoded_notes=byte_string[600:1802])
 
 
 class SproutTx(ZcashByteData):
@@ -1418,21 +1417,20 @@ class SproutTx(ZcashByteData):
                     'Expected instance of TxOut. Got {}'
                     .format(type(tx_out).__name__))
 
-        for tx_joinsplit in tx_joinsplits:
-            if not isinstance(tx_joinsplit, SproutJoinSplit):
-                raise ValueError(
-                    'Invalid TxIn. '
-                    'Expected instance of SproutJoinSplit. Got {}'
-                    .format(type(tx_joinsplit).__name__))
-
         if version == utils.i2le_padded(1, 4) and tx_joinsplits is not None:
-            raise ValueError('JoinSplits not allowed in version 1 txns.')
+            raise ValueError('Joinsplits not allowed in version 1 txns.')
 
         if version == utils.i2le_padded(2, 4):
             if len(tx_joinsplits) > 5:
                 raise ValueError('Too many joinsplits. Stop that.')
+            for tx_joinsplit in tx_joinsplits:
+                if not isinstance(tx_joinsplit, SproutJoinsplit):
+                    raise ValueError(
+                        'Invalid Joinsplit. '
+                        'Expected instance of SproutJoinsplit. Got {}'
+                        .format(type(tx_joinsplit).__name__))
             self.validate_bytes(joinsplit_pubkey, 32)
-            self.validate_bytes(joinsplit_sig, 32)
+            self.validate_bytes(joinsplit_sig, 64)
 
         if utils.le2i(version) not in [1, 2]:
             raise ValueError('Version must be 1 or 2. '
@@ -1469,7 +1467,7 @@ class SproutTx(ZcashByteData):
         self._make_immutable()
 
         if len(self) > 100000:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
@@ -1491,6 +1489,7 @@ class SproutTx(ZcashByteData):
         current += len(tx_outs_num)
         for _ in range(tx_outs_num.number):
             tx_out = TxOut.from_bytes(byte_string[current:])
+            print(tx_out)
             current += len(tx_out)
             tx_outs.append(tx_out)
 
@@ -1508,12 +1507,12 @@ class SproutTx(ZcashByteData):
             current += len(tx_joinsplits_num)
 
             for _ in range(tx_joinsplits_num.number):
-                joinsplit = SproutJoinSplit.from_bytes(byte_string[current:])
+                joinsplit = SproutJoinsplit.from_bytes(byte_string[current:])
                 current += len(joinsplit)
                 tx_joinsplits.append(joinsplit)
             joinsplit_pubkey = byte_string[current:current + 32]
             current += 32
-            joinsplit_sig = byte_string[current:current + 32]
+            joinsplit_sig = byte_string[current:current + 64]
 
         return SproutTx(
             version=version,
