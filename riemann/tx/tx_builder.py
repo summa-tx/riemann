@@ -4,19 +4,8 @@ from .. import utils
 from ..script import serialization
 
 
-def make_sh_output_script(script_string, witness=False):
-    '''
-    str -> bytearray
-    '''
-    if witness and not riemann.network.SEGWIT:
-        raise ValueError(
-            'Network {} does not support witness scripts.'
-            .format(riemann.get_current_network_name()))
-
+def make_sh_script_pubkey(script_bytes, witness=False):
     output_script = bytearray()
-
-    script_bytes = serialization.serialize(script_string)
-
     if witness:
         script_hash = utils.sha256(script_bytes)
         output_script.extend(riemann.network.P2WSH_PREFIX)
@@ -28,6 +17,19 @@ def make_sh_output_script(script_string, witness=False):
         output_script.extend(b'\x87')  # OP_EQUAL
 
     return output_script
+
+
+def make_sh_output_script(script_string, witness=False):
+    '''
+    str -> bytearray
+    '''
+    if witness and not riemann.network.SEGWIT:
+        raise ValueError(
+            'Network {} does not support witness scripts.'
+            .format(riemann.get_current_network_name()))
+
+    script_bytes = serialization.serialize(script_string)
+    return make_sh_script_pubkey(script_bytes=script_bytes, witness=witness)
 
 
 def make_pkh_output_script(pubkey, witness=False):

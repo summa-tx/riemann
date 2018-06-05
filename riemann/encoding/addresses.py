@@ -3,7 +3,7 @@ from .. import utils
 from ..script import serialization as script_ser
 
 
-def _make_sh_address(script_hash, witness=False, cashaddr=True):
+def _hash_to_sh_address(script_hash, witness=False, cashaddr=True):
     '''
     bytes, bool, bool -> str
     cashaddrs are preferred where possible
@@ -25,17 +25,25 @@ def _make_sh_address(script_hash, witness=False, cashaddr=True):
         return riemann.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
+def _ser_script_to_sh_address(script_bytes, witness=False, cashaddr=True):
+    if witness:
+        script_hash = utils.sha256(script_bytes)
+    else:
+        script_hash = utils.hash160(script_bytes)
+    return _hash_to_sh_address(
+        script_hash=script_hash,
+        witness=witness,
+        cashaddr=cashaddr)
+
+
 def make_sh_address(script_string, witness=False, cashaddr=True):
     '''
     str, bool, bool -> str
     '''
     script_bytes = script_ser.serialize(script_string)
-    if witness:
-        script_hash = utils.sha256(script_bytes)
-    else:
-        script_hash = utils.hash160(script_bytes)
-    return _make_sh_address(
-        script_hash=script_hash,
+
+    return _ser_script_to_sh_address(
+        script_bytes=script_bytes,
         witness=witness,
         cashaddr=cashaddr)
 
@@ -186,7 +194,7 @@ def from_output_script(output_script, cashaddr=True):
         if (len(output_script) == len(riemann.network.P2WSH_PREFIX) + 32
                 and output_script.find(riemann.network.P2WSH_PREFIX) == 0):
             # Script hash is the last 32 bytes
-            return _make_sh_address(
+            return _hash_to_sh_address(
                 output_script[-32:], witness=True, cashaddr=cashaddr)
     except TypeError:
         pass
@@ -204,7 +212,7 @@ def from_output_script(output_script, cashaddr=True):
             output_script[3:23], witness=False, cashaddr=cashaddr)
 
     elif len(output_script) == 23 and output_script.find(b'\xa9\x14') == 0:
-        return _make_sh_address(
+        return _hash_to_sh_address(
             output_script[2:22], witness=False, cashaddr=cashaddr)
 
     raise ValueError('Cannot parse address from script.')
