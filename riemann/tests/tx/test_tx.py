@@ -715,6 +715,16 @@ class TestTx(unittest.TestCase):
         self.assertEqual(t, t_copy)
         self.assertIsNot(t, t_copy)
 
+    def test_is_witness(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        self.assertFalse(t.is_witness())
+
+        t = tx.Tx.from_bytes(helpers.P2WSH['ser']['tx']['signed'])
+
+        self.assertTrue(t.is_witness())
+
     def test_sighash_all(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
