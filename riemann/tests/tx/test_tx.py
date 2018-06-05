@@ -144,7 +144,7 @@ class TestVarInt(unittest.TestCase):
             str(context.exception))
 
     def test_zcash_compact_enforcement(self):
-        riemann.select_network('zcash_main')
+        riemann.select_network('zcash_sprout_main')
 
         with self.assertRaises(ValueError) as context:
             tx.VarInt.from_bytes(b'\xfd\x00\x00')
@@ -1445,7 +1445,7 @@ class SproutTestCase(unittest.TestCase):
         super().__init__(*args, **kwargs)
 
     def setUp(self):
-        riemann.select_network('zcash_main')
+        riemann.select_network('zcash_sprout_main')
 
     def tearDown(self):
         riemann.select_network('bitcoin_main')

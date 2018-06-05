@@ -21,7 +21,7 @@ class TestSimple(unittest.TestCase):
             simple.guess_version('OP_CHECKSEQUENCEVERIFY'),
             2)
 
-        riemann.select_network('zcash_main')
+        riemann.select_network('zcash_sprout_main')
         self.assertEqual(
             simple.guess_version('OP_IF'),
             1)

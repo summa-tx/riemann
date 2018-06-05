@@ -1399,6 +1399,11 @@ class SproutTx(ZcashByteData):
 
         super().__init__()
 
+        if 'sprout' not in riemann.get_current_network_name():
+            raise ValueError(
+                'SproutTx not supported by network {}.'
+                .format(riemann.get_current_network_name()))
+
         self.validate_bytes(version, 4)
         self.validate_bytes(lock_time, 4)
 
@@ -1700,3 +1705,7 @@ class SproutTx(ZcashByteData):
         sighash += copy_tx.to_bytes()
         sighash += utils.i2le_padded(sighash_type, 4)
         return utils.hash256(sighash.to_bytes())
+
+
+class OverwinterTx(ZcashByteData):
+    pass
