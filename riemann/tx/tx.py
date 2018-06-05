@@ -1417,10 +1417,13 @@ class SproutTx(ZcashByteData):
                     'Expected instance of TxOut. Got {}'
                     .format(type(tx_out).__name__))
 
-        if version == utils.i2le_padded(1, 4) and tx_joinsplits is not None:
-            raise ValueError('Joinsplits not allowed in version 1 txns.')
+        if utils.le2i(version) == 1:
+            if tx_joinsplits is not None and len(tx_joinsplits) != 0:
+                raise ValueError('Joinsplits not allowed in version 1 txns.')
+            if tx_ins is None or len(tx_ins) == 0:
+                raise ValueError('Version 1 txns must have at least 1 input.')
 
-        if version == utils.i2le_padded(2, 4):
+        if utils.le2i(version) == 2:
             if len(tx_joinsplits) > 5:
                 raise ValueError('Too many joinsplits. Stop that.')
             for tx_joinsplit in tx_joinsplits:
@@ -1489,7 +1492,6 @@ class SproutTx(ZcashByteData):
         current += len(tx_outs_num)
         for _ in range(tx_outs_num.number):
             tx_out = TxOut.from_bytes(byte_string[current:])
-            print(tx_out)
             current += len(tx_out)
             tx_outs.append(tx_out)
 
@@ -1544,3 +1546,139 @@ class SproutTx(ZcashByteData):
                               else self.joinsplit_pubkey),
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
+
+    def script_code(self, index):
+        if len(self.tx_ins) > 0 and len(self.tx_ins[index].redeem_script) > 0:
+            script = ByteData()
+            # redeemScript in case of P2SH
+            script += self.tx_ins[index].redeem_script
+            return script.to_bytes()
+        return None
+
+    def _sighash_prep(self, index, script):
+        '''
+        Tx, int, byte-like -> Tx
+        Sighashes suck
+        Performs the sighash setup described here:
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#How_it_works
+        https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
+        We save on complexity by refusing to support OP_CODESEPARATOR
+        '''
+        sub_script = self.script_code(index=index)
+        if sub_script is None:
+            sub_script = script
+
+        if len(self.tx_ins) == 0:
+            return self.copy()
+        # 0 out scripts in tx_ins
+        copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
+                       for tx_in in self.tx_ins]
+
+        # NB: The script for the current transaction input in txCopy is set to
+        #     subScript (lead in by its length as a var-integer encoded!)
+        copy_tx_ins[index] = \
+            copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
+
+        return self.copy(tx_ins=copy_tx_ins)
+
+    def sighash_all(self, index=0, script=None,
+                    prevout_value=None, anyone_can_pay=False):
+        '''
+        Tx, int, byte-like, byte-like, bool -> bytearray
+        Sighashes suck
+        Generates the hash to be signed with SIGHASH_ALL
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
+        '''
+
+        if riemann.network.FORKID is not None:
+            return self._sighash_forkid(index=index,
+                                        script=script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_ALL,
+                                        anyone_can_pay=anyone_can_pay)
+
+        copy_tx = self._sighash_prep(index=index, script=script)
+        if anyone_can_pay:
+            return self._sighash_anyone_can_pay(
+                index=index, copy_tx=copy_tx, sighash_type=SIGHASH_ALL)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
+
+    def sighash_single(self, index=0, script=None,
+                       prevout_value=None, anyone_can_pay=False):
+        '''
+        Tx, int, byte-like, byte-like, bool -> bytearray
+        Sighashes suck
+        Generates the hash to be signed with SIGHASH_SINGLE
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
+        https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
+        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
+        '''
+
+        if self.tx_joinsplits is not None:
+            raise ValueError('Sighash single not permitted with joinsplits.')
+
+        if index >= len(self.tx_outs):
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
+
+        if riemann.network.FORKID is not None:
+            return self._sighash_forkid(index=index,
+                                        script=script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_SINGLE,
+                                        anyone_can_pay=anyone_can_pay)
+
+        copy_tx = self._sighash_prep(index=index, script=script)
+
+        # Remove outputs after the one we're signing
+        # Other tx_outs are set to -1 value and null scripts
+        copy_tx_outs = copy_tx.tx_outs[:index + 1]
+        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                        for _ in copy_tx.tx_ins]  # Null them all
+        copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
+
+        # Other tx_ins sequence numbers are set to 0
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]  # Set all to 0
+        copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
+
+        copy_tx = copy_tx.copy(
+            tx_ins=copy_tx_ins,
+            tx_outs=copy_tx_outs)
+
+        if anyone_can_pay:  # Forward onwards
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+
+    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
+        '''
+        int, byte-like, Tx, int -> bytes
+        Applies SIGHASH_ANYONECANPAY procedure.
+        Should be called by another SIGHASH procedure.
+        Not on its own.
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
+        '''
+
+        if self.tx_joinsplits is not None:
+            raise ValueError(
+                'Sighash anyonecanpay not permitted with joinsplits.')
+
+        # The txCopy input vector is resized to a length of one.
+        copy_tx_ins = [copy_tx.tx_ins[index]]
+        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
+
+        return self._sighash_final_hashing(
+            copy_tx, sighash_type | SIGHASH_ANYONECANPAY)
+
+    def _sighash_final_hashing(self, copy_tx, sighash_type):
+        '''
+        Tx, int -> bytes
+        Returns the hash that should be signed
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
+        '''
+        sighash = ByteData()
+        sighash += copy_tx.to_bytes()
+        sighash += utils.i2le_padded(sighash_type, 4)
+        return utils.hash256(sighash.to_bytes())

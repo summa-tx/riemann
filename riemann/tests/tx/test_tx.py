@@ -1591,6 +1591,18 @@ class TestSproutTx(SproutTestCase):
         self.attr_assert(
             'version', b'\x04\x00\x00\x00', 'Version must be 1 or 2. ')
 
+    def test_no_inputs(self):
+        temp_dict = self.tx.copy()
+        temp_dict['version'] = b'\x01\x00\x00\x00'
+        temp_dict['tx_joinsplits'] = []
+
+        with self.assertRaises(ValueError) as context:
+            tx.SproutTx(**temp_dict)
+
+        self.assertIn(
+            'Version 1 txns must have at least 1 input',
+            str(context.exception))
+
     def test_from_bytes(self):
         self.assertEqual(
             tx.SproutTx.from_bytes(self.tx_ser),
@@ -1622,3 +1634,7 @@ class TestSproutTx(SproutTestCase):
 
         self.assertEqual(t, t_copy)
         self.assertIsNot(t, t_copy)
+
+    def test_print_sighash(self):
+        t = tx.SproutTx(**self.tx)
+        print(t.sighash_all())
