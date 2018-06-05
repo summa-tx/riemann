@@ -1536,6 +1536,10 @@ class TestSproutJoinsplit(SproutTestCase):
             tx.SproutJoinsplit.from_bytes(self.joinsplit_ser),
             tx.SproutJoinsplit(**self.joinsplit))
 
+    def test_vpub_zero(self):
+        self.attr_assert(
+            'vpub_old', b'\xff' * 8, 'vpub_old or vpub_new must be zero')
+
 
 class TestSproutTx(SproutTestCase):
 
@@ -1638,3 +1642,9 @@ class TestSproutTx(SproutTestCase):
     def test_print_sighash(self):
         t = tx.SproutTx(**self.tx)
         print(t.sighash_all())
+
+    def test_calculate_fee(self):
+        t = tx.SproutTx(**self.tx)
+        self.assertEqual(
+            t.calculate_fee([]),
+            10000)

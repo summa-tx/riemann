@@ -1340,6 +1340,8 @@ class SproutJoinsplit(ZcashByteData):
                 'Invalid zkproof. '
                 'Expected instance of SproutZkproof. Got {}'
                 .format(type(zkproof).__name__))
+        if (utils.le2i(vpub_old) != 0 and utils.le2i(vpub_new) != 0):
+            raise ValueError('vpub_old or vpub_new must be zero')
 
         self.validate_bytes(vpub_old, 8)
         self.validate_bytes(vpub_new, 8)
@@ -1476,6 +1478,9 @@ class SproutTx(ZcashByteData):
 
     @classmethod
     def from_bytes(SproutTx, byte_string):
+        '''
+        byte-like -> SproutTx
+        '''
         version = byte_string[0:4]
         tx_ins = []
         tx_ins_num = VarInt.from_bytes(byte_string[4:])
@@ -1525,12 +1530,22 @@ class SproutTx(ZcashByteData):
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
 
+    def calculate_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        '''
+        total_in = sum(input_values)
+        total_out = sum([utils.le2i(tx_out.value) for tx_out in self.tx_outs])
+        for js in self.tx_joinsplits:
+            total_in += utils.le2i(js.vpub_new)
+            total_out += utils.le2i(js.vpub_old)
+        return total_in - total_out
+
     def copy(self, version=None, flag=None, tx_ins=None,
              tx_outs=None, tx_witnesses=None, lock_time=None,
              tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
         '''
-        Tx, byte-like, byte-like, list(TxIn),
-        list(TxOut), list(InputWitness), byte-like -> Tx
+        SproutTx, ... -> Tx
 
         Makes a copy. Allows over-writing specific pieces.
         '''
@@ -1548,6 +1563,9 @@ class SproutTx(ZcashByteData):
                            else self.joinsplit_sig))
 
     def script_code(self, index):
+        '''
+        SproutTx, int -> bytes
+        '''
         if len(self.tx_ins) > 0 and len(self.tx_ins[index].redeem_script) > 0:
             script = ByteData()
             # redeemScript in case of P2SH
@@ -1557,7 +1575,7 @@ class SproutTx(ZcashByteData):
 
     def _sighash_prep(self, index, script):
         '''
-        Tx, int, byte-like -> Tx
+        SproutTx, int, byte-like -> SproutTx
         Sighashes suck
         Performs the sighash setup described here:
         https://en.bitcoin.it/wiki/OP_CHECKSIG#How_it_works
@@ -1584,7 +1602,7 @@ class SproutTx(ZcashByteData):
     def sighash_all(self, index=0, script=None,
                     prevout_value=None, anyone_can_pay=False):
         '''
-        Tx, int, byte-like, byte-like, bool -> bytearray
+        SproutTx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_ALL
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
@@ -1607,7 +1625,7 @@ class SproutTx(ZcashByteData):
     def sighash_single(self, index=0, script=None,
                        prevout_value=None, anyone_can_pay=False):
         '''
-        Tx, int, byte-like, byte-like, bool -> bytearray
+        SproutTx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_SINGLE
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
@@ -1654,7 +1672,7 @@ class SproutTx(ZcashByteData):
 
     def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
         '''
-        int, byte-like, Tx, int -> bytes
+        int, SproutTx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
         Should be called by another SIGHASH procedure.
         Not on its own.
@@ -1674,7 +1692,7 @@ class SproutTx(ZcashByteData):
 
     def _sighash_final_hashing(self, copy_tx, sighash_type):
         '''
-        Tx, int -> bytes
+        SproutTx, int -> bytes
         Returns the hash that should be signed
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
