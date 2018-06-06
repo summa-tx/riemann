@@ -1511,14 +1511,12 @@ class SproutTx(ZcashByteData):
             tx_outs.append(tx_out)
 
         lock_time = byte_string[current:current + 4]
+        current += 4
 
         tx_joinsplits = None
         joinsplit_pubkey = None
         joinsplit_sig = None
-        if utils.le2i(version) == 2:
-
-            current += 4
-
+        if utils.le2i(version) == 2:  # If we expect joinsplits
             tx_joinsplits = []
             tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
             current += len(tx_joinsplits_num)
@@ -1837,6 +1835,67 @@ class OverwinterTx(ZcashByteData):
                               else self.joinsplit_pubkey),
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
+
+    @classmethod
+    def from_bytes(OverwinterTx, byte_string):
+        '''
+        byte-like -> OverwinterTx
+        '''
+        header = byte_string[0:4]
+        group_id = byte_string[4:8]
+
+        if header != b'\x03\x00\x00\x80' or group_id != b'\x03\xC4\x82\x70':
+            raise ValueError(
+                'Bad header or group ID. Expected {} and {}. Got: {} and {}'
+                .format(b'\x03\x00\x00\x80'.hex(),
+                        b'\x03\xC4\x82\x70'.hex(),
+                        header.hex(),
+                        group_id.hex()))
+
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[8:])
+
+        current = 8 + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        lock_time = byte_string[current:current + 4]
+        current += 4
+        expiry_height = byte_string[current:current + 4]
+        current += 4
+
+        tx_joinsplits = []
+        tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_joinsplits_num.number):
+            tx_joinsplit = SproutJoinsplit.from_bytes(byte_string[current:])
+            current += len(tx_joinsplit)
+            tx_joinsplits.append(tx_joinsplit)
+
+        joinsplit_pubkey = byte_string[current:current + 32]
+        current += 32
+        joinsplit_sig = byte_string[current:current + 64]
+
+        return OverwinterTx(
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=lock_time,
+            expiry_height=expiry_height,
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
 
     def sighash_all(self, anyone_can_pay=False, **kwargs):
         return self.sighash(sighash_type=SIGHASH_ALL, **kwargs)
