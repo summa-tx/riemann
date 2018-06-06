@@ -1607,7 +1607,7 @@ class TestSproutTx(SproutTestCase):
         self.attr_assert('tx_joinsplits', [b''] * 6, 'Too many joinsplits.')
         self.attr_assert('tx_joinsplits', [b''], 'Invalid Joinsplit. ')
         self.attr_assert('joinsplit_pubkey', b'', 'Expected byte-like object')
-        self.attr_assert('joinsplit_sig', b'', 'Expected byte-like object')
+        self.attr_assert('joinsplit_sig', b'\x00', 'Expected byte-like object')
         self.attr_assert(
             'version', b'\x04\x00\x00\x00', 'Version must be 1 or 2. ')
 

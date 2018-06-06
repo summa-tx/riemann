@@ -1440,7 +1440,8 @@ class SproutTx(ZcashByteData):
                         'Expected instance of SproutJoinsplit. Got {}'
                         .format(type(tx_joinsplit).__name__))
             self.validate_bytes(joinsplit_pubkey, 32)
-            self.validate_bytes(joinsplit_sig, 64)
+            if joinsplit_sig is not None and joinsplit_sig != b'':
+                self.validate_bytes(joinsplit_sig, 64)
 
         if utils.le2i(version) not in [1, 2]:
             raise ValueError('Version must be 1 or 2. '
@@ -1467,12 +1468,16 @@ class SproutTx(ZcashByteData):
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
         self.tx_outs_len = len(tx_outs)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
+        self.tx_joinsplits_len = len(tx_joinsplits)
+        self.tx_joinsplits = tuple(js for js in tx_joinsplits)
         self.lock_time = lock_time
 
         if version == utils.i2le_padded(2, 4):
-            self.tx_joinsplits = tuple(js for js in tx_joinsplits)
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
+        else:
+            self.joinsplit_pubkey = None
+            self.joinsplit_sig = None
 
         self._make_immutable()
 
@@ -1546,8 +1551,7 @@ class SproutTx(ZcashByteData):
             total_out += utils.le2i(js.vpub_old)
         return total_in - total_out
 
-    def copy(self, version=None, flag=None, tx_ins=None,
-             tx_outs=None, tx_witnesses=None, lock_time=None,
+    def copy(self, version=None, tx_ins=None, tx_outs=None, lock_time=None,
              tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
         '''
         SproutTx, ... -> Tx
@@ -1592,7 +1596,7 @@ class SproutTx(ZcashByteData):
             sub_script = script
 
         if len(self.tx_ins) == 0:
-            return self.copy()
+            return self.copy(joinsplit_sig=b'')
         # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
                        for tx_in in self.tx_ins]
@@ -1602,7 +1606,7 @@ class SproutTx(ZcashByteData):
         copy_tx_ins[index] = \
             copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
 
-        return self.copy(tx_ins=copy_tx_ins)
+        return self.copy(tx_ins=copy_tx_ins, joinsplit_sig=b'')
 
     def sighash_all(self, index=0, script=None,
                     prevout_value=None, anyone_can_pay=False):
@@ -1708,4 +1712,140 @@ class SproutTx(ZcashByteData):
 
 
 class OverwinterTx(ZcashByteData):
-    pass
+
+    def __init__(self, tx_ins, tx_outs, lock_time, expiry_height,
+                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+        super().__init__()
+
+        if 'overwinter' not in riemann.get_current_network_name():
+            raise ValueError(
+                'OverwinterTx not supported by network {}.'
+                .format(riemann.get_current_network_name()))
+
+        self.validate_bytes(lock_time, 4)
+        self.validate_bytes(expiry_height, 4)
+
+        if utils.le2i(expiry_height) > 499999999:
+            raise ValueError('Expiry time too high.'
+                             'Expected <= 499999999. Got {}'
+                             .format(utils.le2i(expiry_height)))
+
+        if max(len(tx_ins), len(tx_outs)) > 255:
+            raise ValueError('Too many inputs or outputs. Stop that.')
+
+        for tx_in in tx_ins:
+            if not isinstance(tx_in, TxIn):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_in).__name__))
+
+        for tx_out in tx_outs:
+            if not isinstance(tx_out, TxOut):
+                raise ValueError(
+                    'Invalid TxOut. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_out).__name__))
+
+        if len(tx_joinsplits) > 5:
+            raise ValueError('Too many joinsplits. Stop that.')
+
+        for tx_joinsplit in tx_joinsplits:
+            if not isinstance(tx_joinsplit, SproutJoinsplit):
+                raise ValueError(
+                    'Invalid Joinsplit. '
+                    'Expected instance of SproutJoinsplit. Got {}'
+                    .format(type(tx_joinsplit).__name__))
+        if len(tx_joinsplits) != 0:
+            self.validate_bytes(joinsplit_pubkey, 32)
+            self.validate_bytes(joinsplit_sig, 64)
+
+        if len(tx_joinsplits) == 0 and len(tx_ins) == 0:
+            raise ValueError('Transaction must have tx_ins or joinsplits.')
+
+        self += b'\x03\x00\x00\x80'  # Version 3 + fOverwintered
+        self += b'\x03\xC4\x82\x70'  # Overwinter Group ID
+        self += VarInt(len(tx_ins))
+        for tx_in in tx_ins:
+            self += tx_in
+        self += VarInt(len(tx_outs))
+        for tx_out in tx_outs:
+            self += tx_out
+        self += lock_time
+        self += expiry_height
+
+        if len(tx_joinsplits) != 0:
+            self += VarInt(len(tx_joinsplits))
+            for tx_joinsplit in tx_joinsplits:
+                self += tx_joinsplit
+            self += joinsplit_pubkey
+            self += joinsplit_sig
+
+        self.version = b'\x03\x00'
+        self.tx_ins_len = len(tx_ins)
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
+        self.tx_outs_len = len(tx_outs)
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
+        self.tx_joinsplits_len = len(tx_joinsplits)
+        self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+        self.lock_time = lock_time
+        self.expiry_height = expiry_height
+
+        if len(tx_joinsplits) != 0:
+            self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+            self.joinsplit_pubkey = joinsplit_pubkey
+            self.joinsplit_sig = joinsplit_sig
+
+        self._make_immutable()
+
+        if len(self) > 100000:
+            raise ValueError(  # pragma: no cover
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def calculate_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        '''
+        total_in = sum(input_values)
+        total_out = sum([utils.le2i(tx_out.value) for tx_out in self.tx_outs])
+        for js in self.tx_joinsplits:
+            total_in += utils.le2i(js.vpub_new)
+            total_out += utils.le2i(js.vpub_old)
+        return total_in - total_out
+
+    def copy(self, tx_ins=None, tx_outs=None, lock_time=None,
+             expiry_height=None, tx_joinsplits=None, joinsplit_pubkey=None,
+             joinsplit_sig=None):
+        '''
+        OverwinterTx, ... -> OverwinterTx
+
+        Makes a copy. Allows over-writing specific pieces.
+        '''
+        return OverwinterTx(
+            tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
+            tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
+            lock_time=(lock_time if lock_time is not None
+                       else self.lock_time),
+            expiry_height=(expiry_height if expiry_height is not None
+                           else self.expiry_height),
+            tx_joinsplits=(tx_joinsplits if tx_joinsplits is not None
+                           else self.tx_joinsplits),
+            joinsplit_pubkey=(joinsplit_pubkey if joinsplit_pubkey is not None
+                              else self.joinsplit_pubkey),
+            joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
+                           else self.joinsplit_sig))
+
+
+
+
+
+
+
+
+
+
+
+
+
+1
