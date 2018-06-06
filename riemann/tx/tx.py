@@ -1,6 +1,5 @@
 import math
 import riemann
-import hashlib
 from riemann.script import serialization
 from riemann import utils
 
@@ -1939,7 +1938,7 @@ class OverwinterTx(ZcashByteData):
         for tx_in in self.tx_ins:
             data += tx_in.outpoint
 
-        return hashlib.blake2b(
+        return utils.blake2b(
             data=data,
             digest_size=32,
             person=b'ZcashSequencHash').digest()
@@ -1952,7 +1951,7 @@ class OverwinterTx(ZcashByteData):
         for tx_in in self.tx_ins:
             data += tx_in.sequence
 
-        return hashlib.blake2b(
+        return utils.blake2b(
             data=data,
             digest_size=32,
             person=b'ZcashPrevoutHash').digest()
@@ -1973,7 +1972,7 @@ class OverwinterTx(ZcashByteData):
                     'I refuse to implement the SIGHASH_SINGLE bug.')
             data += self.tx_out[index]
 
-        return hashlib.blake2b(
+        return utils.blake2b(
             data=data,
             digest_size=32,
             person=b'ZcashOutputsHash').digest()
@@ -1989,7 +1988,7 @@ class OverwinterTx(ZcashByteData):
 
         data += self.joinsplit_pubkey
 
-        return hashlib.blake2b(
+        return utils.blake2b(
             data=data,
             digest_size=32,
             person=b'ZcashJSplitsHash').digest()

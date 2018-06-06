@@ -134,3 +134,38 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(utils.hash256(b'\x00'),
                          utils.blake256(utils.blake256(b'\x00')))
+
+    def test_blake2b(self):
+        '''
+        https://github.com/BLAKE2/BLAKE2/blob/master/testvectors/blake2b-kat.txt
+        '''
+        self.assertEqual(
+            utils.blake2b(b'',
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f')),  # noqa: E501
+            bytes.fromhex('10ebb67700b1868efb4417987acf4690ae9d972fb7a590c2f02871799aaa4786b5e996e8f0f4eb981fc214b005f42d2ff4233499391653df7aefcbc13fc51568'))  # noqa: E501
+
+        self.assertEqual(
+            utils.blake2b(b'\x00',
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f')),  # noqa: E501
+            bytes.fromhex('961f6dd1e4dd30f63901690c512e78e4b45e4742ed197c3c5e45c549fd25f2e4187b0bc9fe30492b16b0d0bc4ef9b0f34c7003fac09a5ef1532e69430234cebd'))  # noqa: E501
+
+        self.assertEqual(
+            utils.blake2b(bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061'),  # noqa: E501
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f')),  # noqa: E501
+            bytes.fromhex('bb2039ec287091bcc9642fc90049e73732e02e577e2862b32216ae9bedcd730c4c284ef3968c368b7d37584f97bd4b4dc6ef6127acfe2e6ae2509124e66c8af4'))  # noqa: E501
+
+    def test_blake2s(self):
+        self.assertEqual(
+            utils.blake2s(b'',
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f')),  # noqa: E501
+            bytes.fromhex('48a8997da407876b3d79c0d92325ad3b89cbb754d86ab71aee047ad345fd2c49'))  # noqa: E501
+
+        self.assertEqual(
+            utils.blake2s(b'\x00',
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f')),  # noqa: E501
+            bytes.fromhex('40d15fee7c328830166ac3f918650f807e7e01e177258cdc0a39b11f598066f1'))  # noqa: E501
+
+        self.assertEqual(
+            utils.blake2s(bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f'),  # noqa: E501
+                          key=bytes.fromhex('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f')),  # noqa: E501
+            bytes.fromhex('8975b0577fd35566d750b362b0897a26c399136df07bababbde6203ff2954ed4'))  # noqa: E501

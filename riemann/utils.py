@@ -1,6 +1,7 @@
 import hashlib
 import riemann
 from . import blake256 as b256
+from . import blake2 as blake2
 
 
 def i2le(number):
@@ -120,3 +121,18 @@ def blake256(msg_bytes):
     byte-like -> bytes
     '''
     return b256.blake_hash(msg_bytes)
+
+
+def blake2b(data=b'', **kwargs):
+    '''
+    byte-like -> bytes
+    '''
+    b2 = blake2.BLAKE2b(**kwargs)
+    b2.update(data)
+    return b2.digest()
+
+
+def blake2s(data=b'', **kwargs):
+    b2 = blake2.BLAKE2s(**kwargs)
+    b2.update(data)
+    return b2.digest()
