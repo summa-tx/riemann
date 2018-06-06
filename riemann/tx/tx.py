@@ -1,8 +1,8 @@
-import riemann
-from ..script import serialization
 import math
-from .. import utils
-
+import riemann
+import hashlib
+from riemann.script import serialization
+from riemann import utils
 
 SIGHASH_ALL = 0x01
 SIGHASH_NONE = 0x02
@@ -1781,6 +1781,8 @@ class OverwinterTx(ZcashByteData):
             self += joinsplit_pubkey
             self += joinsplit_sig
 
+        self.header = b'\x03\x00\x00\x80'
+        self.group_id = b'\x03\xC4\x82\x70'
         self.version = b'\x03\x00'
         self.tx_ins_len = len(tx_ins)
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
@@ -1836,16 +1838,99 @@ class OverwinterTx(ZcashByteData):
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
 
+    def sighash_all(self, anyone_can_pay=False, **kwargs):
+        return self.sighash(sighash_type=SIGHASH_ALL, **kwargs)
 
+    def sighash_single(self, anyone_can_pay=False, **kwargs):
 
+        return self.sighash(sighash_type=SIGHASH_SINGLE, **kwargs)
 
+    def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
+                anyone_can_pay=False, prevout_value=None):
+        '''
+        https://github.com/zcash/zips/blob/master/zip-0143.rst
+        '''
+        data = ByteData()
 
+        data += self.header
+        data += self.group_id
 
+        data += self._hash_prevouts(anyone_can_pay)
+        data += self._hash_sequence(anyone_can_pay)
+        data += self._hash_outputs(sighash_type, index)
+        data += self._hash_joinsplits()
 
+        data += self.lock_time
+        data += self.expiry_height
+        if anyone_can_pay:
+            sighash_type = sighash_type | SIGHASH_ANYONECANPAY
+        data += utils.i2le_padded(sighash_type, 4)
 
+        if not joinsplit:
+            data += self.tx_ins[index].outpoint
+            data += script_code
+            data += prevout_value
+            data += self.tx_ins[index].sequence
 
+    def _hash_prevouts(self, anyone_can_pay):
+        if anyone_can_pay:
+            return b'\x00' * 32
 
+        data = ByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.outpoint
 
+        return hashlib.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashSequencHash').digest()
 
+    def _hash_sequence(self, anyone_can_pay):
+        if anyone_can_pay:
+            return b'\x00' * 32
 
-1
+        data = ByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.sequence
+
+        return hashlib.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashPrevoutHash').digest()
+
+    def _hash_outputs(self, sighash_type, index):
+        if sighash_type not in [SIGHASH_ALL, SIGHASH_NONE]:
+            return b'\x00' * 32
+
+        data = ByteData()
+
+        if sighash_type == SIGHASH_ALL:
+            for tx_out in self.tx_outs:
+                data += tx_out
+
+        if sighash_type == SIGHASH_SINGLE:
+            if index > len(self.tx_outs):
+                raise NotImplementedError(
+                    'I refuse to implement the SIGHASH_SINGLE bug.')
+            data += self.tx_out[index]
+
+        return hashlib.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashOutputsHash').digest()
+
+    def _hash_joinsplits(self):
+        if len(self.tx_joinsplits) == 0:
+            return b'\x00' * 32
+
+        data = ByteData()
+
+        for joinsplit in self.tx_joinsplits:
+            data += joinsplit
+
+        data += self.joinsplit_pubkey
+
+        return hashlib.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashJSplitsHash').digest()
