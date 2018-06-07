@@ -646,8 +646,8 @@ class Tx(ByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = self.script_code(index=index)
-        if sub_script is None:
+        sub_script = self._get_script_code(index=index)
+        if sub_script == b'':
             sub_script = script
         # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
@@ -780,18 +780,18 @@ class Tx(ByteData):
                 sequences += tx_in.sequence
             return utils.hash256(sequences.to_bytes())
 
-    def script_code(self, index):
+    def _get_script_code(self, index):
         if len(self.tx_ins[index].redeem_script) != 0:
             script = ByteData()
             # redeemScript in case of P2SH
             script += self.tx_ins[index].redeem_script
             return script.to_bytes()
-        return None
+        return b''
 
     def _adjusted_script_code(self, index, script):
         script_code = ByteData()
-        tx_in_redeem_script = self.script_code(index=index)
-        if tx_in_redeem_script is None:
+        tx_in_redeem_script = self._get_script_code(index=index)
+        if tx_in_redeem_script == b'':
             script_code += VarInt(len(script))
             script_code += script
             return script_code
@@ -1177,20 +1177,20 @@ class DecredTx(DecredByteData):
             tx_witnesses=(tx_witnesses if tx_witnesses is not None
                           else self.tx_witnesses))
 
-    def script_code(self, index):
+    def _get_script_code(self, index):
         if len(self.tx_witnesses[index].redeem_script) != 0:
             script = ByteData()
             # redeemScript in case of P2SH
             script += self.tx_witnesses[index].redeem_script
             return script.to_bytes()
-        return None
+        return b''
 
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
     def _sighash_prep(self, index, script=None):
-        sub_script = self.script_code(index)
-        if sub_script is None:
+        sub_script = self._get_script_code(index)
+        if sub_script == b'':
             sub_script = script
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
@@ -1568,7 +1568,7 @@ class SproutTx(ZcashByteData):
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
 
-    def script_code(self, index):
+    def _get_script_code(self, index):
         '''
         SproutTx, int -> bytes
         '''
@@ -1577,7 +1577,7 @@ class SproutTx(ZcashByteData):
             # redeemScript in case of P2SH
             script += self.tx_ins[index].redeem_script
             return script.to_bytes()
-        return None
+        return b''
 
     def _sighash_prep(self, index, script):
         '''
@@ -1588,8 +1588,8 @@ class SproutTx(ZcashByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = self.script_code(index=index)
-        if sub_script is None:
+        sub_script = self._get_script_code(index=index)
+        if sub_script == b'':
             sub_script = script
 
         if len(self.tx_ins) == 0:
