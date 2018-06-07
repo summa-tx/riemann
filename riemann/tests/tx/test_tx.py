@@ -5,9 +5,6 @@ from ...tx import tx
 from ... import utils
 
 
-# On chain legacy tx p2sh -> p2pkh tx
-# https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
-
 class TestByteData(unittest.TestCase):
 
     def setUp(self):
@@ -1664,3 +1661,86 @@ class TestSproutTx(SproutTestCase):
         self.assertEqual(
             t.calculate_fee([]),
             10000)
+
+
+class OverwinterTestCase(unittest.TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def setUp(self):
+        riemann.select_network('zcash_overwinter_main')
+
+    def tearDown(self):
+        riemann.select_network('bitcoin_main')
+
+
+class TestOverwinterTx(OverwinterTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.joinsplit_ser = helpers.ZCASH_SPROUT['ser']['joinsplit_0']
+        self.zkproof = tx.SproutZkproof.from_bytes(
+            helpers.ZCASH_SPROUT['ser']['joinsplits'][0]['proof'])
+        self.joinsplit = helpers.ZCASH_SPROUT['ser']['joinsplits'][0].copy()
+        self.joinsplit['zkproof'] = self.zkproof
+        self.joinsplit.pop('proof')  # remove this entry from the dict
+        self.joinsplit = tx.SproutJoinsplit(**self.joinsplit)
+
+        self.tx_ser = helpers.ZCASH_SPROUT['ser']['tx']
+
+        self.tx = {}
+
+        self.tx['tx_ins'] = []
+        self.tx_out = tx.TxOut.from_bytes(
+            helpers.ZCASH_SPROUT['ser']['tx_out_0'])
+        self.tx['tx_outs'] = [self.tx_out]
+        self.tx['lock_time'] = helpers.ZCASH_SPROUT['ser']['lock_time']
+        self.tx['expiry_height'] = helpers.ZCASH_SPROUT['ser']['lock_time']
+        self.tx['tx_joinsplits'] = [self.joinsplit]
+        self.tx['joinsplit_pubkey'] = \
+            helpers.ZCASH_SPROUT['ser']['joinsplit_pubkey']
+        self.tx['joinsplit_sig'] = helpers.ZCASH_SPROUT['ser']['joinsplit_sig']
+
+    def attr_assert(self, attr_name, replacement, err_text):
+        # Removes a named key from a dictionary and replaces it with b'\x00'
+        temp_dict = dict((a, self.tx[a])
+                         for a in self.tx
+                         if a != attr_name)
+        temp_dict[attr_name] = replacement
+        with self.assertRaises(ValueError) as context:
+            tx.OverwinterTx(**temp_dict)
+
+        self.assertIn(err_text, str(context.exception))
+
+    def test_init_errors(self):
+        self.attr_assert('lock_time', b'', 'Expected byte-like object')
+        self.attr_assert('expiry_height', b'', 'Expected byte-like object')
+        self.attr_assert('expiry_height', b'\xff' * 4, 'Expiry time too high')
+        self.attr_assert('tx_ins', [b''] * 256, 'Too many inputs or outputs.')
+        self.attr_assert('tx_ins', [b''], 'Invalid TxIn. ')
+        self.attr_assert('tx_outs', [b''] * 256, 'Too many inputs or outputs.')
+        self.attr_assert('tx_outs', [b''], 'Invalid TxOut. ')
+        self.attr_assert('tx_joinsplits', [b''] * 6, 'Too many joinsplits.')
+        self.attr_assert('tx_joinsplits', [b''], 'Invalid Joinsplit. ')
+        self.attr_assert('tx_joinsplits', [], 'Transaction must have ')
+        self.attr_assert('joinsplit_pubkey', b'', 'Expected byte-like object')
+        self.attr_assert('joinsplit_sig', b'\x00', 'Expected byte-like object')
+
+    def test_calculate_fee(self):
+        t = tx.OverwinterTx(**self.tx)
+        self.assertEqual(
+            t.calculate_fee([]),
+            10000)
+
+
+
+
+
+
+
+
+
+
+
+'1'
