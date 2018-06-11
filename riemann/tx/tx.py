@@ -1374,39 +1374,7 @@ class SproutJoinsplit(ZcashByteData):
         self.zkproof = zkproof
         self.encoded_notes = encoded_notes
 
-        # Zcash spec 5.4.1.4 Hsig hash function
-        self.hsig = utils.blake2b(
-            data=self._hsig_input(),
-            digest_size=32,
-            person=b'ZcashComputehSig')
-
-        self.primary_input = self._primary_input()
-
         self._make_immutable()
-
-    def _hsig_input(self):
-        '''
-        inputs for the hsig hash
-        '''
-        hsig_input = ZcashByteData()
-        hsig_input += self.random_seed
-        hsig_input += self.nullifiers
-        hsig_input += self.joinsplit_pubkey
-        return hsig_input.to_bytes()
-
-    def _primary_input(self):
-        '''
-        Primary input for the zkproof
-        '''
-        primary_input = ZcashByteData()
-        primary_input += self.anchor
-        primary_input += self.nullifiers
-        primary_input += self.commitments
-        primary_input += self.vpub_old
-        primary_input += self.vpub_new
-        primary_input += self.hsig
-        primary_input = self.vmacs
-        return primary_input.to_bytes()
 
     @classmethod
     def from_bytes(SproutJoinsplit, byte_string):
@@ -1510,12 +1478,46 @@ class SproutTx(ZcashByteData):
             self.joinsplit_pubkey = None
             self.joinsplit_sig = None
 
+        # Zcash spec 5.4.1.4 Hsig hash function
+        self.hsigs = [utils.blake2b(
+                      data=self._hsig_input(i),
+                      digest_size=32,
+                      person=b'ZcashComputehSig')
+                      for i in range(self.tx_joinsplits_len)]
+
+        self.primary_inputs = [self._primary_input(i)
+                               for i in range(self.tx_joinsplits_len)]
+
         self._make_immutable()
 
         if len(self) > 100000:
             raise ValueError(  # pragma: no cover
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def _hsig_input(self, index):
+        '''
+        inputs for the hsig hash
+        '''
+        hsig_input = ZcashByteData()
+        hsig_input += self.tx_joinsplits[index].random_seed
+        hsig_input += self.tx_joinsplits[index].nullifiers
+        hsig_input += self.joinsplit_pubkey
+        return hsig_input.to_bytes()
+
+    def _primary_input(self, index):
+        '''
+        Primary input for the zkproof
+        '''
+        primary_input = ZcashByteData()
+        primary_input += self.tx_joinsplits[index].anchor
+        primary_input += self.tx_joinsplits[index].nullifiers
+        primary_input += self.tx_joinsplits[index].commitments
+        primary_input += self.tx_joinsplits[index].vpub_old
+        primary_input += self.tx_joinsplits[index].vpub_new
+        primary_input += self.hsigs[index]
+        primary_input += self.tx_joinsplits[index].vmacs
+        return primary_input.to_bytes()
 
     @classmethod
     def from_bytes(SproutTx, byte_string):
@@ -1827,6 +1829,16 @@ class OverwinterTx(ZcashByteData):
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
 
+        # Zcash spec 5.4.1.4 Hsig hash function
+        self.hsigs = [utils.blake2b(
+                      data=self._hsig_input(i),
+                      digest_size=32,
+                      person=b'ZcashComputehSig')
+                      for i in range(self.tx_joinsplits_len)]
+
+        self.primary_inputs = [self._primary_input(i)
+                               for i in range(self.tx_joinsplits_len)]
+
         self._make_immutable()
 
         if len(self) > 100000:
@@ -1866,6 +1878,30 @@ class OverwinterTx(ZcashByteData):
                               else self.joinsplit_pubkey),
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
+
+    def _hsig_input(self, index):
+        '''
+        inputs for the hsig hash
+        '''
+        hsig_input = ZcashByteData()
+        hsig_input += self.tx_joinsplits[index].random_seed
+        hsig_input += self.tx_joinsplits[index].nullifiers
+        hsig_input += self.joinsplit_pubkey
+        return hsig_input.to_bytes()
+
+    def _primary_input(self, index):
+        '''
+        Primary input for the zkproof
+        '''
+        primary_input = ZcashByteData()
+        primary_input += self.tx_joinsplits[index].anchor
+        primary_input += self.tx_joinsplits[index].nullifiers
+        primary_input += self.tx_joinsplits[index].commitments
+        primary_input += self.tx_joinsplits[index].vpub_old
+        primary_input += self.tx_joinsplits[index].vpub_new
+        primary_input += self.hsigs[index]
+        primary_input += self.tx_joinsplits[index].vmacs
+        return primary_input.to_bytes()
 
     @classmethod
     def from_bytes(OverwinterTx, byte_string):
