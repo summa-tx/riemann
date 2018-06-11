@@ -1474,19 +1474,16 @@ class SproutTx(ZcashByteData):
         if version == utils.i2le_padded(2, 4):
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
+            # Zcash spec 5.4.1.4 Hsig hash function
+            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
+
+            self.primary_inputs = [self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len)]
         else:
             self.joinsplit_pubkey = None
             self.joinsplit_sig = None
-
-        # Zcash spec 5.4.1.4 Hsig hash function
-        self.hsigs = [utils.blake2b(
-                      data=self._hsig_input(i),
-                      digest_size=32,
-                      person=b'ZcashComputehSig')
-                      for i in range(self.tx_joinsplits_len)]
-
-        self.primary_inputs = [self._primary_input(i)
-                               for i in range(self.tx_joinsplits_len)]
+            self.hsigs = None
+            self.primary_inputs = None
 
         self._make_immutable()
 
@@ -1494,6 +1491,12 @@ class SproutTx(ZcashByteData):
             raise ValueError(  # pragma: no cover
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def _hsig(self, index):
+        return utils.blake2b(
+            data=self._hsig_input(index),
+            digest_size=32,
+            person=b'ZcashComputehSig')
 
     def _hsig_input(self, index):
         '''
@@ -1828,16 +1831,10 @@ class OverwinterTx(ZcashByteData):
             self.tx_joinsplits = tuple(js for js in tx_joinsplits)
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
-
-        # Zcash spec 5.4.1.4 Hsig hash function
-        self.hsigs = [utils.blake2b(
-                      data=self._hsig_input(i),
-                      digest_size=32,
-                      person=b'ZcashComputehSig')
-                      for i in range(self.tx_joinsplits_len)]
-
-        self.primary_inputs = [self._primary_input(i)
-                               for i in range(self.tx_joinsplits_len)]
+            # Zcash spec 5.4.1.4 Hsig hash function
+            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
+            self.primary_inputs = [self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len)]
 
         self._make_immutable()
 
@@ -1878,6 +1875,12 @@ class OverwinterTx(ZcashByteData):
                               else self.joinsplit_pubkey),
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
+
+    def _hsig(self, index):
+        return utils.blake2b(
+            data=self._hsig_input(index),
+            digest_size=32,
+            person=b'ZcashComputehSig')
 
     def _hsig_input(self, index):
         '''
