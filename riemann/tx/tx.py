@@ -1378,7 +1378,7 @@ class SproutJoinsplit(ZcashByteData):
         self.hsig = utils.blake2b(
             data=self._hsig_input(),
             digest_size=32,
-            person=b'ZcashComputehSig').digest()
+            person=b'ZcashComputehSig')
 
         self.primary_input = self._primary_input()
 
@@ -1973,7 +1973,7 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data,
             digest_size=32,
-            person=b'ZcashSequencHash').digest()
+            person=b'ZcashSequencHash')
 
     def _hash_sequence(self, anyone_can_pay):
         if anyone_can_pay:
@@ -1986,7 +1986,7 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data,
             digest_size=32,
-            person=b'ZcashPrevoutHash').digest()
+            person=b'ZcashPrevoutHash')
 
     def _hash_outputs(self, sighash_type, index):
         if sighash_type not in [SIGHASH_ALL, SIGHASH_NONE]:
@@ -2007,7 +2007,7 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data,
             digest_size=32,
-            person=b'ZcashOutputsHash').digest()
+            person=b'ZcashOutputsHash')
 
     def _hash_joinsplits(self):
         if len(self.tx_joinsplits) == 0:
@@ -2023,4 +2023,4 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data,
             digest_size=32,
-            person=b'ZcashJSplitsHash').digest()
+            person=b'ZcashJSplitsHash')
