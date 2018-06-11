@@ -1742,15 +1742,3 @@ class TestOverwinterTx(OverwinterTestCase):
         self.assertEqual(
             t.calculate_fee([]),
             10000)
-
-
-
-
-
-
-
-
-
-
-
-'1'

@@ -1374,7 +1374,39 @@ class SproutJoinsplit(ZcashByteData):
         self.zkproof = zkproof
         self.encoded_notes = encoded_notes
 
+        # Zcash spec 5.4.1.4 Hsig hash function
+        self.hsig = utils.blake2b(
+            data=self._hsig_input(),
+            digest_size=32,
+            person=b'ZcashComputehSig').digest()
+
+        self.primary_input = self._primary_input()
+
         self._make_immutable()
+
+    def _hsig_input(self):
+        '''
+        inputs for the hsig hash
+        '''
+        hsig_input = ZcashByteData()
+        hsig_input += self.random_seed
+        hsig_input += self.nullifiers
+        hsig_input += self.joinsplit_pubkey
+        return hsig_input.to_bytes()
+
+    def _primary_input(self):
+        '''
+        Primary input for the zkproof
+        '''
+        primary_input = ZcashByteData()
+        primary_input += self.anchor
+        primary_input += self.nullifiers
+        primary_input += self.commitments
+        primary_input += self.vpub_old
+        primary_input += self.vpub_new
+        primary_input += self.hsig
+        primary_input = self.vmacs
+        return primary_input.to_bytes()
 
     @classmethod
     def from_bytes(SproutJoinsplit, byte_string):
