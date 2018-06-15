@@ -298,7 +298,8 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins
              if tx_in is not None]
     try:
-        deser += [script_ser.deserialize(w.stack[::-1]) for w in tx_witnesses]
+        deser += [script_ser.deserialize(w.stack[-1].to_bytes())
+                  for w in tx_witnesses]
     except NotImplementedError:
         pass
     version = max([guess_version(d) for d in deser])

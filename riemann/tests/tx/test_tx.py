@@ -64,6 +64,15 @@ class TestByteData(unittest.TestCase):
 
         self.assertEqual(bd.hex(), t.hex())
 
+    def test_ne_error(self):
+        with self.assertRaises(TypeError) as context:
+            bd = tx.ByteData()
+            bd == 'hello world'
+
+        self.assertIn(
+            'Equality not supported for ByteData and ',
+            str(context.exception))
+
 
 class TestVarInt(unittest.TestCase):
 
