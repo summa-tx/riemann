@@ -55,6 +55,9 @@ class ByteData():
             return self._bytes != other
         elif isinstance(other, ByteData):
             return self._bytes != other._bytes
+        else:
+            raise TypeError('Equality not supported for ByteData and {}.'
+                            .format(type(other)))
 
     def __eq__(self, other):
         '''
