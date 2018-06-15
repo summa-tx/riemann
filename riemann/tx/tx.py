@@ -764,6 +764,9 @@ class Tx(ByteData):
         tx += self.lock_time
         return bytes(tx)
 
+    def is_witness(self):
+        return self.flag is not None
+
     def calculate_fee(self, input_values):
         '''
         Tx, list(int) -> int

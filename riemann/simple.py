@@ -96,13 +96,12 @@ def empty_outpoint():
         tree=b'\x00')
 
 
-def unsigned_input(outpoint, redeem_script=b'', sequence=None):
+def unsigned_input(outpoint, redeem_script=None, sequence=None):
     '''
     Outpoint, byte-like, int -> TxIn
     '''
-    if redeem_script != b'' and sequence is None:
+    if redeem_script is not None and sequence is None:
         sequence = guess_sequence(redeem_script)
-        redeem_script = script_ser.serialize(redeem_script)
     if sequence is None:
         sequence = 0xFFFFFFFE
     return tb.make_legacy_input(

@@ -544,8 +544,8 @@ class TestTx(unittest.TestCase):
 
         self.assertEqual(res, helpers.RAW_P2SH_TO_P2PKH)
 
-    # TODO: Break up this monstrosity
-    def test_create_tx(self):
+    # TODO: Break up this monstrosity (further)
+    def test_tx_witness(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 
@@ -594,6 +594,12 @@ class TestTx(unittest.TestCase):
         self.assertIn(
             'Invalid InputWitness. Expected instance of InputWitness.',
             str(context.exception))
+
+    def test_tx_inandout(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        self.assertEqual(t, helpers.P2PKH1['ser']['tx']['signed'])
 
         with self.assertRaises(ValueError) as context:
             tx_ins = [self.tx_ins[0] for _ in range(257)]
@@ -646,6 +652,16 @@ class TestTx(unittest.TestCase):
         self.assertIn(
             'Tx is too large. Expect less than 100kB. Got: ',
             str(context.exception))
+
+    def test_tx_inout_mutation(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        with self.assertRaises(TypeError, msg='That\'s immutable, honey'):
+            t.tx_ins = t.tx_ins + (1,)
+
+        with self.assertRaises(TypeError, msg='That\'s immutable, honey'):
+            t.tx_outs = t.tx_outs + (1,)
 
     def test_tx_id(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -723,6 +739,16 @@ class TestTx(unittest.TestCase):
 
         self.assertEqual(t, t_copy)
         self.assertIsNot(t, t_copy)
+
+    def test_is_witness(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        self.assertFalse(t.is_witness())
+
+        t = tx.Tx.from_bytes(helpers.P2WSH['ser']['tx']['signed'])
+
+        self.assertTrue(t.is_witness())
 
     def test_sighash_all(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
