@@ -1488,6 +1488,9 @@ class SproutTx(ZcashByteData):
             self.hsigs = None
             self.primary_inputs = None
 
+        self.tx_id_le = utils.hash256(self.to_bytes()).hex()
+        self.tx_id = utils.hash256(self.to_bytes())[::-1].hex()
+
         self._make_immutable()
 
         if len(self) > 100000:
@@ -1839,6 +1842,9 @@ class OverwinterTx(ZcashByteData):
             self.primary_inputs = [self._primary_input(i)
                                    for i in range(self.tx_joinsplits_len)]
 
+        self.tx_id_le = 1
+        self.tx_id = 1
+
         self._make_immutable()
 
         if len(self) > 100000:
@@ -2003,6 +2009,11 @@ class OverwinterTx(ZcashByteData):
             data += script_code
             data += prevout_value
             data += self.tx_ins[index].sequence
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashSigHash' + bytes.fromhex('0x5ba81b19'))  # Branch ID
 
     def _hash_prevouts(self, anyone_can_pay):
         if anyone_can_pay:

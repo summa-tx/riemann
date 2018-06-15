@@ -1644,6 +1644,15 @@ class TestSproutTx(SproutTestCase):
             tx.SproutTx.from_bytes(self.tx_ser),
             tx.SproutTx(**self.tx))
 
+    def test_tx_ids(self):
+        t = tx.SproutTx(**self.tx)
+        self.assertEqual(
+            t.tx_id_le,
+            '1add6cdbe72ede27cd3b6cd85f45d02081b9d57f173090df80648cdb927eb167')
+        self.assertEqual(
+            t.tx_id,
+            '67b17e92db8c6480df9030177fd5b98120d0455fd86c3bcd27de2ee7db6cdd1a')
+
     def test_from_bytes_with_tx_in(self):
         # This is a bit hard to read
         temp_dict = self.tx.copy()
