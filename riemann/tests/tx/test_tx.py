@@ -265,7 +265,7 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(tx_in.stack_script, self.stack_script)
         self.assertEqual(tx_in.redeem_script, self.redeem_script)
         self.assertEqual(tx_in.sequence, self.sequence)
-        self.assertEqual(tx_in,  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(tx_in, helpers.P2PKH1['ser']['tx']['in'])
 
     def test_copy(self):
         tx_in = tx.TxIn(self.outpoint, self.stack_script,
@@ -288,7 +288,7 @@ class TestTxIn(unittest.TestCase):
 
     def test_from_bytes_pkh(self):
         tx_in = tx.TxIn.from_bytes(helpers.P2PKH1['ser']['tx']['in'])
-        self.assertEqual(tx_in,  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(tx_in, helpers.P2PKH1['ser']['tx']['in'])
         self.assertEqual(
             tx_in.outpoint,
             helpers.P2PKH1['ser']['ins'][0]['outpoint'])
@@ -648,7 +648,6 @@ class TestTx(unittest.TestCase):
             tx_outs = [self.tx_outs[0] for _ in range(255)]
             tx.Tx(self.version, self.none_flag, tx_ins, tx_outs,
                   None, self.lock_time)
-
         self.assertIn(
             'Tx is too large. Expect less than 100kB. Got: ',
             str(context.exception))
@@ -673,7 +672,7 @@ class TestTx(unittest.TestCase):
     def test_from_bytes_pkh(self):
         t = tx.Tx.from_bytes(helpers.P2PKH1['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2PKH1['ser']['version'])
-        self.assertEqual(t.tx_ins[0],  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(t.tx_ins[0], helpers.P2PKH1['ser']['tx']['in'])
         self.assertEqual(t.tx_outs[0], helpers.P2PKH1['ser']['outs'][0]['out'])
         self.assertEqual(t.tx_outs[1], helpers.P2PKH1['ser']['outs'][1]['out'])
         self.assertEqual(t.lock_time, helpers.P2PKH1['ser']['locktime'])
@@ -772,10 +771,10 @@ class TestTx(unittest.TestCase):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
         self.assertEqual(
-                t.sighash_single(
-                    0,
-                    helpers.P2PKH1['ser']['ins'][0]['pk_script']),
-                helpers.P2PKH1['ser']['sighash']['single'])
+            t.sighash_single(
+                0,
+                helpers.P2PKH1['ser']['ins'][0]['pk_script']),
+            helpers.P2PKH1['ser']['sighash']['single'])
 
     def test_sighash_single_anyone_can_pay(self):
         t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
@@ -854,6 +853,59 @@ class TestTx(unittest.TestCase):
         self.assertEqual(
             sighash,
             helpers.SIGHASH_FORKID['all_anyone_can_pay'])
+
+    def test_hash_outputs(self):
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins,
+                  self.tx_outs, self.none_witnesses, self.lock_time)
+        output = t._hash_outputs(index=0, sighash_type=tx.SIGHASH_SINGLE)
+        expected = utils.hash256(self.tx_outs[0].to_bytes())
+        self.assertEqual(output, expected)
+
+        with self.assertRaises(NotImplementedError) as context:
+            t = tx.Tx(self.version, self.none_flag, self.tx_ins,
+                      self.tx_outs, self.none_witnesses, self.lock_time)
+            t._hash_outputs(index=3, sighash_type=tx.SIGHASH_SINGLE)
+
+        self.assertIn(
+            'I refuse to implement the SIGHASH_SINGLE bug.',
+            str(context.exception))
+
+    def test_script_code(self):
+        self.stack_script = helpers.P2SH['ser']['ins'][0]['stack_script']
+        self.redeem_script = helpers.P2SH['ser']['ins'][0]['redeem_script']
+        self.sequence = helpers.P2SH['ser']['ins'][0]['sequence']
+        self.outpoint = helpers.P2SH['ser']['ins'][0]['outpoint']
+
+        self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
+                             self.redeem_script, self.sequence)
+        self.tx_ins = [self.tx_in]
+
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        bob = t.script_code(index=0)
+        self.assertEqual(bob, self.redeem_script)
+
+    def test_adjusted_script_code(self):
+        self.stack_script = helpers.P2SH['ser']['ins'][0]['stack_script']
+        self.redeem_script = helpers.P2SH['ser']['ins'][0]['redeem_script']
+        self.sequence = helpers.P2SH['ser']['ins'][0]['sequence']
+        self.outpoint = helpers.P2SH['ser']['ins'][0]['outpoint']
+
+        self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
+                             self.redeem_script, self.sequence)
+        self.tx_ins = [self.tx_in]
+
+        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+                  self.none_witnesses, self.lock_time)
+
+        add_script = helpers.P2SH['ser']['ins'][0]['redeem_script']
+        adj_script_code = t._adjusted_script_code(index=0, script=add_script)
+        expected_code = tx.ByteData()
+        expected_code += tx.VarInt(len(self.redeem_script))
+        expected_code += self.redeem_script
+
+        self.assertEqual(adj_script_code, expected_code)
 
 
 class DecredTestCase(unittest.TestCase):
@@ -1116,6 +1168,12 @@ class TestDecredInputWitness(DecredTestCase):
         self.assertEqual(res, copy)
         self.assertIsNot(res, copy)
 
+    def test_from_bytes(self):
+        with self.assertRaises(NotImplementedError) as context:
+            tx.DecredInputWitness.from_bytes(self)
+
+        self.assertIn('Not Yet Implemented', str(context.exception))
+
 
 class TestDecredTx(DecredTestCase):
 
@@ -1312,6 +1370,26 @@ class TestDecredTx(DecredTestCase):
 
         self.assertEqual(transaction.calculate_fee(), 33400)
 
+    def test_from_bytes(self):
+        with self.assertRaises(NotImplementedError) as context:
+            tx.DecredTx.from_bytes(self)
+
+        self.assertIn('Not Yet Implemented', str(context.exception))  # TODO
+
+    def test_witness_signing_hash(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        test_witness_hash = transaction.witness_signing_hash()
+        expected = utils.blake256(tx.DecredTx.witness_signing(transaction))
+
+        self.assertEqual(test_witness_hash, expected)
+
     def test_witness(self):
         transaction = tx.DecredTx(
             version=self.version,
@@ -1336,6 +1414,37 @@ class TestDecredTx(DecredTestCase):
         self.assertEqual(
             transaction.witness_hash(),
             helpers.DCR['ser']['witnesses'][0]['hash'])
+
+    def test_script_code(self):
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        self.assertEqual(
+            transaction.script_code(index=0),
+            helpers.DCR['ser']['witnesses'][0]['redeem_script'])
+
+    def test_script_code_fail(self):
+        self.witness = tx.DecredInputWitness(
+            value=self.witness_value,
+            height=self.height,
+            index=self.witness_index,
+            stack_script=self.stack_script,
+            redeem_script=b'')
+
+        transaction = tx.DecredTx(
+            version=self.version,
+            tx_ins=[self.tx_in],
+            tx_outs=[self.tx_out],
+            lock_time=self.lock_time,
+            expiry=self.expiry,
+            tx_witnesses=[self.witness])
+
+        self.assertIsNone(transaction.script_code(index=0))
 
     def test_sighash_none(self):
         transaction = tx.DecredTx(
@@ -1398,6 +1507,7 @@ class TestDecredTx(DecredTestCase):
         self.assertEqual(t.tx_id, helpers.DCR['ser']['tx']['expected_hash'])
 
     def test_sighash(self):
+        # test_sighash setup:
         tx_in_0 = tx.DecredTxIn.from_bytes(helpers.DCR1['ser']['ins'][0]['in'])
         tx_in_1 = tx.DecredTxIn.from_bytes(helpers.DCR1['ser']['ins'][1]['in'])
         tx_in_2 = tx.DecredTxIn.from_bytes(helpers.DCR1['ser']['ins'][2]['in'])
@@ -1432,7 +1542,7 @@ class TestDecredTx(DecredTestCase):
 
         tx_witnesses = [tx_witness_0, tx_witness_1, tx_witness_2]
 
-        tx.DecredTx(
+        t = tx.DecredTx(
             version=helpers.DCR1['ser']['version'],
             tx_ins=tx_ins,
             tx_outs=tx_outs,
@@ -1440,25 +1550,32 @@ class TestDecredTx(DecredTestCase):
             expiry=helpers.DCR1['ser']['expiry'],
             tx_witnesses=tx_witnesses)
 
-        # self.assertEqual(
-        #     t.sighash_all(
-        #         index=0,
-        #         prevout_pk_script=SIGHASH_DCR['prevout_pk']),
-        #     helpers.SIGHASH_DCR['all'])
-        # self.assertEqual(
-        #     t.sighash_all(
-        #         index=0,
-        #         prevout_pk_script=SIGHASH_DCR['prevout_pk'],
-        #         anyone_can_pay=True),
-        #     helpers.SIGHASH_DCR['all_anyonecanpay'])
-        # self.assertEqual(
-        #     t.sighash_single(
-        #         index=0,
-        #         prevout_pk_script=SIGHASH_DCR['prevout_pk']),
-        #     helpers.SIGHASH_DCR['single'])
-        # self.assertEqual(
-        #     t.sighash_single(
-        #         index=0,
-        #         prevout_pk_script=SIGHASH_DCR['prevout_pk'],
-        #         anyone_can_pay=True),
-        #     helpers.SIGHASH_DCR['single_anyonecanpay'])
+        # test sighash_all:
+        self.assertEqual(
+            t.sighash_all(
+                index=0,
+                script=helpers.SIGHASH_DCR['prevout_pk']),
+            helpers.SIGHASH_DCR['all'])
+
+#        # test all_anyonecanpay:
+#        self.assertEqual(
+#            t.sighash_all(
+#                index=0,
+#                script=helpers.SIGHASH_DCR['prevout_pk'],
+#                anyone_can_pay=True),
+#            helpers.SIGHASH_DCR['all_anyonecanpay'])
+#
+#        # test sighash_single:
+#        self.assertEqual(
+#            t.sighash_single(
+#                index=0,
+#                script=helpers.SIGHASH_DCR['prevout_pk']),
+#            helpers.SIGHASH_DCR['single'])
+#
+#        # test single_anyonecanpay:
+#        self.assertEqual(
+#            t.sighash_single(
+#                index=0,
+#                script=helpers.SIGHASH_DCR['prevout_pk'],
+#                anyone_can_pay=True),
+#            helpers.SIGHASH_DCR['single_anyonecanpay'])
