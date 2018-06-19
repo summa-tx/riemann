@@ -596,7 +596,7 @@ class DecredInputWitness(DecredByteData):
 
     @classmethod
     def from_bytes(DecredInputWitness, byte_string):
-        raise NotImplementedError('Not Implemented')
+        raise NotImplementedError('Not Yet Implemented')  # TODO
 
 
 class Tx(ByteData):
@@ -968,7 +968,7 @@ class Tx(ByteData):
                 outputs += tx_out.to_bytes()
             return utils.hash256(outputs.to_bytes())
         elif sighash_type == SIGHASH_SINGLE and index < len(self.tx_outs):
-            # f sighash type is SINGLE
+            # If sighash type is SINGLE
             # and the input index is smaller than the number of outputs,
             # hashOutputs is the double SHA256 of the output at the same index
             return utils.hash256(self.tx_outs[index].to_bytes())
@@ -1114,7 +1114,7 @@ class DecredTx(DecredByteData):
 
     @classmethod
     def from_bytes(DecredTx, byte_string):
-        raise NotImplementedError('TODO')
+        raise NotImplementedError('Not Yet Implemented')  # TODO
 
     def prefix_hash(self):
         try:
