@@ -1212,7 +1212,10 @@ class DecredTx(DecredByteData):
 
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
-            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+            copy_tx_outs = [DecredTxOut(
+                            version=bytes(2),
+                            value=b'\xff' * 8,
+                            output_script=b'')
                             for _ in copy_tx.tx_ins]
             copy_tx_outs[index] = copy_tx.tx_outs[index]
         except IndexError:

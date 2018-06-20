@@ -832,10 +832,17 @@ DCR1 = {
         }
 
 # Not used:
-SIGHASH_DCR = {
+SIGHASH_DCR1 = {
         'prevout_pk': bytes.fromhex('76a91478807bd86b22a9f23bb4e026705c3e52824d7f3e88ac'),
         'all': bytes.fromhex('569f23573cd279d9fea347ed16d86984b271b0b4b4270cc7122201683fcd7708'),
         'all_anyonecanpay': bytes.fromhex('c75779c947b3c0e8828db370c8d5597c6dd91a48e287d1bfca705637943d200e'),
         'single': bytes.fromhex('a1f4f2ced71352153ffee5dd570da5d609ecd5ce04e1db808c238554d758fb13'),
         'single_anyonecanpay': bytes.fromhex('1b83a4d2a1a70204587491f7f6e110704e98e1b8da04219efba5dde14eaccf1f')
+        }
+
+# values from my examination:
+MOOGHASH_DCR1 = {
+        'all_anyonecanpay': bytes.fromhex('39571d0607c4ede2bab8b5570a560f71d1e10877efe234563361f5bc0cea6efb'),
+        'single': bytes.fromhex('e9f8fcdbc1bdac56000c44d52f3ee100a2e5eb02856c689a34ac63f3a9be054c'),
+        'single_anyonecanpay': bytes.fromhex('ccded7f2fa79bc0305c25ef3648858fff31f8a202b1056992b5577edf38b4e15')
         }
