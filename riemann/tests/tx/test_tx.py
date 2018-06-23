@@ -1,8 +1,8 @@
 import unittest
 import riemann
 from .. import helpers
-from ...tx import tx
-from ... import utils
+from riemann import tx
+from riemann import utils
 
 
 class TestByteData(unittest.TestCase):
@@ -425,7 +425,8 @@ class TestInputWitness(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             tx.InputWitness(bad_stack)
 
-        self.assertIn('Invalid witness stack item. Expected bytes. Got None',
+        self.assertIn('Invalid witness stack item. '
+                      'Expected WitnessStackItem. Got None',
                       str(context.exception))
 
     def test_from_bytes(self):

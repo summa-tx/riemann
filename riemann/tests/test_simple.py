@@ -1,7 +1,7 @@
 import unittest
 import riemann
 from riemann import simple
-from riemann.tx import tx_builder as tb
+from riemann import tx as txn
 from riemann.tests import helpers
 
 
@@ -287,7 +287,7 @@ class TestSimple(unittest.TestCase):
         tx_out = simple.output(
             helpers.P2PKH['human']['outs'][0]['value'],
             helpers.P2PKH['human']['outs'][0]['addr'])
-        tx_return_output = tb.make_op_return_output(
+        tx_return_output = txn.make_op_return_output(
             helpers.P2PKH['human']['outs'][1]['memo'])
         tx = simple.unsigned_legacy_tx(
             tx_ins=[tx_in],
@@ -323,7 +323,7 @@ class TestSimple(unittest.TestCase):
         tx_out = simple.output(
             helpers.P2PKH['human']['outs'][0]['value'],
             helpers.P2PKH['human']['outs'][0]['addr'])
-        tx_return_output = tb.make_op_return_output(
+        tx_return_output = txn.make_op_return_output(
             helpers.P2PKH['human']['outs'][1]['memo'])
 
         tx = simple.legacy_tx([tx_in], [tx_out, tx_return_output])
@@ -350,3 +350,30 @@ class TestSimple(unittest.TestCase):
         self.assertEqual(
             tx,
             helpers.P2WPKH['ser']['tx']['signed'])
+
+    def test_witness_tx_exception(self):
+        outpoint = simple.outpoint(
+            tx_id=helpers.P2WPKH['human']['ins'][0]['hash'],
+            index=helpers.P2WPKH['human']['ins'][0]['index'])
+        (tx_in, witness) = simple.p2wpkh_input_and_witness(
+            outpoint=outpoint,
+            sig=helpers.P2WPKH['human']['witnesses'][0]['signature'],
+            pubkey=helpers.P2WPKH['human']['witnesses'][0]['pubkey'],
+            sequence=helpers.P2WPKH['human']['ins'][0]['sequence'])
+        tx_out = simple.output(
+            value=helpers.P2WPKH['human']['outs'][0]['value'],
+            address=helpers.P2WPKH['human']['outs'][0]['addr'])
+        witness = txn.InputWitness.from_bytes(b'\x02\x02\xab\xab\x01\xab')
+
+        tx = simple.witness_tx(
+            tx_ins=[tx_in],
+            tx_outs=[tx_out],
+            tx_witnesses=[witness])
+
+        self.assertEqual(
+            tx.lock_time,
+            b'\x00' * 4)
+
+        self.assertEqual(
+            tx.version,
+            b'\x01' + b'\x00' * 3)

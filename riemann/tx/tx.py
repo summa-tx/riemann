@@ -419,7 +419,7 @@ class InputWitness(ByteData):
             if not isinstance(item, WitnessStackItem):
                 raise ValueError(
                     'Invalid witness stack item. '
-                    'Expected bytes. Got {}'
+                    'Expected WitnessStackItem. Got {}'
                     .format(item))
 
         self += VarInt(len(stack))
@@ -441,6 +441,10 @@ class InputWitness(ByteData):
             item_start += len(item)
             items.append(item)
         return InputWitness(items)
+
+    def copy(self, stack=None):
+        return InputWitness(
+            stack=stack if stack is not None else self.stack)
 
 
 class Tx(ByteData):
