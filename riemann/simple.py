@@ -14,8 +14,13 @@ def guess_version(redeem_script):
     We want to signal nSequence if we're using OP_CSV.
     Unless we're in zcash.
     '''
-    if 'zcash' in riemann.get_current_network_name():
+    n = riemann.get_current_network_name()
+    if 'sprout' in n:
         return 1
+    if 'overwinter' in n:
+        return 3
+    if 'sapling' in n:
+        return 4
     try:
         script_array = redeem_script.split()
         script_array.index('OP_CHECKSEQUENCEVERIFY')

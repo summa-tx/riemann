@@ -26,6 +26,16 @@ class TestSimple(unittest.TestCase):
             simple.guess_version('OP_IF'),
             1)
 
+        riemann.select_network('zcash_overwinter_main')
+        self.assertEqual(
+            simple.guess_version('OP_IF'),
+            3)
+
+        riemann.select_network('zcash_sapling_main')
+        self.assertEqual(
+            simple.guess_version('OP_IF'),
+            4)
+
     def test_guess_sequence(self):
         self.assertEqual(
             simple.guess_sequence('OP_IF'),
