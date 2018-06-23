@@ -237,27 +237,81 @@ class DashRegtest(Network):
     SEGWIT = False
 
 
-class ZcashMain(Network):
+class ZcashSproutMain(Network):
     SYMBOL = 'ZEC'
-    NETWORK_NAME = 'zcash'
+    NETWORK_NAME = 'zcash_sprout'
     SUBNET_NAME = 'main'
     P2PKH_PREFIX = b'\x1c\xb8'
     P2SH_PREFIX = b'\x1c\xbd'
     SEGWIT = False
 
 
-class ZcashTest(Network):
+class ZcashSproutTest(Network):
     SYMBOL = 'tZEC'
-    NETWORK_NAME = 'zcash'
+    NETWORK_NAME = 'zcash_sprout'
     SUBNET_NAME = 'test'
     P2PKH_PREFIX = b'\x1d\x25'
     P2SH_PREFIX = b'\x1c\xba'
     SEGWIT = False
 
 
-class ZcashRegtest(Network):
+class ZcashSproutRegtest(Network):
     SYMBOL = 'rZEC'
-    NETWORK_NAME = 'zcash'
+    NETWORK_NAME = 'zcash_sprout'
+    SUBNET_NAME = 'reg'
+    P2PKH_PREFIX = b'\x1d\x25'
+    P2SH_PREFIX = b'\x1c\xba'
+    SEGWIT = False
+
+
+class ZcashOverwinterMain(Network):
+    SYMBOL = 'ZEC'
+    NETWORK_NAME = 'zcash_overwinter'
+    SUBNET_NAME = 'main'
+    P2PKH_PREFIX = b'\x1c\xb8'
+    P2SH_PREFIX = b'\x1c\xbd'
+    SEGWIT = False
+
+
+class ZcashOverwinterTest(Network):
+    SYMBOL = 'tZEC'
+    NETWORK_NAME = 'zcash_overwinter'
+    SUBNET_NAME = 'test'
+    P2PKH_PREFIX = b'\x1d\x25'
+    P2SH_PREFIX = b'\x1c\xba'
+    SEGWIT = False
+
+
+class ZcashOverwinterRegtest(Network):
+    SYMBOL = 'rZEC'
+    NETWORK_NAME = 'zcash_overwinter'
+    SUBNET_NAME = 'reg'
+    P2PKH_PREFIX = b'\x1d\x25'
+    P2SH_PREFIX = b'\x1c\xba'
+    SEGWIT = False
+
+
+class ZcashSaplingMain(Network):
+    SYMBOL = 'ZEC'
+    NETWORK_NAME = 'zcash_sapling'
+    SUBNET_NAME = 'main'
+    P2PKH_PREFIX = b'\x1c\xb8'
+    P2SH_PREFIX = b'\x1c\xbd'
+    SEGWIT = False
+
+
+class ZcashSaplingTest(Network):
+    SYMBOL = 'tZEC'
+    NETWORK_NAME = 'zcash_sapling'
+    SUBNET_NAME = 'test'
+    P2PKH_PREFIX = b'\x1d\x25'
+    P2SH_PREFIX = b'\x1c\xba'
+    SEGWIT = False
+
+
+class ZcashSaplingRegtest(Network):
+    SYMBOL = 'rZEC'
+    NETWORK_NAME = 'zcash_sapling'
     SUBNET_NAME = 'reg'
     P2PKH_PREFIX = b'\x1d\x25'
     P2SH_PREFIX = b'\x1c\xba'

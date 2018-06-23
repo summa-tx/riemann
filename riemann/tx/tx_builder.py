@@ -248,18 +248,38 @@ def make_witness_input_and_witness(outpoint, sequence,
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            expiry=None, tx_witnesses=None):
-
+            expiry=None, tx_witnesses=None,
+            tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
-    if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTx(version=utils.i2le_padded(version, 4),
-                           tx_ins=tx_ins,
-                           tx_outs=tx_outs,
-                           lock_time=utils.i2le_padded(lock_time, 4),
-                           expiry=utils.i2le_padded(expiry, 4),
-                           tx_witnesses=[tx_witnesses])
+    n = riemann.get_current_network_name()
+    if 'decred' in n:
+        return tx.DecredTx(
+            version=utils.i2le_padded(version, 4),
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=utils.i2le_padded(lock_time, 4),
+            expiry=utils.i2le_padded(expiry, 4),
+            tx_witnesses=[tx_witnesses])
+    if 'sprout' in n and tx_joinsplits is not None:
+        return tx.SproutTx(
+            version=version,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=utils.i2le_padded(lock_time, 4),
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
+    if 'overwinter' in n:
+        return tx.OverwinterTx(
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=utils.i2le_padded(lock_time, 4),
+            expiry_height=utils.i2le_padded(expiry, 4),
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
     flag = riemann.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None
     return tx.Tx(version=utils.i2le_padded(version, 4),

@@ -104,4 +104,4 @@ Riemann contains some code released under MIT and ISC licenses. The appropriate 
 In particular:
 * Base58 implementation from the excellent pycoin by Richard Kiss. [Link](https://github.com/richardkiss/pycoin)
 * Bech32 implementation from Pieter Wuille. [Link](https://github.com/sipa/bech32/tree/master/ref/python)
-* blake256 implementation by Larry Bugbee. [Link](http://www.seanet.com/~bugbee/crypto/blake/)
+* blake256 and blake2 implementation by Larry Bugbee. [Link](http://www.seanet.com/~bugbee/crypto/blake/)  [Link](https://github.com/buggywhip/blake2_py)

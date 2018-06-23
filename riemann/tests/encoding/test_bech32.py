@@ -140,21 +140,21 @@ class TestBech32(unittest.TestCase):
             self.assertIsNone(code)
 
     def test_encode_error(self):
-        riemann.select_network('zcash_main')
+        riemann.select_network('zcash_sprout_main')
         with self.assertRaises(ValueError) as context:
             bech32.encode(bytearray([0] * 32))
 
         self.assertIn(
-            'Network (zcash_main) does not support bech32 encoding.',
+            'Network (zcash_sprout_main) does not support bech32 encoding.',
             str(context.exception))
 
     def test_decode_error(self):
-        riemann.select_network('zcash_main')
+        riemann.select_network('zcash_sprout_main')
         with self.assertRaises(ValueError) as context:
             bech32.decode(bytearray([0] * 32))
 
         self.assertIn(
-            'Network (zcash_main) does not support bech32 encoding.',
+            'Network (zcash_sprout_main) does not support bech32 encoding.',
             str(context.exception))
 
     def test_convert_bits_error(self):

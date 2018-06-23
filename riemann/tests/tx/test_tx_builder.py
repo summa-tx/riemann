@@ -1,7 +1,8 @@
 import unittest
 import riemann
-from .. import helpers
-from ...tx import tx_builder as tb
+from unittest import mock
+from riemann.tests import helpers
+from riemann.tx import tx_builder as tb
 
 
 class TestTxBuilder(unittest.TestCase):
@@ -279,3 +280,21 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             tb.length_prepend(b'\x00' * 256),
             b'\xfd\x00\x01' + b'\x00' * 256)
+
+    @mock.patch('riemann.tx.tx_builder.tx')
+    def test_sprout_snowflake(self, mock_tx):
+        # TODO: Improve
+        riemann.select_network('zcash_sprout_main')
+        mock_tx.SproutTx.return_value = 0
+        self.assertEqual(
+            tb.make_tx(0, 0, 0, 0, tx_joinsplits=[]),
+            0)
+
+    @mock.patch('riemann.tx.tx_builder.tx')
+    def test_overwinter_snowflake(self, mock_tx):
+        # TODO: Improve
+        riemann.select_network('zcash_overwinter_main')
+        mock_tx.OverwinterTx.return_value = 0
+        self.assertEqual(
+            tb.make_tx(0, 0, 0, 0, expiry=0),
+            0)
