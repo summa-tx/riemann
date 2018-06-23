@@ -1,8 +1,8 @@
 import unittest
 import riemann
-from .. import helpers
 from riemann import tx
 from riemann import utils
+from riemann.tests import helpers
 
 
 class TestByteData(unittest.TestCase):
@@ -1761,3 +1761,12 @@ class TestOverwinterTx(OverwinterTestCase):
         self.assertEqual(
             t.calculate_fee([]),
             10000)
+
+    def test_not_overwinter(self):
+        riemann.select_network('zcash_sprout_main')
+        with self.assertRaises(ValueError) as context:
+            tx.OverwinterTx(None, None, None, None,
+                            None, None, None)
+        self.assertIn(
+            'OverwinterTx not supported by network ',
+            str(context.exception))
