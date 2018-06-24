@@ -711,6 +711,7 @@ DCR = {
                 ],
             'witnesses': [
                 {
+                    'id': 0,
                     'value': bytes.fromhex('202e580e00000000'),
                     'height': bytes.fromhex('97970200'),
                     'index': bytes.fromhex('06000000'),
@@ -831,6 +832,70 @@ DCR1 = {
             }
         }
 
+DCR2 = {
+    'tx_id': bytes.fromhex('9b23d239a9507e652741ee4135384277b56442302e333df0ca83c71f20d580a8'),
+    'version': bytes.fromhex('01000000'),
+    'lock_time': bytes.fromhex('00000000'),
+    'expiry': bytes.fromhex('00000000'),
+    'ins': [
+        {
+            'id': 0,
+            'hash': bytes.fromhex('025f3281e2e1163e0757b67855b3f2989e30b7921e20daecf8ab3ce282b03cdc'),  # DecredOutpoint.tx_id
+            'index': bytes.fromhex('00000000'),
+            'tree': bytes.fromhex('00'),
+            'sequence': bytes.fromhex('ffffffff'),
+            'outpoint': bytes.fromhex('025f3281e2e1163e0757b67855b3f2989e30b7921e20daecf8ab3ce282b03cdc0000000000'),
+            'raw_in': bytes.fromhex('025f3281e2e1163e0757b67855b3f2989e30b7921e20daecf8ab3ce282b03cdc0000000000ffffffff')
+            },
+        {
+            'id': 1,
+            'hash': bytes.fromhex('294ac83c71a7395d5ea3d2c265c83a72e49632660e6a018cdb95b0804fc861ef'),
+            'index': bytes.fromhex('0b000000'),
+            'tree': bytes.fromhex('00'),
+            'sequence': bytes.fromhex('ffffffff'),
+            'outpoint': bytes.fromhex('294ac83c71a7395d5ea3d2c265c83a72e49632660e6a018cdb95b0804fc861ef0b00000000'),
+            'raw_in': bytes.fromhex('294ac83c71a7395d5ea3d2c265c83a72e49632660e6a018cdb95b0804fc861ef0b00000000ffffffff')
+            },
+        ],
+    'outs':[
+        {
+            'id': 0,
+            'version': bytes.fromhex('0000'),
+            'value': bytes.fromhex('92176e0300000000'),
+            'raw_out': bytes.fromhex('92176e030000000000001976a914a2bcffe491af5bd2d32f10d8803b67e4107b61dc88ac'),
+            'script_len': bytes.fromhex('19'),
+            'pk_script': bytes.fromhex('76a914a2bcffe491af5bd2d32f10d8803b67e4107b61dc88ac')
+            },
+        ],
+    'witness': [
+        {
+            'id': 0,
+            'value': bytes.fromhex('c5b5230300000000'),
+            'height': bytes.fromhex('0dce0300'),
+            'index': bytes.fromhex('08000000'),
+            'witness_input': bytes.fromhex('c5b52303000000000dce0300080000006a47304402201b6f44bf26227ce982b4e6be453da4fd6551110eb219bc24833f2f74d50de60e0220471bb01c1c0c728b18edc4abbded1da51cf72fc0f30afedce3968ee9ba71a21d0121026f76ce8894ce567ea4eb34ece969f46ae9410ec3fb8c22a368b5743824d4c9b8'),
+            'stack_script': bytes.fromhex('47304402201b6f44bf26227ce982b4e6be453da4fd6551110eb219bc24833f2f74d50de60e0220471bb01c1c0c728b18edc4abbded1da51cf72fc0f30afedce3968ee9ba71a21d0121026f76ce8894ce567ea4eb34ece969f46ae9410ec3fb8c22a368b5743824d4c9b8'),
+            'redeem_script': bytes.fromhex(''),  # Kirby
+            'script_sig': bytes.fromhex('6a47304402201b6f44bf26227ce982b4e6be453da4fd6551110eb219bc24833f2f74d50de60e0220471bb01c1c0c728b18edc4abbded1da51cf72fc0f30afedce3968ee9ba71a21d0121026f76ce8894ce567ea4eb34ece969f46ae9410ec3fb8c22a368b5743824d4c9b8'),
+            'no_sig_input': bytes.fromhex('c5b52303000000000dce0300080000006a')
+            },
+        {
+            'id': 1,
+            'value': bytes.fromhex('453c4d0000000000'),
+            'height': bytes.fromhex('05ce0300'),
+            'index': bytes.fromhex('0b000000'),
+            'witness_input': bytes.fromhex('453c4d000000000005ce03000b0000006b483045022100c533cfcf03901bc814f9809dcb62edca8cd4189fc56cee2de1114555a54029d4022040a157a205880e7132640fa0d656d0339babeefe776765914e24e4627721bfb401210397ae3ae02086a9863197f5aee59b77a6be77060f3d4875b908accd7d09c649d9'),
+            'stack_script': bytes.fromhex('483045022100c533cfcf03901bc814f9809dcb62edca8cd4189fc56cee2de1114555a54029d4022040a157a205880e7132640fa0d656d0339babeefe776765914e24e4627721bfb401210397ae3ae02086a9863197f5aee59b77a6be77060f3d4875b908accd7d09c649d9'),
+            'redeem_script': bytes.fromhex(''),
+            'script_sig': bytes.fromhex('6b483045022100c533cfcf03901bc814f9809dcb62edca8cd4189fc56cee2de1114555a54029d4022040a157a205880e7132640fa0d656d0339babeefe776765914e24e4627721bfb401210397ae3ae02086a9863197f5aee59b77a6be77060f3d4875b908accd7d09c649d9')
+            },
+        ],
+    'raw_tx':
+    bytes.fromhex('0100000002025f3281e2e1163e0757b67855b3f2989e30b7921e20daecf8ab3ce282b03cdc0000000000ffffffff294ac83c71a7395d5ea3d2c265c83a72e49632660e6a018cdb95b0804fc861ef0b00000000ffffffff0192176e030000000000001976a914a2bcffe491af5bd2d32f10d8803b67e4107b61dc88ac000000000000000002c5b52303000000000dce0300080000006a47304402201b6f44bf26227ce982b4e6be453da4fd6551110eb219bc24833f2f74d50de60e0220471bb01c1c0c728b18edc4abbded1da51cf72fc0f30afedce3968ee9ba71a21d0121026f76ce8894ce567ea4eb34ece969f46ae9410ec3fb8c22a368b5743824d4c9b8453c4d000000000005ce03000b0000006b483045022100c533cfcf03901bc814f9809dcb62edca8cd4189fc56cee2de1114555a54029d4022040a157a205880e7132640fa0d656d0339babeefe776765914e24e4627721bfb401210397ae3ae02086a9863197f5aee59b77a6be77060f3d4875b908accd7d09c649d9'),
+    'witness_counter_error_tx':
+    bytes.fromhex('0100000002025f3281e2e1163e0757b67855b3f2989e30b7921e20daecf8ab3ce282b03cdc0000000000ffffffff294ac83c71a7395d5ea3d2c265c83a72e49632660e6a018cdb95b0804fc861ef0b00000000ffffffff0192176e030000000000001976a914a2bcffe491af5bd2d32f10d8803b67e4107b61dc88ac000000000000000000c5b52303000000000dce0300080000006a47304402201b6f44bf26227ce982b4e6be453da4fd6551110eb219bc24833f2f74d50de60e0220471bb01c1c0c728b18edc4abbded1da51cf72fc0f30afedce3968ee9ba71a21d0121026f76ce8894ce567ea4eb34ece969f46ae9410ec3fb8c22a368b5743824d4c9b8453c4d000000000005ce03000b0000006b483045022100c533cfcf03901bc814f9809dcb62edca8cd4189fc56cee2de1114555a54029d4022040a157a205880e7132640fa0d656d0339babeefe776765914e24e4627721bfb401210397ae3ae02086a9863197f5aee59b77a6be77060f3d4875b908accd7d09c649d9')
+    }
+
 # Not used:
 SIGHASH_DCR1 = {
         'prevout_pk': bytes.fromhex('76a91478807bd86b22a9f23bb4e026705c3e52824d7f3e88ac'),
@@ -838,11 +903,4 @@ SIGHASH_DCR1 = {
         'all_anyonecanpay': bytes.fromhex('c75779c947b3c0e8828db370c8d5597c6dd91a48e287d1bfca705637943d200e'),
         'single': bytes.fromhex('a1f4f2ced71352153ffee5dd570da5d609ecd5ce04e1db808c238554d758fb13'),
         'single_anyonecanpay': bytes.fromhex('1b83a4d2a1a70204587491f7f6e110704e98e1b8da04219efba5dde14eaccf1f')
-        }
-
-# values from my examination:
-MOOGHASH_DCR1 = {
-        'all_anyonecanpay': bytes.fromhex('39571d0607c4ede2bab8b5570a560f71d1e10877efe234563361f5bc0cea6efb'),
-        'single': bytes.fromhex('e9f8fcdbc1bdac56000c44d52f3ee100a2e5eb02856c689a34ac63f3a9be054c'),
-        'single_anyonecanpay': bytes.fromhex('ccded7f2fa79bc0305c25ef3648858fff31f8a202b1056992b5577edf38b4e15')
         }

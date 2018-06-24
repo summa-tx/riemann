@@ -595,8 +595,56 @@ class DecredInputWitness(DecredByteData):
                            else self.redeem_script))
 
     @classmethod
+    def _parse_script_sig(DecredInputWitness, script_sig):
+        '''
+        byte_string -> (byte_string, byte_string)
+        '''
+        # Is there a better way to do this?
+        stack_script = script_sig
+        redeem_script = b''
+        try:
+            # If the last entry deserializes, it's a p2sh input
+            # There is a vanishingly small edge case where the pubkey
+            #   forms a deserializable script.
+            deserialized = serialization.deserialize(script_sig)
+            items = deserialized.split()
+            serialization.hex_deserialize(items[-1])
+            stack_script = serialization.serialize(' '.join(items[:-1]))
+            redeem_script = serialization.serialize(items[-1])
+        except (IndexError, ValueError):
+            pass
+
+        return stack_script, redeem_script
+
+    @classmethod
     def from_bytes(DecredInputWitness, byte_string):
-        raise NotImplementedError('Not Yet Implemented')  # TODO
+        '''
+        byte_string -> DecredInputWitness
+        parses a DecredInputWitness from a byte-like object
+        '''
+
+        value = byte_string[0:8]
+        height = byte_string[8:12]
+        index = byte_string[12:16]
+
+        script_sig_len = VarInt.from_bytes(byte_string[16:25])
+        script_start = 16 + len(script_sig_len)
+        script_end = script_start + script_sig_len.number
+        script_sig = byte_string[script_start:script_end]
+
+        if script_sig == b'':
+            stack_script = b''
+            redeem_script = b''
+        else:
+            stack_script, redeem_script = \
+                DecredInputWitness._parse_script_sig(script_sig)
+
+        return DecredInputWitness(
+            value=value,
+            height=height,
+            index=index,
+            stack_script=stack_script,
+            redeem_script=redeem_script)
 
 
 class Tx(ByteData):
@@ -1049,11 +1097,11 @@ class DecredTx(DecredByteData):
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
 
-        # if len(tx_witnesses) != len(tx_ins):
-        #     raise ValueError(
-        #         'Witness and TxIn lists must be same length. '
-        #         'Got {} inputs and {} witnesses.'
-        #         .format(len(tx_ins), len(tx_witnesses)))
+        if len(tx_witnesses) != len(tx_ins):
+            raise ValueError(
+                'Witness and TxIn lists must be same length. '
+                'Got {} inputs and {} witnesses.'
+                .format(len(tx_ins), len(tx_witnesses)))
 
         for tx_in in tx_ins:
             if not isinstance(tx_in, DecredTxIn):
@@ -1114,7 +1162,55 @@ class DecredTx(DecredByteData):
 
     @classmethod
     def from_bytes(DecredTx, byte_string):
-        raise NotImplementedError('Not Yet Implemented')  # TODO
+        version = byte_string[0:4]
+
+        tx_ins_num_loc = 4
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
+
+        current = tx_ins_num_loc + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = DecredTxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = DecredTxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        lock_time = byte_string[current:current + 4]
+        current += 4
+        expiry = byte_string[current:current + 4]
+        current += 4
+        witness_counter = byte_string[current:current + 1]
+        current += 1
+
+        tx_witnesses = []
+        tx_witnesses_num = tx_ins_num
+        for _ in range(tx_witnesses_num.number):
+            tx_witness = \
+                DecredInputWitness.from_bytes(byte_string[current:])
+            current += len(tx_witness)
+            tx_witnesses.append(tx_witness)
+
+        if witness_counter != tx_witnesses_num:
+            raise ValueError(
+                'Witness counter does not equal number of witness inputs. '
+                'Got {} counter value and {} witnesses.'
+                .format(witness_counter, len(tx_witnesses)))
+
+        return DecredTx(
+            version=version,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=lock_time,
+            expiry=expiry,
+            tx_witnesses=tx_witnesses)
 
     def prefix_hash(self):
         try:
@@ -1213,7 +1309,7 @@ class DecredTx(DecredByteData):
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
             copy_tx_outs = [DecredTxOut(
-                            version=bytes(2),
+                            version=b'\x00' * 2,
                             value=b'\xff' * 8,
                             output_script=b'')
                             for _ in copy_tx.tx_ins]
