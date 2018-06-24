@@ -14,8 +14,13 @@ def guess_version(redeem_script):
     We want to signal nSequence if we're using OP_CSV.
     Unless we're in zcash.
     '''
-    if 'zcash' in riemann.get_current_network_name():
+    n = riemann.get_current_network_name()
+    if 'sprout' in n:
         return 1
+    if 'overwinter' in n:
+        return 3
+    if 'sapling' in n:
+        return 4
     try:
         script_array = redeem_script.split()
         script_array.index('OP_CHECKSEQUENCEVERIFY')
@@ -296,11 +301,11 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
     # Parse legacy scripts AND witness scripts for OP_CLTV
     deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins
              if tx_in is not None]
-    try:
-        deser += [script_ser.deserialize(w.stack[-1].to_bytes())
-                  for w in tx_witnesses]
-    except NotImplementedError:
-        pass
+    for w in tx_witnesses:
+        try:
+            deser.append(script_ser.deserialize(w.stack[-1].item))
+        except (NotImplementedError, ValueError):
+            pass
     version = max([guess_version(d) for d in deser])
     lock_time = max([guess_locktime(d) for d in deser])
 

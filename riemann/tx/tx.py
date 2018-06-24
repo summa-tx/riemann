@@ -1,8 +1,7 @@
-import riemann
-from ..script import serialization
 import math
-from .. import utils
-
+import riemann
+from riemann.script import serialization
+from riemann import utils
 
 SIGHASH_ALL = 0x01
 SIGHASH_NONE = 0x02
@@ -135,16 +134,6 @@ class ByteData():
                              .format(length, type(data), len(data)))
 
 
-class DecredByteData(ByteData):
-
-    def __init__(self):
-        if 'decred' not in riemann.get_current_network_name():
-            raise ValueError('Decred classes not supported by network {}. '
-                             'How did you get here?'
-                             .format(riemann.get_current_network_name()))
-        super().__init__()
-
-
 class VarInt(ByteData):
     '''
     NB: number must be integer
@@ -188,20 +177,23 @@ class VarInt(ByteData):
         num = byte_string
         if num[0] <= 0xfc:
             num = num[0:1]
+            non_compact = False
         elif num[0] == 0xfd:
             num = num[1:3]
+            non_compact = (num[1] == 0)
         elif num[0] == 0xfe:
             num = num[1:5]
+            non_compact = (num[-2:] == b'\x00\x00')
         elif num[0] == 0xff:
             num = num[1:9]
+            non_compact = (num[-4:] == b'\x00\x00\x00\x00')
         if len(num) not in [1, 2, 4, 8]:
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
         ret = VarInt(utils.le2i(num))
 
-        if ('zcash' in riemann.get_current_network_name()
-                and len(ret) != len(byte_string)):
+        if non_compact:
             raise ValueError('VarInt must be compact. Got: {}'
                              .format(byte_string.hex()))
 
@@ -240,39 +232,6 @@ class Outpoint(ByteData):
         return Outpoint(
             tx_id=byte_string[:32],
             index=byte_string[32:36])
-
-
-class DecredOutpoint(DecredByteData):
-
-    def __init__(self, tx_id, index, tree):
-        super().__init__()
-
-        self.validate_bytes(tx_id, 32)
-        self.validate_bytes(index, 4)
-        self.validate_bytes(tree, 1)
-
-        self += tx_id
-        self += index
-        self += tree
-
-        self.tx_id = tx_id
-        self.index = index
-        self.tree = tree
-
-        self._make_immutable()
-
-    def copy(self, tx_id=None, index=None, tree=None):
-        return DecredOutpoint(
-            tx_id=tx_id if tx_id is not None else self.tx_id,
-            index=index if index is not None else self.index,
-            tree=tree if tree is not None else self.tree)
-
-    @classmethod
-    def from_bytes(DecredOutpoint, byte_string):
-        return DecredOutpoint(
-            tx_id=byte_string[:32],
-            index=byte_string[32:36],
-            tree=byte_string[36:37])
 
 
 class TxIn(ByteData):
@@ -375,34 +334,6 @@ class TxIn(ByteData):
             sequence=sequence)
 
 
-class DecredTxIn(DecredByteData):
-
-    def __init__(self, outpoint, sequence):
-        super().__init__()
-
-        self.validate_bytes(outpoint, 37)
-        self.validate_bytes(sequence, 4)
-
-        self += outpoint
-        self += sequence
-
-        self.outpoint = outpoint
-        self.sequence = sequence
-
-        self._make_immutable()
-
-    def copy(self, outpoint=None, sequence=None):
-        return DecredTxIn(
-            outpoint=outpoint if outpoint is not None else self.outpoint,
-            sequence=sequence if sequence is not None else self.sequence)
-
-    @classmethod
-    def from_bytes(DecredTxIn, byte_string):
-        return DecredTxIn(
-            outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
-            sequence=byte_string[37:41])
-
-
 class TxOut(ByteData):
     '''
     NB: value must be little-endian
@@ -451,49 +382,6 @@ class TxOut(ByteData):
                 'No support for abnormally long pk_scripts.')
 
 
-class DecredTxOut(ByteData):
-
-    def __init__(self, value, version, output_script):
-        super().__init__()
-
-        self.validate_bytes(value, 8)
-        self.validate_bytes(version, 2)
-        self.validate_bytes(output_script, None)
-
-        self += value
-        self += version
-        self += VarInt(len(output_script))
-        self += output_script
-
-        self.value = value
-        self.version = version
-        self.output_script_len = len(output_script)
-        self.output_script = output_script
-
-        self._make_immutable()
-
-    def copy(self, value=None, version=None, output_script=None):
-        return DecredTxOut(
-            value=value if value is not None else self.value,
-            version=version if version is not None else self.version,
-            output_script=(output_script if output_script is not None
-                           else self.output_script))
-
-    @classmethod
-    def from_bytes(DecredTxOut, byte_string):
-        n = VarInt.from_bytes(byte_string[10:])
-        script_start = 10 + len(n)
-        script_end = script_start + n.number
-        if n.number < 0xfc:
-            return DecredTxOut(
-                value=byte_string[:8],
-                version=byte_string[8:10],
-                output_script=byte_string[script_start:script_end])
-        else:
-            raise NotImplementedError(
-                'No support for abnormally long pk_scripts.')
-
-
 class WitnessStackItem(ByteData):
 
     def __init__(self, item):
@@ -531,7 +419,7 @@ class InputWitness(ByteData):
             if not isinstance(item, WitnessStackItem):
                 raise ValueError(
                     'Invalid witness stack item. '
-                    'Expected bytes. Got {}'
+                    'Expected WitnessStackItem. Got {}'
                     .format(item))
 
         self += VarInt(len(stack))
@@ -553,98 +441,6 @@ class InputWitness(ByteData):
             item_start += len(item)
             items.append(item)
         return InputWitness(items)
-
-
-class DecredInputWitness(DecredByteData):
-
-    def __init__(self, value, height, index, stack_script, redeem_script):
-        super().__init__()
-
-        self.validate_bytes(value, 8)
-        self.validate_bytes(height, 4)
-        self.validate_bytes(index, 4)
-        self.validate_bytes(stack_script, None)
-        self.validate_bytes(redeem_script, None)
-
-        self += value
-        self += height
-        self += index
-        self += VarInt(len(stack_script) + len(redeem_script))
-        self += stack_script
-        self += redeem_script
-
-        self.value = value
-        self.height = height
-        self.index = index
-        self.script_len = len(stack_script + redeem_script)
-        self.stack_script = stack_script
-        self.redeem_script = redeem_script
-        self.script_sig = self.stack_script + self.redeem_script
-
-        self._make_immutable()
-
-    def copy(self, value=None, height=None, index=None,
-             stack_script=None, redeem_script=None):
-        return DecredInputWitness(
-            value=value if value is not None else self.value,
-            height=height if height is not None else self.height,
-            index=index if index is not None else self.index,
-            stack_script=(stack_script if stack_script is not None
-                          else self.stack_script),
-            redeem_script=(redeem_script if redeem_script is not None
-                           else self.redeem_script))
-
-    @classmethod
-    def _parse_script_sig(DecredInputWitness, script_sig):
-        '''
-        byte_string -> (byte_string, byte_string)
-        '''
-        # Is there a better way to do this?
-        stack_script = script_sig
-        redeem_script = b''
-        try:
-            # If the last entry deserializes, it's a p2sh input
-            # There is a vanishingly small edge case where the pubkey
-            #   forms a deserializable script.
-            deserialized = serialization.deserialize(script_sig)
-            items = deserialized.split()
-            serialization.hex_deserialize(items[-1])
-            stack_script = serialization.serialize(' '.join(items[:-1]))
-            redeem_script = serialization.serialize(items[-1])
-        except (IndexError, ValueError):
-            pass
-
-        return stack_script, redeem_script
-
-    @classmethod
-    def from_bytes(DecredInputWitness, byte_string):
-        '''
-        byte_string -> DecredInputWitness
-        parses a DecredInputWitness from a byte-like object
-        '''
-
-        value = byte_string[0:8]
-        height = byte_string[8:12]
-        index = byte_string[12:16]
-
-        script_sig_len = VarInt.from_bytes(byte_string[16:25])
-        script_start = 16 + len(script_sig_len)
-        script_end = script_start + script_sig_len.number
-        script_sig = byte_string[script_start:script_end]
-
-        if script_sig == b'':
-            stack_script = b''
-            redeem_script = b''
-        else:
-            stack_script, redeem_script = \
-                DecredInputWitness._parse_script_sig(script_sig)
-
-        return DecredInputWitness(
-            value=value,
-            height=height,
-            index=index,
-            stack_script=stack_script,
-            redeem_script=redeem_script)
 
 
 class Tx(ByteData):
@@ -853,8 +649,8 @@ class Tx(ByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = self.script_code(index=index)
-        if sub_script is None:
+        sub_script = self._get_script_code(index=index)
+        if sub_script == b'':
             sub_script = script
         # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
@@ -987,18 +783,18 @@ class Tx(ByteData):
                 sequences += tx_in.sequence
             return utils.hash256(sequences.to_bytes())
 
-    def script_code(self, index):
+    def _get_script_code(self, index):
         if len(self.tx_ins[index].redeem_script) != 0:
             script = ByteData()
             # redeemScript in case of P2SH
             script += self.tx_ins[index].redeem_script
             return script.to_bytes()
-        return None
+        return b''
 
     def _adjusted_script_code(self, index, script):
         script_code = ByteData()
-        tx_in_redeem_script = self.script_code(index=index)
-        if tx_in_redeem_script is None:
+        tx_in_redeem_script = self._get_script_code(index=index)
+        if tx_in_redeem_script == b'':
             script_code += VarInt(len(script))
             script_code += script
             return script_code
@@ -1079,6 +875,212 @@ class Tx(ByteData):
                                             anyone_can_pay=anyone_can_pay)
 
         return utils.hash256(data.to_bytes())
+
+
+class DecredByteData(ByteData):
+
+    def __init__(self):
+        if 'decred' not in riemann.get_current_network_name():
+            raise ValueError('Decred classes not supported by network {}. '
+                             'How did you get here?'
+                             .format(riemann.get_current_network_name()))
+        super().__init__()
+
+
+class DecredOutpoint(DecredByteData):
+
+    def __init__(self, tx_id, index, tree):
+        super().__init__()
+
+        self.validate_bytes(tx_id, 32)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(tree, 1)
+
+        self += tx_id
+        self += index
+        self += tree
+
+        self.tx_id = tx_id
+        self.index = index
+        self.tree = tree
+
+        self._make_immutable()
+
+    def copy(self, tx_id=None, index=None, tree=None):
+        return DecredOutpoint(
+            tx_id=tx_id if tx_id is not None else self.tx_id,
+            index=index if index is not None else self.index,
+            tree=tree if tree is not None else self.tree)
+
+    @classmethod
+    def from_bytes(DecredOutpoint, byte_string):
+        return DecredOutpoint(
+            tx_id=byte_string[:32],
+            index=byte_string[32:36],
+            tree=byte_string[36:37])
+
+
+class DecredTxIn(DecredByteData):
+
+    def __init__(self, outpoint, sequence):
+        super().__init__()
+
+        self.validate_bytes(outpoint, 37)
+        self.validate_bytes(sequence, 4)
+
+        self += outpoint
+        self += sequence
+
+        self.outpoint = outpoint
+        self.sequence = sequence
+
+        self._make_immutable()
+
+    def copy(self, outpoint=None, sequence=None):
+        return DecredTxIn(
+            outpoint=outpoint if outpoint is not None else self.outpoint,
+            sequence=sequence if sequence is not None else self.sequence)
+
+    @classmethod
+    def from_bytes(DecredTxIn, byte_string):
+        return DecredTxIn(
+            outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
+            sequence=byte_string[37:41])
+
+
+class DecredTxOut(ByteData):
+
+    def __init__(self, value, version, output_script):
+        super().__init__()
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(version, 2)
+        self.validate_bytes(output_script, None)
+
+        self += value
+        self += version
+        self += VarInt(len(output_script))
+        self += output_script
+
+        self.value = value
+        self.version = version
+        self.output_script_len = len(output_script)
+        self.output_script = output_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, version=None, output_script=None):
+        return DecredTxOut(
+            value=value if value is not None else self.value,
+            version=version if version is not None else self.version,
+            output_script=(output_script if output_script is not None
+                           else self.output_script))
+
+    @classmethod
+    def from_bytes(DecredTxOut, byte_string):
+        n = VarInt.from_bytes(byte_string[10:])
+        script_start = 10 + len(n)
+        script_end = script_start + n.number
+        if n.number < 0xfc:
+            return DecredTxOut(
+                value=byte_string[:8],
+                version=byte_string[8:10],
+                output_script=byte_string[script_start:script_end])
+        else:
+            raise NotImplementedError(
+                'No support for abnormally long pk_scripts.')
+
+
+class DecredInputWitness(DecredByteData):
+
+    def __init__(self, value, height, index, stack_script, redeem_script):
+        super().__init__()
+
+        self.validate_bytes(value, 8)
+        self.validate_bytes(height, 4)
+        self.validate_bytes(index, 4)
+        self.validate_bytes(stack_script, None)
+        self.validate_bytes(redeem_script, None)
+
+        self += value
+        self += height
+        self += index
+        self += VarInt(len(stack_script) + len(redeem_script))
+        self += stack_script
+        self += redeem_script
+
+        self.value = value
+        self.height = height
+        self.index = index
+        self.script_len = len(stack_script + redeem_script)
+        self.stack_script = stack_script
+        self.redeem_script = redeem_script
+        self.script_sig = self.stack_script + self.redeem_script
+
+        self._make_immutable()
+
+    def copy(self, value=None, height=None, index=None,
+             stack_script=None, redeem_script=None):
+        return DecredInputWitness(
+            value=value if value is not None else self.value,
+            height=height if height is not None else self.height,
+            index=index if index is not None else self.index,
+            stack_script=(stack_script if stack_script is not None
+                          else self.stack_script),
+            redeem_script=(redeem_script if redeem_script is not None
+                           else self.redeem_script))
+
+    @classmethod
+    def _parse_script_sig(DecredInputWitness, script_sig):
+        '''
+        byte_string -> (byte_string, byte_string)
+        '''
+        # Is there a better way to do this?
+        stack_script = script_sig
+        redeem_script = b''
+        try:
+            # If the last entry deserializes, it's a p2sh input
+            # There is a vanishingly small edge case where the pubkey
+            #   forms a deserializable script.
+            deserialized = serialization.deserialize(script_sig)
+            items = deserialized.split()
+            serialization.hex_deserialize(items[-1])
+            stack_script = serialization.serialize(' '.join(items[:-1]))
+            redeem_script = serialization.serialize(items[-1])
+        except (IndexError, ValueError):
+            pass
+
+        return stack_script, redeem_script
+
+    @classmethod
+    def from_bytes(DecredInputWitness, byte_string):
+        '''
+        byte_string -> DecredInputWitness
+        parses a DecredInputWitness from a byte-like object
+        '''
+
+        value = byte_string[0:8]
+        height = byte_string[8:12]
+        index = byte_string[12:16]
+
+        script_sig_len = VarInt.from_bytes(byte_string[16:25])
+        script_start = 16 + len(script_sig_len)
+        script_end = script_start + script_sig_len.number
+        script_sig = byte_string[script_start:script_end]
+
+        if script_sig == b'':
+            stack_script = b''
+            redeem_script = b''
+        else:
+            stack_script, redeem_script = \
+                DecredInputWitness._parse_script_sig(script_sig)
+
+        return DecredInputWitness(
+            value=value,
+            height=height,
+            index=index,
+            stack_script=stack_script,
+            redeem_script=redeem_script)
 
 
 class DecredTx(DecredByteData):
@@ -1274,20 +1276,20 @@ class DecredTx(DecredByteData):
             tx_witnesses=(tx_witnesses if tx_witnesses is not None
                           else self.tx_witnesses))
 
-    def script_code(self, index):
+    def _get_script_code(self, index):
         if len(self.tx_witnesses[index].redeem_script) != 0:
             script = ByteData()
             # redeemScript in case of P2SH
             script += self.tx_witnesses[index].redeem_script
             return script.to_bytes()
-        return None
+        return b''
 
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
     def _sighash_prep(self, index, script=None):
-        sub_script = self.script_code(index)
-        if sub_script is None:
+        sub_script = self._get_script_code(index)
+        if sub_script == b'':
             sub_script = script
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
@@ -1369,3 +1371,808 @@ class DecredTx(DecredByteData):
         sighash += copy_tx.prefix_hash()
         sighash += copy_tx.witness_signing_hash()
         return utils.blake256(sighash.to_bytes())
+
+
+class ZcashByteData(ByteData):
+    def __init__(self):
+        if 'zcash' not in riemann.get_current_network_name():
+            raise ValueError('Zcash classes not supported by network {}. '
+                             'How did you get here?'
+                             .format(riemann.get_current_network_name()))
+        super().__init__()
+
+
+class SproutZkproof(ZcashByteData):
+
+    def __init__(self, pi_sub_a, pi_prime_sub_a, pi_sub_b, pi_prime_sub_b,
+                 pi_sub_c, pi_prime_sub_c, pi_sub_k, pi_sub_h):
+        super().__init__()
+
+        self.validate_bytes(pi_sub_a, 33)
+        self.validate_bytes(pi_prime_sub_a, 33)
+        self.validate_bytes(pi_sub_b, 65)
+        self.validate_bytes(pi_prime_sub_b, 33)
+        self.validate_bytes(pi_sub_c, 33)
+        self.validate_bytes(pi_prime_sub_c, 33)
+        self.validate_bytes(pi_sub_k, 33)
+        self.validate_bytes(pi_sub_h, 33)
+
+        self += pi_sub_a
+        self += pi_prime_sub_a
+        self += pi_sub_b
+        self += pi_prime_sub_b
+        self += pi_sub_c
+        self += pi_prime_sub_c
+        self += pi_sub_k
+        self += pi_sub_h
+
+        self.pi_sub_a = pi_sub_a
+        self.pi_prime_sub_a = pi_prime_sub_a
+        self.pi_sub_b = pi_sub_b
+        self.pi_prime_sub_b = pi_prime_sub_b
+        self.pi_sub_c = pi_sub_c
+        self.pi_prime_sub_c = pi_prime_sub_c
+        self.pi_sub_k = pi_sub_k
+        self.pi_sub_h = pi_sub_h
+
+        self._make_immutable()
+
+    @classmethod
+    def from_bytes(SproutZkproof, byte_string):
+        return SproutZkproof(
+            pi_sub_a=byte_string[0:33],
+            pi_prime_sub_a=byte_string[33:66],
+            pi_sub_b=byte_string[66:131],
+            pi_prime_sub_b=byte_string[131:164],
+            pi_sub_c=byte_string[164:197],
+            pi_prime_sub_c=byte_string[197:230],
+            pi_sub_k=byte_string[230:263],
+            pi_sub_h=byte_string[263:296])
+
+
+class SproutJoinsplit(ZcashByteData):
+
+    def __init__(self, vpub_old, vpub_new, anchor, nullifiers, commitments,
+                 ephemeral_key, random_seed, vmacs, zkproof, encoded_notes):
+        super().__init__()
+
+        if not isinstance(zkproof, SproutZkproof):
+            raise ValueError(
+                'Invalid zkproof. '
+                'Expected instance of SproutZkproof. Got {}'
+                .format(type(zkproof).__name__))
+        if (utils.le2i(vpub_old) != 0 and utils.le2i(vpub_new) != 0):
+            raise ValueError('vpub_old or vpub_new must be zero')
+
+        self.validate_bytes(vpub_old, 8)
+        self.validate_bytes(vpub_new, 8)
+        self.validate_bytes(anchor, 32)
+        self.validate_bytes(nullifiers, 64)
+        self.validate_bytes(commitments, 64)
+        self.validate_bytes(ephemeral_key, 32)
+        self.validate_bytes(random_seed, 32)
+        self.validate_bytes(vmacs, 64)
+        self.validate_bytes(encoded_notes, 1202)
+
+        self += vpub_old
+        self += vpub_new
+        self += anchor
+        self += nullifiers
+        self += commitments
+        self += ephemeral_key
+        self += random_seed
+        self += vmacs
+        self += zkproof
+        self += encoded_notes
+
+        self.vpub_old = vpub_old
+        self.vpub_new = vpub_new
+        self.anchor = anchor
+        self.nullifiers = nullifiers
+        self.commitments = commitments
+        self.ephemeral_key = ephemeral_key
+        self.random_seed = random_seed
+        self.vmacs = vmacs
+        self.zkproof = zkproof
+        self.encoded_notes = encoded_notes
+
+        self._make_immutable()
+
+    @classmethod
+    def from_bytes(SproutJoinsplit, byte_string):
+        return SproutJoinsplit(
+            vpub_old=byte_string[0:8],
+            vpub_new=byte_string[8:16],
+            anchor=byte_string[16:48],
+            nullifiers=byte_string[48:112],
+            commitments=byte_string[112:176],
+            ephemeral_key=byte_string[176:208],
+            random_seed=byte_string[208:240],
+            vmacs=byte_string[240:304],
+            zkproof=SproutZkproof.from_bytes(byte_string[304:600]),
+            encoded_notes=byte_string[600:1802])
+
+
+class SproutTx(ZcashByteData):
+
+    def __init__(self, version, tx_ins, tx_outs, lock_time,
+                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+
+        super().__init__()
+
+        if 'sprout' not in riemann.get_current_network_name():
+            raise ValueError(
+                'SproutTx not supported by network {}.'
+                .format(riemann.get_current_network_name()))
+
+        self.validate_bytes(version, 4)
+        self.validate_bytes(lock_time, 4)
+
+        if max(len(tx_ins), len(tx_outs)) > 255:
+            raise ValueError('Too many inputs or outputs. Stop that.')
+
+        for tx_in in tx_ins:
+            if not isinstance(tx_in, TxIn):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_in).__name__))
+
+        for tx_out in tx_outs:
+            if not isinstance(tx_out, TxOut):
+                raise ValueError(
+                    'Invalid TxOut. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_out).__name__))
+
+        if utils.le2i(version) == 1:
+            if tx_joinsplits is not None and len(tx_joinsplits) != 0:
+                raise ValueError('Joinsplits not allowed in version 1 txns.')
+            if tx_ins is None or len(tx_ins) == 0:
+                raise ValueError('Version 1 txns must have at least 1 input.')
+
+        if utils.le2i(version) == 2:
+            if len(tx_joinsplits) > 5:
+                raise ValueError('Too many joinsplits. Stop that.')
+            for tx_joinsplit in tx_joinsplits:
+                if not isinstance(tx_joinsplit, SproutJoinsplit):
+                    raise ValueError(
+                        'Invalid Joinsplit. '
+                        'Expected instance of SproutJoinsplit. Got {}'
+                        .format(type(tx_joinsplit).__name__))
+            self.validate_bytes(joinsplit_pubkey, 32)
+            if joinsplit_sig is not None and joinsplit_sig != b'':
+                self.validate_bytes(joinsplit_sig, 64)
+
+        if utils.le2i(version) not in [1, 2]:
+            raise ValueError('Version must be 1 or 2. '
+                             'Got: {}'.format(utils.le2i(version)))
+
+        self += version
+        self += VarInt(len(tx_ins))
+        for tx_in in tx_ins:
+            self += tx_in
+        self += VarInt(len(tx_outs))
+        for tx_out in tx_outs:
+            self += tx_out
+        self += lock_time
+
+        if version == utils.i2le_padded(2, 4):
+            self += VarInt(len(tx_joinsplits))
+            for tx_joinsplit in tx_joinsplits:
+                self += tx_joinsplit
+            self += joinsplit_pubkey
+            self += joinsplit_sig
+
+        self.version = version
+        self.tx_ins_len = len(tx_ins)
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
+        self.tx_outs_len = len(tx_outs)
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
+        self.tx_joinsplits_len = len(tx_joinsplits)
+        self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+        self.lock_time = lock_time
+
+        if version == utils.i2le_padded(2, 4):
+            self.joinsplit_pubkey = joinsplit_pubkey
+            self.joinsplit_sig = joinsplit_sig
+            # Zcash spec 5.4.1.4 Hsig hash function
+            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
+
+            self.primary_inputs = [self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len)]
+        else:
+            self.joinsplit_pubkey = None
+            self.joinsplit_sig = None
+            self.hsigs = None
+            self.primary_inputs = None
+
+        self.tx_id_le = utils.hash256(self.to_bytes()).hex()
+        self.tx_id = utils.hash256(self.to_bytes())[::-1].hex()
+
+        self._make_immutable()
+
+        if len(self) > 100000:
+            raise ValueError(  # pragma: no cover
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def _hsig(self, index):
+        return utils.blake2b(
+            data=self._hsig_input(index),
+            digest_size=32,
+            person=b'ZcashComputehSig')
+
+    def _hsig_input(self, index):
+        '''
+        inputs for the hsig hash
+        '''
+        hsig_input = ZcashByteData()
+        hsig_input += self.tx_joinsplits[index].random_seed
+        hsig_input += self.tx_joinsplits[index].nullifiers
+        hsig_input += self.joinsplit_pubkey
+        return hsig_input.to_bytes()
+
+    def _primary_input(self, index):
+        '''
+        Primary input for the zkproof
+        '''
+        primary_input = ZcashByteData()
+        primary_input += self.tx_joinsplits[index].anchor
+        primary_input += self.tx_joinsplits[index].nullifiers
+        primary_input += self.tx_joinsplits[index].commitments
+        primary_input += self.tx_joinsplits[index].vpub_old
+        primary_input += self.tx_joinsplits[index].vpub_new
+        primary_input += self.hsigs[index]
+        primary_input += self.tx_joinsplits[index].vmacs
+        return primary_input.to_bytes()
+
+    @classmethod
+    def from_bytes(SproutTx, byte_string):
+        '''
+        byte-like -> SproutTx
+        '''
+        version = byte_string[0:4]
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[4:])
+
+        current = 4 + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        lock_time = byte_string[current:current + 4]
+        current += 4
+
+        tx_joinsplits = None
+        joinsplit_pubkey = None
+        joinsplit_sig = None
+        if utils.le2i(version) == 2:  # If we expect joinsplits
+            tx_joinsplits = []
+            tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+            current += len(tx_joinsplits_num)
+
+            for _ in range(tx_joinsplits_num.number):
+                joinsplit = SproutJoinsplit.from_bytes(byte_string[current:])
+                current += len(joinsplit)
+                tx_joinsplits.append(joinsplit)
+            joinsplit_pubkey = byte_string[current:current + 32]
+            current += 32
+            joinsplit_sig = byte_string[current:current + 64]
+
+        return SproutTx(
+            version=version,
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=lock_time,
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
+
+    def calculate_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        '''
+        total_in = sum(input_values)
+        total_out = sum([utils.le2i(tx_out.value) for tx_out in self.tx_outs])
+        for js in self.tx_joinsplits:
+            total_in += utils.le2i(js.vpub_new)
+            total_out += utils.le2i(js.vpub_old)
+        return total_in - total_out
+
+    def copy(self, version=None, tx_ins=None, tx_outs=None, lock_time=None,
+             tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
+        '''
+        SproutTx, ... -> Tx
+
+        Makes a copy. Allows over-writing specific pieces.
+        '''
+        return SproutTx(
+            version=version if version is not None else self.version,
+            tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
+            tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
+            lock_time=(lock_time if lock_time is not None
+                       else self.lock_time),
+            tx_joinsplits=(tx_joinsplits if tx_joinsplits is not None
+                           else self.tx_joinsplits),
+            joinsplit_pubkey=(joinsplit_pubkey if joinsplit_pubkey is not None
+                              else self.joinsplit_pubkey),
+            joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
+                           else self.joinsplit_sig))
+
+    def _get_script_code(self, index):
+        '''
+        SproutTx, int -> bytes
+        '''
+        if len(self.tx_ins) > 0 and len(self.tx_ins[index].redeem_script) > 0:
+            script = ByteData()
+            # redeemScript in case of P2SH
+            script += self.tx_ins[index].redeem_script
+            return script.to_bytes()
+        return b''
+
+    def _sighash_prep(self, index, script):
+        '''
+        SproutTx, int, byte-like -> SproutTx
+        Sighashes suck
+        Performs the sighash setup described here:
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#How_it_works
+        https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
+        We save on complexity by refusing to support OP_CODESEPARATOR
+        '''
+        sub_script = self._get_script_code(index=index)
+        if sub_script == b'':
+            sub_script = script
+
+        if len(self.tx_ins) == 0:
+            return self.copy(joinsplit_sig=b'')
+        # 0 out scripts in tx_ins
+        copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
+                       for tx_in in self.tx_ins]
+
+        # NB: The script for the current transaction input in txCopy is set to
+        #     subScript (lead in by its length as a var-integer encoded!)
+        copy_tx_ins[index] = \
+            copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
+
+        return self.copy(tx_ins=copy_tx_ins, joinsplit_sig=b'')
+
+    def sighash_all(self, index=0, script=None,
+                    prevout_value=None, anyone_can_pay=False):
+        '''
+        SproutTx, int, byte-like, byte-like, bool -> bytearray
+        Sighashes suck
+        Generates the hash to be signed with SIGHASH_ALL
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
+        '''
+
+        if riemann.network.FORKID is not None:
+            return self._sighash_forkid(index=index,
+                                        script=script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_ALL,
+                                        anyone_can_pay=anyone_can_pay)
+
+        copy_tx = self._sighash_prep(index=index, script=script)
+        if anyone_can_pay:
+            return self._sighash_anyone_can_pay(
+                index=index, copy_tx=copy_tx, sighash_type=SIGHASH_ALL)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_ALL)
+
+    def sighash_single(self, index=0, script=None,
+                       prevout_value=None, anyone_can_pay=False):
+        '''
+        SproutTx, int, byte-like, byte-like, bool -> bytearray
+        Sighashes suck
+        Generates the hash to be signed with SIGHASH_SINGLE
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
+        https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
+        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
+        '''
+
+        if self.tx_joinsplits is not None:
+            raise ValueError('Sighash single not permitted with joinsplits.')
+
+        if index >= len(self.tx_outs):
+            raise NotImplementedError(
+                'I refuse to implement the SIGHASH_SINGLE bug.')
+
+        if riemann.network.FORKID is not None:
+            return self._sighash_forkid(index=index,
+                                        script=script,
+                                        prevout_value=prevout_value,
+                                        sighash_type=SIGHASH_SINGLE,
+                                        anyone_can_pay=anyone_can_pay)
+
+        copy_tx = self._sighash_prep(index=index, script=script)
+
+        # Remove outputs after the one we're signing
+        # Other tx_outs are set to -1 value and null scripts
+        copy_tx_outs = copy_tx.tx_outs[:index + 1]
+        copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+                        for _ in copy_tx.tx_ins]  # Null them all
+        copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
+
+        # Other tx_ins sequence numbers are set to 0
+        copy_tx_ins = [tx_in.copy(sequence=b'\x00\x00\x00\x00')
+                       for tx_in in copy_tx.tx_ins]  # Set all to 0
+        copy_tx_ins[index] = copy_tx.tx_ins[index]  # Fix the current one
+
+        copy_tx = copy_tx.copy(
+            tx_ins=copy_tx_ins,
+            tx_outs=copy_tx_outs)
+
+        if anyone_can_pay:  # Forward onwards
+            return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
+
+        return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+
+    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
+        '''
+        int, SproutTx, int -> bytes
+        Applies SIGHASH_ANYONECANPAY procedure.
+        Should be called by another SIGHASH procedure.
+        Not on its own.
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
+        '''
+
+        if self.tx_joinsplits is not None:
+            raise ValueError(
+                'Sighash anyonecanpay not permitted with joinsplits.')
+
+        # The txCopy input vector is resized to a length of one.
+        copy_tx_ins = [copy_tx.tx_ins[index]]
+        copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
+
+        return self._sighash_final_hashing(
+            copy_tx, sighash_type | SIGHASH_ANYONECANPAY)
+
+    def _sighash_final_hashing(self, copy_tx, sighash_type):
+        '''
+        SproutTx, int -> bytes
+        Returns the hash that should be signed
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
+        '''
+        sighash = ByteData()
+        sighash += copy_tx.to_bytes()
+        sighash += utils.i2le_padded(sighash_type, 4)
+        return utils.hash256(sighash.to_bytes())
+
+
+class OverwinterTx(ZcashByteData):
+
+    def __init__(self, tx_ins, tx_outs, lock_time, expiry_height,
+                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+        super().__init__()
+
+        if 'overwinter' not in riemann.get_current_network_name():
+            raise ValueError(
+                'OverwinterTx not supported by network {}.'
+                .format(riemann.get_current_network_name()))
+
+        self.validate_bytes(lock_time, 4)
+        self.validate_bytes(expiry_height, 4)
+
+        if utils.le2i(expiry_height) > 499999999:
+            raise ValueError('Expiry time too high.'
+                             'Expected <= 499999999. Got {}'
+                             .format(utils.le2i(expiry_height)))
+
+        if max(len(tx_ins), len(tx_outs)) > 255:
+            raise ValueError('Too many inputs or outputs. Stop that.')
+
+        for tx_in in tx_ins:
+            if not isinstance(tx_in, TxIn):
+                raise ValueError(
+                    'Invalid TxIn. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_in).__name__))
+
+        for tx_out in tx_outs:
+            if not isinstance(tx_out, TxOut):
+                raise ValueError(
+                    'Invalid TxOut. '
+                    'Expected instance of TxOut. Got {}'
+                    .format(type(tx_out).__name__))
+
+        if len(tx_joinsplits) > 5:
+            raise ValueError('Too many joinsplits. Stop that.')
+
+        for tx_joinsplit in tx_joinsplits:
+            if not isinstance(tx_joinsplit, SproutJoinsplit):
+                raise ValueError(
+                    'Invalid Joinsplit. '
+                    'Expected instance of SproutJoinsplit. Got {}'
+                    .format(type(tx_joinsplit).__name__))
+        if len(tx_joinsplits) != 0:
+            self.validate_bytes(joinsplit_pubkey, 32)
+            self.validate_bytes(joinsplit_sig, 64)
+
+        if len(tx_joinsplits) == 0 and len(tx_ins) == 0:
+            raise ValueError('Transaction must have tx_ins or joinsplits.')
+
+        self += b'\x03\x00\x00\x80'  # Version 3 + fOverwintered
+        self += b'\x03\xC4\x82\x70'  # Overwinter Group ID
+        self += VarInt(len(tx_ins))
+        for tx_in in tx_ins:
+            self += tx_in
+        self += VarInt(len(tx_outs))
+        for tx_out in tx_outs:
+            self += tx_out
+        self += lock_time
+        self += expiry_height
+
+        if len(tx_joinsplits) != 0:
+            self += VarInt(len(tx_joinsplits))
+            for tx_joinsplit in tx_joinsplits:
+                self += tx_joinsplit
+            self += joinsplit_pubkey
+            self += joinsplit_sig
+
+        self.header = b'\x03\x00\x00\x80'
+        self.group_id = b'\x03\xC4\x82\x70'
+        self.version = b'\x03\x00'
+        self.tx_ins_len = len(tx_ins)
+        self.tx_ins = tuple(tx_in for tx_in in tx_ins)
+        self.tx_outs_len = len(tx_outs)
+        self.tx_outs = tuple(tx_out for tx_out in tx_outs)
+        self.tx_joinsplits_len = len(tx_joinsplits)
+        self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+        self.lock_time = lock_time
+        self.expiry_height = expiry_height
+
+        if len(tx_joinsplits) != 0:
+            self.tx_joinsplits = tuple(js for js in tx_joinsplits)
+            self.joinsplit_pubkey = joinsplit_pubkey
+            self.joinsplit_sig = joinsplit_sig
+            # Zcash spec 5.4.1.4 Hsig hash function
+            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
+            self.primary_inputs = [self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len)]
+
+        self.tx_id_le = 1
+        self.tx_id = 1
+
+        self._make_immutable()
+
+        if len(self) > 100000:
+            raise ValueError(  # pragma: no cover
+                'Tx is too large. '
+                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
+
+    def calculate_fee(self, input_values):
+        '''
+        Tx, list(int) -> int
+        '''
+        total_in = sum(input_values)
+        total_out = sum([utils.le2i(tx_out.value) for tx_out in self.tx_outs])
+        for js in self.tx_joinsplits:
+            total_in += utils.le2i(js.vpub_new)
+            total_out += utils.le2i(js.vpub_old)
+        return total_in - total_out
+
+    def copy(self, tx_ins=None, tx_outs=None, lock_time=None,
+             expiry_height=None, tx_joinsplits=None, joinsplit_pubkey=None,
+             joinsplit_sig=None):
+        '''
+        OverwinterTx, ... -> OverwinterTx
+
+        Makes a copy. Allows over-writing specific pieces.
+        '''
+        return OverwinterTx(
+            tx_ins=tx_ins if tx_ins is not None else self.tx_ins,
+            tx_outs=tx_outs if tx_outs is not None else self.tx_outs,
+            lock_time=(lock_time if lock_time is not None
+                       else self.lock_time),
+            expiry_height=(expiry_height if expiry_height is not None
+                           else self.expiry_height),
+            tx_joinsplits=(tx_joinsplits if tx_joinsplits is not None
+                           else self.tx_joinsplits),
+            joinsplit_pubkey=(joinsplit_pubkey if joinsplit_pubkey is not None
+                              else self.joinsplit_pubkey),
+            joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
+                           else self.joinsplit_sig))
+
+    def _hsig(self, index):
+        return utils.blake2b(
+            data=self._hsig_input(index),
+            digest_size=32,
+            person=b'ZcashComputehSig')
+
+    def _hsig_input(self, index):
+        '''
+        inputs for the hsig hash
+        '''
+        hsig_input = ZcashByteData()
+        hsig_input += self.tx_joinsplits[index].random_seed
+        hsig_input += self.tx_joinsplits[index].nullifiers
+        hsig_input += self.joinsplit_pubkey
+        return hsig_input.to_bytes()
+
+    def _primary_input(self, index):
+        '''
+        Primary input for the zkproof
+        '''
+        primary_input = ZcashByteData()
+        primary_input += self.tx_joinsplits[index].anchor
+        primary_input += self.tx_joinsplits[index].nullifiers
+        primary_input += self.tx_joinsplits[index].commitments
+        primary_input += self.tx_joinsplits[index].vpub_old
+        primary_input += self.tx_joinsplits[index].vpub_new
+        primary_input += self.hsigs[index]
+        primary_input += self.tx_joinsplits[index].vmacs
+        return primary_input.to_bytes()
+
+    @classmethod
+    def from_bytes(OverwinterTx, byte_string):
+        '''
+        byte-like -> OverwinterTx
+        '''
+        header = byte_string[0:4]
+        group_id = byte_string[4:8]
+
+        if header != b'\x03\x00\x00\x80' or group_id != b'\x03\xC4\x82\x70':
+            raise ValueError(
+                'Bad header or group ID. Expected {} and {}. Got: {} and {}'
+                .format(b'\x03\x00\x00\x80'.hex(),
+                        b'\x03\xC4\x82\x70'.hex(),
+                        header.hex(),
+                        group_id.hex()))
+
+        tx_ins = []
+        tx_ins_num = VarInt.from_bytes(byte_string[8:])
+
+        current = 8 + len(tx_ins_num)
+        for _ in range(tx_ins_num.number):
+            tx_in = TxIn.from_bytes(byte_string[current:])
+            current += len(tx_in)
+            tx_ins.append(tx_in)
+
+        tx_outs = []
+        tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_outs_num.number):
+            tx_out = TxOut.from_bytes(byte_string[current:])
+            current += len(tx_out)
+            tx_outs.append(tx_out)
+
+        lock_time = byte_string[current:current + 4]
+        current += 4
+        expiry_height = byte_string[current:current + 4]
+        current += 4
+
+        tx_joinsplits = []
+        tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+
+        current += len(tx_outs_num)
+        for _ in range(tx_joinsplits_num.number):
+            tx_joinsplit = SproutJoinsplit.from_bytes(byte_string[current:])
+            current += len(tx_joinsplit)
+            tx_joinsplits.append(tx_joinsplit)
+
+        joinsplit_pubkey = byte_string[current:current + 32]
+        current += 32
+        joinsplit_sig = byte_string[current:current + 64]
+
+        return OverwinterTx(
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=lock_time,
+            expiry_height=expiry_height,
+            tx_joinsplits=tx_joinsplits,
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig)
+
+    def sighash_all(self, anyone_can_pay=False, **kwargs):
+        return self.sighash(sighash_type=SIGHASH_ALL, **kwargs)
+
+    def sighash_single(self, anyone_can_pay=False, **kwargs):
+
+        return self.sighash(sighash_type=SIGHASH_SINGLE, **kwargs)
+
+    def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
+                anyone_can_pay=False, prevout_value=None):
+        '''
+        https://github.com/zcash/zips/blob/master/zip-0143.rst
+        '''
+        data = ByteData()
+
+        data += self.header
+        data += self.group_id
+
+        data += self._hash_prevouts(anyone_can_pay)
+        data += self._hash_sequence(anyone_can_pay)
+        data += self._hash_outputs(sighash_type, index)
+        data += self._hash_joinsplits()
+
+        data += self.lock_time
+        data += self.expiry_height
+        if anyone_can_pay:
+            sighash_type = sighash_type | SIGHASH_ANYONECANPAY
+        data += utils.i2le_padded(sighash_type, 4)
+
+        if not joinsplit:
+            data += self.tx_ins[index].outpoint
+            data += script_code
+            data += prevout_value
+            data += self.tx_ins[index].sequence
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashSigHash' + bytes.fromhex('0x5ba81b19'))  # Branch ID
+
+    def _hash_prevouts(self, anyone_can_pay):
+        if anyone_can_pay:
+            return b'\x00' * 32
+
+        data = ByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.outpoint
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashSequencHash')
+
+    def _hash_sequence(self, anyone_can_pay):
+        if anyone_can_pay:
+            return b'\x00' * 32
+
+        data = ByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.sequence
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashPrevoutHash')
+
+    def _hash_outputs(self, sighash_type, index):
+        if sighash_type not in [SIGHASH_ALL, SIGHASH_NONE]:
+            return b'\x00' * 32
+
+        data = ByteData()
+
+        if sighash_type == SIGHASH_ALL:
+            for tx_out in self.tx_outs:
+                data += tx_out
+
+        if sighash_type == SIGHASH_SINGLE:
+            if index > len(self.tx_outs):
+                raise NotImplementedError(
+                    'I refuse to implement the SIGHASH_SINGLE bug.')
+            data += self.tx_out[index]
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashOutputsHash')
+
+    def _hash_joinsplits(self):
+        if len(self.tx_joinsplits) == 0:
+            return b'\x00' * 32
+
+        data = ByteData()
+
+        for joinsplit in self.tx_joinsplits:
+            data += joinsplit
+
+        data += self.joinsplit_pubkey
+
+        return utils.blake2b(
+            data=data,
+            digest_size=32,
+            person=b'ZcashJSplitsHash')

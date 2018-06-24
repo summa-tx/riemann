@@ -3,6 +3,7 @@ source = riemann/
 omit =
     riemann/tests/*
     riemann/blake256.py
+    riemann/blake2.py
 
 [report]
 show_missing = True
