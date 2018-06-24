@@ -878,21 +878,6 @@ class TestTx(unittest.TestCase):
             'I refuse to implement the SIGHASH_SINGLE bug.',
             str(context.exception))
 
-    def test_script_code(self):
-        self.stack_script = helpers.P2SH['ser']['ins'][0]['stack_script']
-        self.redeem_script = helpers.P2SH['ser']['ins'][0]['redeem_script']
-        self.sequence = helpers.P2SH['ser']['ins'][0]['sequence']
-        self.outpoint = helpers.P2SH['ser']['ins'][0]['outpoint']
-
-        self.tx_in = tx.TxIn(self.outpoint, self.stack_script,
-                             self.redeem_script, self.sequence)
-        self.tx_ins = [self.tx_in]
-
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
-
-        self.assertEqual(t.script_code(index=0), self.redeem_script)
-
     # def test_adjusted_script_code(self):
     #     self.stack_script = helpers.P2SH['ser']['ins'][0]['stack_script']
     #     self.redeem_script = helpers.P2SH['ser']['ins'][0]['redeem_script']
@@ -1485,7 +1470,7 @@ class TestDecredTx(DecredTestCase):
             transaction.witness_hash(),
             helpers.DCR['ser']['witnesses'][0]['hash'])
 
-    def test_script_code(self):
+    def test_get_script_code(self):
         transaction = tx.DecredTx(
             version=self.version,
             tx_ins=[self.tx_in],
@@ -1495,7 +1480,7 @@ class TestDecredTx(DecredTestCase):
             tx_witnesses=[self.witness])
 
         self.assertEqual(
-            transaction.script_code(index=0),
+            transaction._get_script_code(index=0),
             helpers.DCR['ser']['witnesses'][0]['redeem_script'])
 
     def test_script_code_fail(self):
@@ -1514,7 +1499,7 @@ class TestDecredTx(DecredTestCase):
             expiry=self.expiry,
             tx_witnesses=[self.witness])
 
-        self.assertIsNone(transaction.script_code(index=0))
+        self.assertEqual(transaction._get_script_code(index=0), b'')
 
     def test_sighash_none(self):
         transaction = tx.DecredTx(
