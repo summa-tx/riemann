@@ -19,6 +19,12 @@ Please read CONTRIBUTING.md.
 
 ### Installation, Development & Running Tests
 
+Install from pypi for use in your project:
+```
+pip3 install riemann-tx
+```
+
+Install to develop Riemann:
 ```
 $ git clone git@github.com:summa-tx/riemann.git
 $ cd riemann
