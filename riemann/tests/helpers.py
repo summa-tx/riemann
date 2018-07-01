@@ -832,6 +832,8 @@ DCR1 = {
             }
         }
 
+#  http://explorer.dcrdata.org/api/tx/hex/9b23d239a9507e652741ee4135384277b56442302e333df0ca83c71f20d580a8
+#  https://explorer.dcrdata.org/decodetx quite useful
 DCR2 = {
     'tx_id': bytes.fromhex('9b23d239a9507e652741ee4135384277b56442302e333df0ca83c71f20d580a8'),
     'version': bytes.fromhex('01000000'),

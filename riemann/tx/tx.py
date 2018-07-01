@@ -442,6 +442,10 @@ class InputWitness(ByteData):
             items.append(item)
         return InputWitness(items)
 
+    def copy(self, stack=None):
+        return InputWitness(
+            stack=stack if stack is not None else self.stack)
+
 
 class Tx(ByteData):
     '''
@@ -1876,7 +1880,7 @@ class OverwinterTx(ZcashByteData):
             if not isinstance(tx_in, TxIn):
                 raise ValueError(
                     'Invalid TxIn. '
-                    'Expected instance of TxOut. Got {}'
+                    'Expected instance of TxIn. Got {}'
                     .format(type(tx_in).__name__))
 
         for tx_out in tx_outs:

@@ -1484,7 +1484,7 @@ class TestDecredTx(DecredTestCase):
             helpers.DCR['ser']['witnesses'][0]['redeem_script'])
 
     def test_script_code_fail(self):
-        self.witness = tx.DecredInputWitness(
+        test_witness = tx.DecredInputWitness(
             value=self.witness_value,
             height=self.height,
             index=self.witness_index,
@@ -1497,7 +1497,7 @@ class TestDecredTx(DecredTestCase):
             tx_outs=[self.tx_out],
             lock_time=self.lock_time,
             expiry=self.expiry,
-            tx_witnesses=[self.witness])
+            tx_witnesses=[test_witness])
 
         self.assertEqual(transaction._get_script_code(index=0), b'')
 
