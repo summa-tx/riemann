@@ -2015,7 +2015,7 @@ class OverwinterTx(ZcashByteData):
             data += self.tx_ins[index].sequence
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashSigHash' + bytes.fromhex('0x5ba81b19'))  # Branch ID
 
@@ -2028,7 +2028,7 @@ class OverwinterTx(ZcashByteData):
             data += tx_in.outpoint
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashSequencHash')
 
@@ -2041,7 +2041,7 @@ class OverwinterTx(ZcashByteData):
             data += tx_in.sequence
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashPrevoutHash')
 
@@ -2062,7 +2062,7 @@ class OverwinterTx(ZcashByteData):
             data += self.tx_out[index]
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashOutputsHash')
 
@@ -2078,6 +2078,6 @@ class OverwinterTx(ZcashByteData):
         data += self.joinsplit_pubkey
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashJSplitsHash')
