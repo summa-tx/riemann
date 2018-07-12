@@ -1833,7 +1833,6 @@ class OverwinterTx(ZcashByteData):
         self.tx_outs_len = len(tx_outs)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
         self.tx_joinsplits_len = len(tx_joinsplits)
-        self.tx_joinsplits = tuple(js for js in tx_joinsplits)
         self.lock_time = lock_time
         self.expiry_height = expiry_height
 
@@ -1842,9 +1841,15 @@ class OverwinterTx(ZcashByteData):
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
             # Zcash spec 5.4.1.4 Hsig hash function
-            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
-            self.primary_inputs = [self._primary_input(i)
-                                   for i in range(self.tx_joinsplits_len)]
+            self.hsigs = (self._hsig(i) for i in range(self.tx_joinsplits_len))
+            self.primary_inputs = (self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len))
+        else:
+            self.tx_joinsplits = None
+            self.joinsplit_pubkey = None
+            self.joinsplit_sig = None
+            self.hsigs = tuple()
+            self.primary_inputs = tuple()
 
         self.tx_id_le = 1
         self.tx_id = 1
