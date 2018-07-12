@@ -2017,7 +2017,7 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
-            person=b'ZcashSigHash' + bytes.fromhex('0x5ba81b19'))  # Branch ID
+            person=b'ZcashSigHash' + bytes.fromhex('5ba81b19'))  # Branch ID
 
     def _hash_prevouts(self, anyone_can_pay):
         if anyone_can_pay:
