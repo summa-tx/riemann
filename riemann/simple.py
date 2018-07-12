@@ -249,9 +249,13 @@ def unsigned_legacy_tx(tx_ins, tx_outs, **kwargs):
         tx_outs=tx_outs,
         lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0,
         expiry=kwargs['expiry'] if 'expiry' in kwargs else None,
-        tx_joinsplits=kwargs['tx_joinsplits'] if 'tx_joinsplits' in kwargs else None,
-        joinsplit_pubkey=kwargs['joinsplit_pubkey'] if 'joinsplit_pubkey' in kwargs else None,
-        joinsplit_sig=kwargs['joinsplit_sig'] if 'joinsplit_sig' in kwargs else None)
+        tx_joinsplits=(kwargs['tx_joinsplits']
+                       if 'tx_joinsplits' in kwargs else None),
+        joinsplit_pubkey=(kwargs['joinsplit_pubkey']
+                          if 'joinsplit_pubkey' in kwargs
+                          else None),
+        joinsplit_sig=(kwargs['joinsplit_sig']
+                       if 'joinsplit_sig' in kwargs else None))
 
 
 def unsigned_witness_tx(tx_ins, tx_outs, **kwargs):
@@ -313,9 +317,13 @@ def legacy_tx(tx_ins, tx_outs, **kwargs):
                       lock_time=lock_time,
                       tx_witnesses=None,
                       expiry=kwargs['expiry'] if 'expiry' in kwargs else None,
-                      tx_joinsplits=kwargs['tx_joinsplits'] if 'tx_joinsplits' in kwargs else None,
-                      joinsplit_pubkey=kwargs['joinsplit_pubkey'] if 'joinsplit_pubkey' in kwargs else None,
-                      joinsplit_sig=kwargs['joinsplit_sig'] if 'joinsplit_sig' in kwargs else None)
+                      tx_joinsplits=(kwargs['tx_joinsplits']
+                                     if 'tx_joinsplits' in kwargs else None),
+                      joinsplit_pubkey=(kwargs['joinsplit_pubkey']
+                                        if 'joinsplit_pubkey' in kwargs
+                                        else None),
+                      joinsplit_sig=(kwargs['joinsplit_sig']
+                                     if 'joinsplit_sig' in kwargs else None))
 
 
 def witness_tx(tx_ins, tx_outs, tx_witnesses):
