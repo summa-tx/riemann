@@ -1841,11 +1841,12 @@ class OverwinterTx(ZcashByteData):
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
             # Zcash spec 5.4.1.4 Hsig hash function
-            self.hsigs = (self._hsig(i) for i in range(self.tx_joinsplits_len))
-            self.primary_inputs = (self._primary_input(i)
-                                   for i in range(self.tx_joinsplits_len))
+            self.hsigs = (tuple(self._hsig(i)
+                          for i in range(self.tx_joinsplits_len)))
+            self.primary_inputs = (tuple(self._primary_input(i)
+                                   for i in range(self.tx_joinsplits_len)))
         else:
-            self.tx_joinsplits = None
+            self.tx_joinsplits = tuple()
             self.joinsplit_pubkey = None
             self.joinsplit_sig = None
             self.hsigs = tuple()
