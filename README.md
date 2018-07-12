@@ -19,6 +19,12 @@ Please read CONTRIBUTING.md.
 
 ### Installation, Development & Running Tests
 
+Install from pypi for use in your project:
+```
+pip3 install riemann-tx
+```
+
+Install to develop Riemann:
 ```
 $ git clone git@github.com:summa-tx/riemann.git
 $ cd riemann
@@ -31,7 +37,7 @@ $ tox
 
 ### Usage
 
-At a low level, Riemann deals in byte-like objects. However, it provides layers of abstractions on top of this. Notably, scripts are commonly expresses as strings. In script strings, data (like pubkeys) is expressed in unprefixed hex. For example, a P2PKH output script_pubkey might be expressed as follows:
+At a low level, Riemann deals in byte-like objects. However, it provides layers of abstractions on top of this. Notably, scripts are commonly expressed as strings. In script strings, data (like pubkeys) is expressed in unprefixed hex. For example, a P2PKH output script_pubkey might be expressed as follows:
 
 ```Python
 # Note that the PUSH0x14 for the pubkey is implied
@@ -77,7 +83,7 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 #   - Legacy only
 #   - Contains initial stack (stack_script)
 #   - Contains p2sh script (redeem_script)
-#   - Contains pubey/script revelation
+#   - Contains pubkey/script revelation
 # stack_script -> Goes in script_sig
 #   - Legacy only
 #   - Contains script that makes initial stack
@@ -92,7 +98,7 @@ Data structures are IMMUTABLE. You can not (and definitely should not!) edit an 
 #   - Contains a length-prefixed stack item
 # InputWitness -> Goes in Witness
 #   - A stack associated with a specific input
-#   - If spending from p2wsh, the last item is a serialzed script
+#   - If spending from p2wsh, the last item is a serialized script
 #   - If spending from p2wpkh, consists of [signature, pubkey]
 ```
 

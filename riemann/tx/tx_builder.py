@@ -268,7 +268,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             tx_ins=tx_ins,
             tx_outs=tx_outs,
             lock_time=utils.i2le_padded(lock_time, 4),
-            tx_joinsplits=tx_joinsplits,
+            tx_joinsplits=tx_joinsplits if tx_joinsplits is not None else [],
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
     if 'overwinter' in n:
@@ -277,7 +277,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             tx_outs=tx_outs,
             lock_time=utils.i2le_padded(lock_time, 4),
             expiry_height=utils.i2le_padded(expiry, 4),
-            tx_joinsplits=tx_joinsplits,
+            tx_joinsplits=tx_joinsplits if tx_joinsplits is not None else [],
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
     flag = riemann.network.SEGWIT_TX_FLAG \
