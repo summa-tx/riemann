@@ -234,7 +234,11 @@ def unsigned_legacy_tx(tx_ins, tx_outs, **kwargs):
 
         **kwargs:
         version     (int): transaction version number
-        locktime    (hex): transaction locktime
+        locktime            (hex): transaction locktime
+        expiry              (int): overwinter expiry time
+        tx_joinsplits       (list): list of joinsplits transactions
+        joinsplit_pubkey    (bytes): joinsplit public key
+        joinsplit_sig       (bytes): joinsplit signature
 
     Returns:
         (Tx instance): unsigned transaction
@@ -243,7 +247,11 @@ def unsigned_legacy_tx(tx_ins, tx_outs, **kwargs):
         version=kwargs['version'] if 'version' in kwargs else 1,
         tx_ins=tx_ins,
         tx_outs=tx_outs,
-        lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0)
+        lock_time=kwargs['lock_time'] if 'lock_time' in kwargs else 0,
+        expiry=kwargs['expiry'] if 'expiry' in kwargs else None,
+        tx_joinsplits=kwargs['tx_joinsplits'] if 'tx_joinsplits' in kwargs else None,
+        joinsplit_pubkey=kwargs['joinsplit_pubkey'] if 'joinsplit_pubkey' in kwargs else None,
+        joinsplit_sig=kwargs['joinsplit_sig'] if 'joinsplit_sig' in kwargs else None)
 
 
 def unsigned_witness_tx(tx_ins, tx_outs, **kwargs):
@@ -274,10 +282,23 @@ def unsigned_witness_tx(tx_ins, tx_outs, **kwargs):
         tx_witnesses=[tb.make_empty_witness() for _ in tx_ins])
 
 
-def legacy_tx(tx_ins, tx_outs):
+def legacy_tx(tx_ins, tx_outs, **kwargs):
     '''
-    list(TxIn), list(TxOut) -> Tx
     Construct a fully-signed legacy transaction
+    Args:
+        tx_ins      list(TxIn instances): list of transaction inputs
+        tx_outs     list(TxOut instances): list of transaction outputs
+
+        **kwargs:
+        version     (int): transaction version number
+        locktime    (hex): transaction locktime
+        expiry              (int): overwinter expiry time
+        tx_joinsplits       (list): list of joinsplits transactions
+        joinsplit_pubkey    (bytes): joinsplit public key
+        joinsplit_sig       (bytes): joinsplit signature
+
+    Returns:
+        (Tx instance): signed transaction with empty witness
     '''
 
     # Look at each input to guess lock_time and version
@@ -290,7 +311,11 @@ def legacy_tx(tx_ins, tx_outs):
                       tx_ins=tx_ins,
                       tx_outs=tx_outs,
                       lock_time=lock_time,
-                      tx_witnesses=None)
+                      tx_witnesses=None,
+                      expiry=kwargs['expiry'] if 'expiry' in kwargs else None,
+                      tx_joinsplits=kwargs['tx_joinsplits'] if 'tx_joinsplits' in kwargs else None,
+                      joinsplit_pubkey=kwargs['joinsplit_pubkey'] if 'joinsplit_pubkey' in kwargs else None,
+                      joinsplit_sig=kwargs['joinsplit_sig'] if 'joinsplit_sig' in kwargs else None)
 
 
 def witness_tx(tx_ins, tx_outs, tx_witnesses):

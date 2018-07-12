@@ -2028,7 +2028,7 @@ class OverwinterTx(ZcashByteData):
             data += tx_in.outpoint
 
         return utils.blake2b(
-            data=data,
+            data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashSequencHash')
 
