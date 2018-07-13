@@ -1964,18 +1964,24 @@ class OverwinterTx(ZcashByteData):
         expiry_height = byte_string[current:current + 4]
         current += 4
 
-        tx_joinsplits = []
-        tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+        if current == len(byte_string):
+            # No joinsplits
+            tx_joinsplits = tuple()
+            joinsplit_pubkey = None
+            joinsplit_sig = None
+        else:
+            tx_joinsplits = []
+            tx_joinsplits_num = VarInt.from_bytes(byte_string[current:])
+            current += len(tx_outs_num)
+            for _ in range(tx_joinsplits_num.number):
+                tx_joinsplit = SproutJoinsplit.from_bytes(
+                    byte_string[current:])
+                current += len(tx_joinsplit)
+                tx_joinsplits.append(tx_joinsplit)
 
-        current += len(tx_outs_num)
-        for _ in range(tx_joinsplits_num.number):
-            tx_joinsplit = SproutJoinsplit.from_bytes(byte_string[current:])
-            current += len(tx_joinsplit)
-            tx_joinsplits.append(tx_joinsplit)
-
-        joinsplit_pubkey = byte_string[current:current + 32]
-        current += 32
-        joinsplit_sig = byte_string[current:current + 64]
+            joinsplit_pubkey = byte_string[current:current + 32]
+            current += 32
+            joinsplit_sig = byte_string[current:current + 64]
 
         return OverwinterTx(
             tx_ins=tx_ins,
