@@ -1992,6 +1992,9 @@ class OverwinterTx(ZcashByteData):
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
 
+    def is_witness(self):
+        return False
+
     def sighash_all(self, anyone_can_pay=False, **kwargs):
         return self.sighash(sighash_type=SIGHASH_ALL, **kwargs)
 
