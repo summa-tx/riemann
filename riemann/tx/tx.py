@@ -1808,7 +1808,7 @@ class OverwinterTx(ZcashByteData):
             raise ValueError('Transaction must have tx_ins or joinsplits.')
 
         self += b'\x03\x00\x00\x80'  # Version 3 + fOverwintered
-        self += b'\x03\xC4\x82\x70'  # Overwinter Group ID
+        self += b'p\x82\xc4\x03'        # Overwinter Group ID
         self += VarInt(len(tx_ins))
         for tx_in in tx_ins:
             self += tx_in
@@ -1826,7 +1826,7 @@ class OverwinterTx(ZcashByteData):
             self += joinsplit_sig
 
         self.header = b'\x03\x00\x00\x80'
-        self.group_id = b'\x03\xC4\x82\x70'
+        self.group_id = b'p\x82\xc4\x03'
         self.version = b'\x03\x00'
         self.tx_ins_len = len(tx_ins)
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
@@ -1933,11 +1933,11 @@ class OverwinterTx(ZcashByteData):
         header = byte_string[0:4]
         group_id = byte_string[4:8]
 
-        if header != b'\x03\x00\x00\x80' or group_id != b'\x70\x82\xC4\x03':
+        if header != b'\x03\x00\x00\x80' or group_id != b'p\x82\xc4\x03':
             raise ValueError(
                 'Bad header or group ID. Expected {} and {}. Got: {} and {}'
                 .format(b'\x03\x00\x00\x80'.hex(),
-                        b'\x70\x82\xC4\x03'.hex(),
+                        b'p\x82\xc4\x03'.hex(),
                         header.hex(),
                         group_id.hex()))
 
