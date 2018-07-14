@@ -1933,11 +1933,11 @@ class OverwinterTx(ZcashByteData):
         header = byte_string[0:4]
         group_id = byte_string[4:8]
 
-        if header != b'\x03\x00\x00\x80' or group_id != b'\x03\xC4\x82\x70':
+        if header != b'\x03\x00\x00\x80' or group_id != b'\x70\x82\xC4\x03':
             raise ValueError(
                 'Bad header or group ID. Expected {} and {}. Got: {} and {}'
                 .format(b'\x03\x00\x00\x80'.hex(),
-                        b'\x03\xC4\x82\x70'.hex(),
+                        b'\x70\x82\xC4\x03'.hex(),
                         header.hex(),
                         group_id.hex()))
 
