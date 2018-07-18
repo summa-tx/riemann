@@ -431,6 +431,10 @@ class InputWitness(ByteData):
 
         self._make_immutable()
 
+    def copy(self, stack=None):
+        return InputWitness(
+            stack=stack if stack is not None else self.stack)
+
     @classmethod
     def from_bytes(InputWitness, byte_string):
         stack_items = VarInt.from_bytes(byte_string)
@@ -441,10 +445,6 @@ class InputWitness(ByteData):
             item_start += len(item)
             items.append(item)
         return InputWitness(items)
-
-    def copy(self, stack=None):
-        return InputWitness(
-            stack=stack if stack is not None else self.stack)
 
 
 class Tx(ByteData):
