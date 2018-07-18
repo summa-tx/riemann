@@ -1949,3 +1949,9 @@ class TestOverwinterTx(OverwinterTestCase):
         self.assertIn(
             'OverwinterTx not supported by network ',
             str(context.exception))
+
+    def test_from_bytes_no_js(self):
+        self.assertIsInstance(
+            tx.OverwinterTx.from_bytes(
+                helpers.ZCASH_OVERWINTER_NO_JS['ser']['tx']),
+            tx.OverwinterTx)
