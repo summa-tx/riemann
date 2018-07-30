@@ -2013,7 +2013,7 @@ class OverwinterTx(ZcashByteData):
         data += self.group_id
 
         data += self._hash_prevouts(anyone_can_pay)
-        data += self._hash_sequence(anyone_can_pay)
+        data += self._hash_sequence(sighash_type, anyone_can_pay)
         data += self._hash_outputs(sighash_type, index)
         data += self._hash_joinsplits()
 
@@ -2029,10 +2029,12 @@ class OverwinterTx(ZcashByteData):
             data += prevout_value
             data += self.tx_ins[index].sequence
 
+        print(data.hex())
+
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
-            person=b'ZcashSigHash' + bytes.fromhex('5ba81b19'))  # Branch ID
+            person=b'ZcashSigHash' + bytes.fromhex('191ba85b'))  # Branch ID
 
     def _hash_prevouts(self, anyone_can_pay):
         if anyone_can_pay:
@@ -2041,14 +2043,13 @@ class OverwinterTx(ZcashByteData):
         data = ByteData()
         for tx_in in self.tx_ins:
             data += tx_in.outpoint
-
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
-            person=b'ZcashSequencHash')
+            person=b'ZcashPrevoutHash')
 
-    def _hash_sequence(self, anyone_can_pay):
-        if anyone_can_pay:
+    def _hash_sequence(self, sighash_type, anyone_can_pay):
+        if anyone_can_pay or sighash_type == SIGHASH_SINGLE:
             return b'\x00' * 32
 
         data = ByteData()
@@ -2058,10 +2059,10 @@ class OverwinterTx(ZcashByteData):
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
-            person=b'ZcashPrevoutHash')
+            person=b'ZcashSequencHash')
 
     def _hash_outputs(self, sighash_type, index):
-        if sighash_type not in [SIGHASH_ALL, SIGHASH_NONE]:
+        if sighash_type not in [SIGHASH_ALL, SIGHASH_SINGLE]:
             return b'\x00' * 32
 
         data = ByteData()
@@ -2074,7 +2075,7 @@ class OverwinterTx(ZcashByteData):
             if index > len(self.tx_outs):
                 raise NotImplementedError(
                     'I refuse to implement the SIGHASH_SINGLE bug.')
-            data += self.tx_out[index]
+            data += self.tx_outs[index]
 
         return utils.blake2b(
             data=data.to_bytes(),
