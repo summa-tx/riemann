@@ -26,6 +26,9 @@ def _hash_to_sh_address(script_hash, witness=False, cashaddr=True):
 
 
 def _ser_script_to_sh_address(script_bytes, witness=False, cashaddr=True):
+    '''
+    makes an p2sh address from a serialized script
+    '''
     if witness:
         script_hash = utils.sha256(script_bytes)
     else:
