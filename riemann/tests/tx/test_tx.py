@@ -1253,72 +1253,25 @@ class TestDecredTx(DecredTestCase):
 
         self.assertEqual(transaction, helpers.DCR['ser']['tx']['p2sh_2_p2pkh'])
 
+    def attr_assert(self, attr_name, replacement, err_text):
+        # Removes a named key from a dictionary,
+        # and replaces it with a given argument
+        temp_dict = dict((a, self.tx[a])
+                         for a in self.tx
+                         if a != attr_name)
+        temp_dict[attr_name] = replacement
+        with self.assertRaises(ValueError) as context:
+            tx.DecredTx(**temp_dict)
+
+        self.assertIn(err_text, str(context.exception))
+
     def test_init_errors(self):
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version='Hello World',
-                tx_ins=[self.tx_in],
-                tx_outs=[self.tx_out],
-                lock_time=self.lock_time,
-                expiry=self.expiry,
-                tx_witnesses=[self.witness])
-
-            self.assertIn('Expected byte-like object', str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=['Hello World'],
-                tx_outs=[self.tx_out],
-                lock_time=self.lock_time,
-                expiry=self.expiry,
-                tx_witnesses=[self.witness])
-
-        self.assertIn('Invalid TxIn.', str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=[self.tx_in],
-                tx_outs=['Hello World'],
-                lock_time=self.lock_time,
-                expiry=self.expiry,
-                tx_witnesses=[self.witness])
-
-        self.assertIn('Invalid TxOut.', str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=[self.tx_in],
-                tx_outs=[self.tx_out],
-                lock_time='Hello World',
-                expiry=self.expiry,
-                tx_witnesses=[self.witness])
-
-        self.assertIn('Expected byte-like object', str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=[self.tx_in],
-                tx_outs=[self.tx_out],
-                lock_time=self.lock_time,
-                expiry='Hello World',
-                tx_witnesses=[self.witness])
-
-        self.assertIn('Expected byte-like object', str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=[self.tx_in],
-                tx_outs=[self.tx_out],
-                lock_time=self.lock_time,
-                expiry=self.expiry,
-                tx_witnesses=['Hello World'])
-
-        self.assertIn('Invalid TxWitness', str(context.exception))
+        self.attr_assert('version', b'', 'Expected byte-like object')
+        self.attr_assert('tx_ins', [b''], 'Invald TxIn.')
+        self.attr_assert('tx_outs', [b''], 'Invalid TxOut.')
+        self.attr_assert('lock_time', b'', 'Expected byte-like object')
+        self.attr_assert('expiry', b'', 'Expected byte-like object')
+        self.attr_assert('tx_witnesses', [b''], 'Invalid TxWitness')
 
         with self.assertRaises(ValueError) as context:
             tx.DecredTx(
