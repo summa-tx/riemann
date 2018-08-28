@@ -791,8 +791,8 @@ class TestTx(unittest.TestCase):
 
     def test_presegwit_sighashes(self):
         ''' all, all anyonecanpay, single, single_anyonecanpay.
-        Marks transaction as pre- or non-segwit in a segwit network,
-        by the clever use of flags.'''
+        Marks transaction as pre- or non-segwit in a segwit network.
+        '''
         t = tx.Tx(self.version, None, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 

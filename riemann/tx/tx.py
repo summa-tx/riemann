@@ -683,7 +683,7 @@ class Tx(ByteData):
                                         sighash_type=SIGHASH_ALL,
                                         anyone_can_pay=anyone_can_pay)
 
-        if self.flag is not None:
+        if self.is_witness():
             return self.segwit_sighash(
                 index=index,
                 script=script,
@@ -720,7 +720,7 @@ class Tx(ByteData):
                                         sighash_type=SIGHASH_SINGLE,
                                         anyone_can_pay=anyone_can_pay)
 
-        if self.flag is not None:
+        if self.is_witness():
             return self.segwit_sighash(
                 index=index,
                 script=script,
@@ -758,7 +758,6 @@ class Tx(ByteData):
         https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
         https://ricette.giallozafferano.it/Spaghetti-alla-Norma.html
         '''
-        # self.validate_bytes(prevout_value, 8)
         data = ByteData()
 
         # 1. nVersion of the transaction (4-byte little endian)
@@ -792,8 +791,8 @@ class Tx(ByteData):
         data += self.lock_time
 
         # 10. sighash type of the signature (4-byte little endian)
-        data += self._segwit_sighash_adjust(sighash_type=sighash_type,
-                                            anyone_can_pay=anyone_can_pay)
+        data += self._segwit_sighash_adjustment(sighash_type=sighash_type,
+                                                anyone_can_pay=anyone_can_pay)
 
         return utils.hash256(data.to_bytes())
 
@@ -888,7 +887,7 @@ class Tx(ByteData):
             raise NotImplementedError(
                 'I refuse to implement the SIGHASH_SINGLE bug.')
 
-    def _adjusted_sighash_type(self, sighash_type, anyone_can_pay):
+    def _forkid_sighash_adjustment(self, sighash_type, anyone_can_pay):
         # The sighash type is altered to include a 24-bit fork id
         # ss << ((GetForkID() << 8) | nHashType)
         forkid = riemann.network.FORKID << 8
@@ -897,12 +896,11 @@ class Tx(ByteData):
             sighash = sighash | SIGHASH_ANYONECANPAY
         return utils.i2le_padded(sighash, 4)
 
-    def _segwit_sighash_adjust(self, sighash_type, anyone_can_pay):
+    def _segwit_sighash_adjustment(self, sighash_type, anyone_can_pay):
         # sighash type altered to include ANYONECANPAY
-        sighash = sighash_type
         if anyone_can_pay:
-            sighash = sighash | SIGHASH_ANYONECANPAY
-        return utils.i2le_padded(sighash, 4)
+            sighash_type = sighash_type | SIGHASH_ANYONECANPAY
+        return utils.i2le_padded(sighash_type, 4)
 
     def _sighash_forkid(self, index, script, prevout_value,
                         sighash_type, anyone_can_pay=False):
@@ -945,8 +943,8 @@ class Tx(ByteData):
         data += self.lock_time
 
         # 10. sighash type of the signature (4-byte little endian)
-        data += self._adjusted_sighash_type(sighash_type=sighash_type,
-                                            anyone_can_pay=anyone_can_pay)
+        data += self._forkid_sighash_adjustment(sighash_type=sighash_type,
+                                                anyone_can_pay=anyone_can_pay)
 
         return utils.hash256(data.to_bytes())
 

@@ -284,7 +284,7 @@ P2WPKH = {
                     'hash': bytes.fromhex('d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee'),
                     'index': bytes.fromhex('00000000'),
                     'value': bytes.fromhex('c0d4010000000000'),
-                    'pk_script': bytes.fromhex('a914419fbecd4b8f90c779b773a0a9010dd25423b06b87'),
+                    'pk_script': bytes.fromhex('0014758ce550380d964051086798d6546bebdca27a73'),
                     'sequence': bytes.fromhex('fffffffd'),
                     'input': bytes.fromhex('ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff')
                     }
@@ -306,10 +306,10 @@ P2WPKH = {
                     }
                 ],
             'segwit_sighash': {
-                'all': bytes.fromhex('170c29ea7e07fbcd3b6b25f542088fcaea74179a04d7119cbbe666e8ac892809'),
-                'all_anyonecanpay': bytes.fromhex('12faba07029e2b7ce173bf515be0d8ab486d45c4ed1db36ce9c4646a38ba928e'),
-                'single': bytes.fromhex('f11005ba8bcf7fa12965ee47cde4421702d7eb8e4a29ce3ae58432efb9de0b5c'),
-                'single_anyonecanpay': bytes.fromhex('85f7337bf7c2ec15e9539eeb12262206c011147f1ffe96f2669517c5067b950f')
+                'all': bytes.fromhex('9554e9e5b877f8350a597c27ab5af89b0696964e6f16d39ec0d6070c30489bd7'),
+                'all_anyonecanpay': bytes.fromhex('d334d3e590627b16c51f26a764b94c31e25a8bb0b776027fcadc2127a4d2d02b'),
+                'single': bytes.fromhex('dc3584ef4abf8b474916264756efb3e75a02c5fa7a6692a90caee50a1c63a98c'),
+                'single_anyonecanpay': bytes.fromhex('e51023df5e6afee346941f0efba13bc3c8be50edaa0d16a0915ebdb643985269')
                 },
             'tx': {
                 'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18700cafd0700'),
@@ -549,7 +549,7 @@ P2SH_PD2 = {
 #
 # 1. install python-bitcoinlib
 # 2. As follows:
-# ««NB: (for BIP143 witness sighash, one can use riemann/SPQR.py)»»
+# ««NB: (for BIP143 witness sighash, one can use riemann/tests/scripts/SPQR.py)»»
 #
 # ```Python
 # import binascii

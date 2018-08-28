@@ -328,9 +328,19 @@ def legacy_tx(tx_ins, tx_outs, **kwargs):
 
 def witness_tx(tx_ins, tx_outs, tx_witnesses, **kwargs):
     '''
-    list(TxIn), list(TxOut), list(InputWitness) -> Tx
-    Construct a fully-signed witness transaction
+    Construct a fully-signed segwit transaction
+    Args:
+        tx_ins       list(TxIn instances): list of transaction inputs
+        tx_outs      list(TxOut instances): list of transaction outputs
+        tx_witnesses list(TxWitness instances): list of transaction witnsses
+        **kwargs:
+        version     (int): transaction version number
+        locktime    (hex): transaction locktime
+
+    Returns:
+        (Tx instance): signed transaction with witnesses
     '''
+
     # Parse legacy scripts AND witness scripts for OP_CLTV
     deser = [script_ser.deserialize(tx_in.redeem_script) for tx_in in tx_ins
              if tx_in is not None]
