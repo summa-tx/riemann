@@ -753,6 +753,10 @@ class Tx(ByteData):
 
     def segwit_sighash(self, index, script, prevout_value=None,
                        sighash_type=None, anyone_can_pay=False):
+        print('\n Check it: \n')
+        print(self.hex(), index, script.hex(),
+              prevout_value.hex(), sighash_type,
+              anyone_can_pay, sep='\n')
         '''
         this function sets up sighash in BIP143 style
         https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
@@ -792,10 +796,10 @@ class Tx(ByteData):
         data += self.lock_time
 
         # 10. sighash type of the signature (4-byte little endian)
-        data += utils.i2le_padded(sighash_type, 4)
+        data += self._segwit_sighash_adjust(sighash_type=sighash_type,
+                                            anyone_can_pay=anyone_can_pay)
 
-        print('gli sighashi:')
-        print((utils.hash256(data.to_bytes())).hex())
+        print('hey', (utils.hash256(data.to_bytes())).hex())
 
         return utils.hash256(data.to_bytes())
 
@@ -898,6 +902,15 @@ class Tx(ByteData):
         if anyone_can_pay:
             sighash = sighash | SIGHASH_ANYONECANPAY
         return utils.i2le_padded(sighash, 4)
+
+    def _segwit_sighash_adjust(self, sighash_type, anyone_can_pay):
+        # sighash type altered to include ANYONECANPAY
+        sighash = sighash_type
+        if anyone_can_pay:
+            sighash = sighash | SIGHASH_ANYONECANPAY
+        r = utils.i2le_padded(sighash, 4)
+        print('so....?', r.hex())
+        return r
 
     def _sighash_forkid(self, index, script, prevout_value,
                         sighash_type, anyone_can_pay=False):

@@ -306,10 +306,10 @@ P2WPKH = {
                     }
                 ],
             'segwit_sighash': {
-                'all': bytes.fromhex('70943d508e41d9a20a86ec4c1ff85093689df9824a938df8e904bbed7a415262'),
-                'all_anyonecanpay': bytes.fromhex('a3f3fdbabe2af5e89a47be253218611cec063430ba0c7064c7d08b7c32a80da1'),
-                'single': bytes.fromhex('38e71a081537b3a76352877bccbf94e833c79d41b16ae9b4a2d491190d9377d5'),
-                'single_anyonecanpay': bytes.fromhex('e834c9a23f719e6c8f63e77e98e3cc2f252986ded9f41417267b7a9d52871274')
+                'all': bytes.fromhex('170c29ea7e07fbcd3b6b25f542088fcaea74179a04d7119cbbe666e8ac892809'),
+                'all_anyonecanpay': bytes.fromhex('12faba07029e2b7ce173bf515be0d8ab486d45c4ed1db36ce9c4646a38ba928e'),
+                'single': bytes.fromhex('f11005ba8bcf7fa12965ee47cde4421702d7eb8e4a29ce3ae58432efb9de0b5c'),
+                'single_anyonecanpay': bytes.fromhex('85f7337bf7c2ec15e9539eeb12262206c011147f1ffe96f2669517c5067b950f')
                 },
             'tx': {
                 'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18700cafd0700'),

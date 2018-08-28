@@ -748,9 +748,9 @@ class TestTx(unittest.TestCase):
 
         self.assertTrue(t.is_witness())
 
-    def test_segwit_sighashes(self):
+    def test_segwit_sighash_all(self):
         t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
-        print(t.flag)
+
         self.assertEqual(
             t.sighash_all(
                 0,
@@ -758,6 +758,9 @@ class TestTx(unittest.TestCase):
                 prevout_value=helpers.P2WPKH['ser']['ins'][0]['value']
                 ),
             helpers.P2WPKH['ser']['segwit_sighash']['all'])
+
+    def test_segwit_sighash_all_anyonecanpay(self):
+        t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
 
         self.assertEqual(
             t.sighash_all(
@@ -767,6 +770,8 @@ class TestTx(unittest.TestCase):
                 anyone_can_pay=True),
             helpers.P2WPKH['ser']['segwit_sighash']['all_anyonecanpay'])
 
+    def test_segwit_sighash_single(self):
+        t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
         self.assertEqual(
             t.sighash_single(
                 0,
@@ -774,6 +779,8 @@ class TestTx(unittest.TestCase):
                 prevout_value=helpers.P2WPKH['ser']['ins'][0]['value']),
             helpers.P2WPKH['ser']['segwit_sighash']['single'])
 
+    def test_segwit_sighash_single_anyonecanpay(self):
+        t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
         self.assertEqual(
             t.sighash_single(
                 0,
@@ -781,9 +788,6 @@ class TestTx(unittest.TestCase):
                 prevout_value=helpers.P2WPKH['ser']['ins'][0]['value'],
                 anyone_can_pay=True),
             helpers.P2WPKH['ser']['segwit_sighash']['single_anyonecanpay'])
-
-        print('oh SHIT honey')
-        print('time to write THESE tests bitch')
 
     def test_presegwit_sighashes(self):
         ''' all, all anyonecanpay, single, single_anyonecanpay.
