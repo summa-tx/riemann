@@ -753,10 +753,6 @@ class Tx(ByteData):
 
     def segwit_sighash(self, index, script, prevout_value=None,
                        sighash_type=None, anyone_can_pay=False):
-        print('\n Check it: \n')
-        print(self.hex(), index, script.hex(),
-              prevout_value.hex(), sighash_type,
-              anyone_can_pay, sep='\n')
         '''
         this function sets up sighash in BIP143 style
         https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
@@ -798,8 +794,6 @@ class Tx(ByteData):
         # 10. sighash type of the signature (4-byte little endian)
         data += self._segwit_sighash_adjust(sighash_type=sighash_type,
                                             anyone_can_pay=anyone_can_pay)
-
-        print('hey', (utils.hash256(data.to_bytes())).hex())
 
         return utils.hash256(data.to_bytes())
 
@@ -908,9 +902,7 @@ class Tx(ByteData):
         sighash = sighash_type
         if anyone_can_pay:
             sighash = sighash | SIGHASH_ANYONECANPAY
-        r = utils.i2le_padded(sighash, 4)
-        print('so....?', r.hex())
-        return r
+        return utils.i2le_padded(sighash, 4)
 
     def _sighash_forkid(self, index, script, prevout_value,
                         sighash_type, anyone_can_pay=False):

@@ -1,3 +1,10 @@
+# # Generates sighash values from available information on a raw transaction,
+# using python-bitcoinlib by Peter Todd and Merry Friends
+# https://github.com/petertodd/python-bitcoinlib/blob/master/LICENSE
+# Complies with BIP143.
+# Full title was "sighashgeneratorviapython-bitcoinlib.py", abbreviated to SPQR
+# pip install python-bitcoinlib
+
 import binascii
 from io import BytesIO
 from riemann.tests import helpers
@@ -13,13 +20,14 @@ def parse_tx(hex_tx):
     return tx
 
 
-prevout_pk_script = CScript(helpers.P2WPKH['ser']['ins'][0]['pk_script'])
-tx_hex = helpers.P2WPKH['ser']['tx']['unsigned'].hex()
-index = helpers.P2WPKH['human']['ins'][0]['index']
+prevout_pk_script = \
+    CScript(helpers.P2WPKH['ser']['ins'][0]['pk_script'])  # bytes
+tx_hex = helpers.P2WPKH['ser']['tx']['unsigned'].hex()  # raw hex
+index = helpers.P2WPKH['human']['ins'][0]['index']  # integer
 a = parse_tx(tx_hex)
 
-int_value = helpers.P2WPKH['human']['ins'][0]['value']
-# for BIP143 witness sighash
+int_value = helpers.P2WPKH['human']['ins'][0]['value']  # integer of tx value
+
 print('Sighash All:')
 print(SignatureHash(prevout_pk_script, a, index,
                     SIGHASH_ALL, sigversion=1, amount=(int_value)).hex())

@@ -317,7 +317,8 @@ class TestSimple(unittest.TestCase):
             helpers.P2WPKH['human']['outs'][0]['addr'])
         tx = simple.unsigned_witness_tx(
             tx_ins=[tx_in],
-            tx_outs=[tx_out])
+            tx_outs=[tx_out],
+            lock_time=helpers.P2WPKH['human']['locktime'])
 
         self.assertEqual(tx, helpers.P2WPKH['ser']['tx']['unsigned'])
 
@@ -355,7 +356,8 @@ class TestSimple(unittest.TestCase):
         tx = simple.witness_tx(
             tx_ins=[tx_in],
             tx_outs=[tx_out],
-            tx_witnesses=[witness])
+            tx_witnesses=[witness],
+            lock_time=helpers.P2WPKH['human']['locktime'])
 
         self.assertEqual(
             tx,

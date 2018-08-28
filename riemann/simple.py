@@ -326,7 +326,7 @@ def legacy_tx(tx_ins, tx_outs, **kwargs):
                        if 'joinsplit_sig' in kwargs else None))
 
 
-def witness_tx(tx_ins, tx_outs, tx_witnesses):
+def witness_tx(tx_ins, tx_outs, tx_witnesses, **kwargs):
     '''
     list(TxIn), list(TxOut), list(InputWitness) -> Tx
     Construct a fully-signed witness transaction
@@ -340,7 +340,10 @@ def witness_tx(tx_ins, tx_outs, tx_witnesses):
         except (NotImplementedError, ValueError):
             pass
     version = max([guess_version(d) for d in deser])
-    lock_time = max([guess_locktime(d) for d in deser])
+    if 'lock_time' in kwargs:
+        lock_time = kwargs['lock_time']
+    else:
+        lock_time = max([guess_locktime(d) for d in deser])
 
     return tb.make_tx(
         version=version,

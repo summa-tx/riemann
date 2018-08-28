@@ -549,6 +549,7 @@ P2SH_PD2 = {
 #
 # 1. install python-bitcoinlib
 # 2. As follows:
+# ««NB: (for BIP143 witness sighash, one can use riemann/SPQR.py)»»
 #
 # ```Python
 # import binascii
@@ -576,7 +577,7 @@ P2SH_PD2 = {
 # print(SignatureHash(prevout_pk_script, a, index,
 #                     SIGHASH_SINGLE | SIGHASH_ANYONECANPAY))
 #
-# # for BIP143 witness sighash
+# # for BIP143 witness sighash:
 # print(SignatureHash(prevout_pk_script, a, index,
 #                     SIGHASH_ALL, sigversion=1, amount=(INT_VALUE)).hex())
 # print(SignatureHash(prevout_pk_script, a, index,
