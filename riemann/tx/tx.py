@@ -683,6 +683,14 @@ class Tx(ByteData):
                                         sighash_type=SIGHASH_ALL,
                                         anyone_can_pay=anyone_can_pay)
 
+        if self.flag is not None:
+            return self.segwit_sighash(
+                index=index,
+                script=script,
+                prevout_value=prevout_value,
+                sighash_type=SIGHASH_ALL,
+                anyone_can_pay=anyone_can_pay)
+
         copy_tx = self._sighash_prep(index=index, script=script)
         if anyone_can_pay:
             return self._sighash_anyone_can_pay(
@@ -712,6 +720,14 @@ class Tx(ByteData):
                                         sighash_type=SIGHASH_SINGLE,
                                         anyone_can_pay=anyone_can_pay)
 
+        if self.flag is not None:
+            return self.segwit_sighash(
+                index=index,
+                script=script,
+                prevout_value=prevout_value,
+                sighash_type=SIGHASH_SINGLE,
+                anyone_can_pay=anyone_can_pay)
+
         copy_tx = self._sighash_prep(index=index, script=script)
 
         # Remove outputs after the one we're signing
@@ -734,6 +750,54 @@ class Tx(ByteData):
             return self._sighash_anyone_can_pay(index, copy_tx, SIGHASH_SINGLE)
 
         return self._sighash_final_hashing(copy_tx, SIGHASH_SINGLE)
+
+    def segwit_sighash(self, index, script, prevout_value=None,
+                       sighash_type=None, anyone_can_pay=False):
+        '''
+        this function sets up sighash in BIP143 style
+        https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+        https://ricette.giallozafferano.it/Spaghetti-alla-Norma.html
+        '''
+        # self.validate_bytes(prevout_value, 8)
+        data = ByteData()
+
+        # 1. nVersion of the transaction (4-byte little endian)
+        data += self.version
+
+        # 2. hashPrevouts (32-byte hash)
+        data += self._hash_prevouts(anyone_can_pay=anyone_can_pay)
+
+        # 3. hashSequence (32-byte hash)
+        data += self._hash_sequence(sighash_type=sighash_type,
+                                    anyone_can_pay=anyone_can_pay)
+
+        # 4. outpoint (32-byte hash + 4-byte little endian)
+        data += self.tx_ins[index].outpoint
+
+        # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
+        data += self._adjusted_script_code(
+            index=index,
+            script=script)
+
+        # 6. value of the output spent by this input (8-byte little endian)
+        data += prevout_value
+
+        # 7. nSequence of the input (4-byte little endian)
+        data += self.tx_ins[index].sequence
+
+        # 8. hashOutputs (32-byte hash)
+        data += self._hash_outputs(index=index, sighash_type=sighash_type)
+
+        # 9. nLocktime of the transaction (4-byte little endian)
+        data += self.lock_time
+
+        # 10. sighash type of the signature (4-byte little endian)
+        data += utils.i2le_padded(sighash_type, 4)
+
+        print('gli sighashi:')
+        print((utils.hash256(data.to_bytes())).hex())
+
+        return utils.hash256(data.to_bytes())
 
     def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
         '''
@@ -760,6 +824,7 @@ class Tx(ByteData):
         sighash = ByteData()
         sighash += copy_tx.to_bytes()
         sighash += utils.i2le_padded(sighash_type, 4)
+
         return utils.hash256(sighash.to_bytes())
 
     def _hash_prevouts(self, anyone_can_pay):
@@ -2028,8 +2093,6 @@ class OverwinterTx(ZcashByteData):
             data += script_code
             data += prevout_value
             data += self.tx_ins[index].sequence
-
-        print(data.hex())
 
         return utils.blake2b(
             data=data.to_bytes(),

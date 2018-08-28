@@ -748,17 +748,57 @@ class TestTx(unittest.TestCase):
 
         self.assertTrue(t.is_witness())
 
-    def test_sighash_all(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
+    def test_segwit_sighashes(self):
+        t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
+        print(t.flag)
+        self.assertEqual(
+            t.sighash_all(
+                0,
+                helpers.P2WPKH['ser']['ins'][0]['pk_script'],
+                prevout_value=helpers.P2WPKH['ser']['ins'][0]['value']
+                ),
+            helpers.P2WPKH['ser']['segwit_sighash']['all'])
+
+        self.assertEqual(
+            t.sighash_all(
+                0,
+                helpers.P2WPKH['ser']['ins'][0]['pk_script'],
+                prevout_value=helpers.P2WPKH['ser']['ins'][0]['value'],
+                anyone_can_pay=True),
+            helpers.P2WPKH['ser']['segwit_sighash']['all_anyonecanpay'])
+
+        self.assertEqual(
+            t.sighash_single(
+                0,
+                helpers.P2WPKH['ser']['ins'][0]['pk_script'],
+                prevout_value=helpers.P2WPKH['ser']['ins'][0]['value']),
+            helpers.P2WPKH['ser']['segwit_sighash']['single'])
+
+        self.assertEqual(
+            t.sighash_single(
+                0,
+                helpers.P2WPKH['ser']['ins'][0]['pk_script'],
+                prevout_value=helpers.P2WPKH['ser']['ins'][0]['value'],
+                anyone_can_pay=True),
+            helpers.P2WPKH['ser']['segwit_sighash']['single_anyonecanpay'])
+
+        print('oh SHIT honey')
+        print('time to write THESE tests bitch')
+
+    def test_presegwit_sighashes(self):
+        ''' all, all anyonecanpay, single, single_anyonecanpay.
+        Marks transaction as pre- or non-segwit in a segwit network,
+        by the clever use of flags.'''
+        t = tx.Tx(self.version, None, self.tx_ins, self.tx_outs,
                   self.none_witnesses, self.lock_time)
 
         self.assertEqual(
-            t.sighash_all(0, helpers.P2PKH1['ser']['ins'][0]['pk_script']),
+            t.sighash_all(
+                0,
+                helpers.P2PKH1['ser']['ins'][0]['pk_script'],
+                ),
             helpers.P2PKH1['ser']['sighash']['all'])
 
-    def test_sighash_all_anyone_can_pay(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
         self.assertEqual(
             t.sighash_all(
                 0,
@@ -766,18 +806,12 @@ class TestTx(unittest.TestCase):
                 anyone_can_pay=True),
             helpers.P2PKH1['ser']['sighash']['all_anyonecanpay'])
 
-    def test_sighash_single(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
         self.assertEqual(
                 t.sighash_single(
                     0,
                     helpers.P2PKH1['ser']['ins'][0]['pk_script']),
                 helpers.P2PKH1['ser']['sighash']['single'])
 
-    def test_sighash_single_anyone_can_pay(self):
-        t = tx.Tx(self.version, self.none_flag, self.tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
         self.assertEqual(
             t.sighash_single(
                 0,
@@ -1683,7 +1717,7 @@ class TestSproutTx(SproutTestCase):
 
     def test_print_sighash(self):
         t = tx.SproutTx(**self.tx)
-        print(t.sighash_all())
+        print('SproutTx Test Sighash:', t.sighash_all())
 
     def test_calculate_fee(self):
         t = tx.SproutTx(**self.tx)

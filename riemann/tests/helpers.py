@@ -84,7 +84,7 @@ P2PKH = {
 
 # UTXOs: https://blockchain.info/rawtx/d1c789a9c60383bf715f3f6ad9d14b91fe55f3deb369fe5d9280cb1a01793f81
 # https://blockchain.info/rawtx/452c629d67e41baec3ac6f04fe744b4b9617f8f859c63b3002f8684e7a4fee03
-# ['ser']['ins'][0]['value'] incorrect, only used in sighashes so leave
+# ['ser']['ins'][0]['value'] incorrect (fee is already deducted), only used in sighashes so leave
 P2PKH1 = {
         'human': {
             'version': 1,
@@ -127,7 +127,7 @@ P2PKH1 = {
                     'hash': bytes.fromhex('813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1'),
                     'index': bytes.fromhex('00000000'),
                     'pk_script': bytes.fromhex('a91424d6008f143af0cca57344069c46661aa4fcea2387'),
-                    'value': bytes.fromhex('3af9870200000000'),
+                    'value': bytes.fromhex('3af9870200000000'), # 42465594; fee is already deducted from this value
                     'outpoint': bytes.fromhex('813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d100000000'),
                     'stack_script_len': bytes.fromhex('6b'),
                     'stack_script': bytes.fromhex('483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278a'),
@@ -241,12 +241,12 @@ P2SH = {
         }
 
 # Pay-to-Witness-Public-Key-Hash
-# https://blockchain.info/rawtx/d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee
-# https://blockchain.info/rawtx/1d204bc09e183741bf4c8fbe9034067d160e369e373ec9669ea51bfe6d0567df
+# https://blockchain.info/rawtx/d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee (parent)
+# https://blockchain.info/rawtx/1d204bc09e183741bf4c8fbe9034067d160e369e373ec9669ea51bfe6d0567df (child)
 P2WPKH = {
         'human': {
             'version': 1,
-            'locktime': 0,
+            'locktime': 523722,
             'ins': [
                 {
                     'id': 0,
@@ -276,15 +276,15 @@ P2WPKH = {
                 ]
             },
         'ser': {
-            'version': bytes.fromhex('00000000'),
-            'locktime': bytes.fromhex('00000000'),
+            'version': bytes.fromhex('01000000'),
+            'locktime': bytes.fromhex('cafd0700'),
             'ins': [
                 {
                     'id': 0,
                     'hash': bytes.fromhex('d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee'),
                     'index': bytes.fromhex('00000000'),
-                    'value': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex('0014758ce550380d964051086798d6546bebdca27a73'),
+                    'value': bytes.fromhex('c0d4010000000000'),
+                    'pk_script': bytes.fromhex('a914419fbecd4b8f90c779b773a0a9010dd25423b06b87'),
                     'sequence': bytes.fromhex('fffffffd'),
                     'input': bytes.fromhex('ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff')
                     }
@@ -292,7 +292,7 @@ P2WPKH = {
             'outs': [
                 {
                     'id': 0,
-                    'value': bytes.fromhex(''),
+                    'value': bytes.fromhex('73d3010000000000'),
                     'pk_script': bytes.fromhex('a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187'),
                     'output': bytes.fromhex('73d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f187')
                     },
@@ -305,9 +305,15 @@ P2WPKH = {
                     'witness': bytes.fromhex('02483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67'),
                     }
                 ],
+            'segwit_sighash': {
+                'all': bytes.fromhex('70943d508e41d9a20a86ec4c1ff85093689df9824a938df8e904bbed7a415262'),
+                'all_anyonecanpay': bytes.fromhex('a3f3fdbabe2af5e89a47be253218611cec063430ba0c7064c7d08b7c32a80da1'),
+                'single': bytes.fromhex('38e71a081537b3a76352877bccbf94e833c79d41b16ae9b4a2d491190d9377d5'),
+                'single_anyonecanpay': bytes.fromhex('e834c9a23f719e6c8f63e77e98e3cc2f252986ded9f41417267b7a9d52871274')
+                },
             'tx': {
-                'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f1870000000000'),
-                'signed': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18702483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d6700000000')
+                'unsigned': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18700cafd0700'),
+                'signed': bytes.fromhex('01000000000101ee9242c89e79ab2aa537408839329895392b97505b3496d5543d6d2f531b94d20000000000fdffffff0173d301000000000017a914bba5acbec4e6e3374a0345bf3609fa7cfea825f18702483045022100f746173f184f43e2855fd1b739879a137317ef905cc3b56fd1bcd34158a4721a022031163e6831efe77aa256ecfd65b9b1a9e46cafce8c2611be222194ee985dfd660121027450ee71e5a86f7466720a10811316f79a64e85d5671ee46332f8f7dae4f5d67cafd0700')
                 }
             }
         }
@@ -420,7 +426,7 @@ P2WSH = {
                         ],
                     'wit_script': bytes.fromhex('52210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae'),
                     }
-            ],
+                ],
             'tx': {
                 'witness': bytes.fromhex('040047304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601483045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae'),
                 'signed': bytes.fromhex('010000000001011fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff0440548900000000001976a9146199463742d1359a505881821d82f5d4148e3fc588ac60361e000000000017a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87502b7000000000001976a914f447146b86373c781a946d7ebd88cbbb79ec810288ac0370040000000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d040047304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601483045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae00000000')
@@ -560,15 +566,27 @@ P2SH_PD2 = {
 # prevout_pk_script = CScript(bytes.fromhex(HEX_ENCODED_PK_SCRIPT))
 # tx_hex = 'SOME HEX ENCODED TX'
 # index = THE_INDEX_OF_THE_INPUT
-# a = parse_tx(HEX_ENCODED_TX)
+# a = parse_tx(tx_hex)
 #
+# # for legacy sighash:
 # print(SignatureHash(prevout_pk_script, a, index, SIGHASH_ALL))
 # print(SignatureHash(prevout_pk_script, a, index,
 #                     SIGHASH_ALL | SIGHASH_ANYONECANPAY))
 # print(SignatureHash(prevout_pk_script, a, index, SIGHASH_SINGLE))
 # print(SignatureHash(prevout_pk_script, a, index,
 #                     SIGHASH_SINGLE | SIGHASH_ANYONECANPAY))
-
+#
+# # for BIP143 witness sighash
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_ALL, sigversion=1, amount=(INT_VALUE)).hex())
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_ALL | SIGHASH_ANYONECANPAY,
+#                     sigversion=1, amount=(INT_VALUE)).hex())
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_SINGLE, sigversion=1, amount=(INT_VALUE)).hex())
+# print(SignatureHash(prevout_pk_script, a, index,
+#                     SIGHASH_SINGLE | SIGHASH_ANYONECANPAY,
+#                     sigversion=1, amount=(INT_VALUE)).hex())
 
 # Forkid tests generated with pycoin
 # To Produce More:
