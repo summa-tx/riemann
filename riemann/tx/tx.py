@@ -182,7 +182,7 @@ class VarInt(ByteData):
             non_compact = False
         elif num[0] == 0xfd:
             num = num[1:3]
-            non_compact = (num[-1:] == 0)
+            non_compact = (num[-1:] == b'\x00')
         elif num[0] == 0xfe:
             num = num[1:5]
             non_compact = (num[-2:] == b'\x00\x00')
