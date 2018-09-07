@@ -548,20 +548,6 @@ class TestTx(unittest.TestCase):
             str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            tx.Tx(self.version, self.segwit_flag, self.tx_ins, self.tx_outs,
-                  None, self.lock_time)
-        self.assertIn(
-            'Got segwit flag but no witnesses.',
-            str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.Tx(self.version, b'\x00\x01', self.tx_ins, self.tx_outs,
-                  [], self.lock_time)
-        self.assertIn(
-            'Got segwit flag but no witnesses.',
-            str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
             tx.Tx(self.version, None, self.tx_ins, self.tx_outs,
                   self.tx_witnesses, self.lock_time)
         self.assertIn(

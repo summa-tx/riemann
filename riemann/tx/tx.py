@@ -137,7 +137,7 @@ class VarInt(ByteData):
     '''
     NB: number must be integer
     '''
-    def __init__(self, number, l=None):
+    def __init__(self, number, length=None):
         super().__init__()
         if number < 0x0:
             raise ValueError('VarInt cannot be less than 0. '
@@ -148,19 +148,19 @@ class VarInt(ByteData):
                              .format(number))
         if number <= 0xfc:
             pass  # No prefix
-        elif number <= 0xffff or l == 3:
+        elif number <= 0xffff or length == 3:
             self += bytes([0xfd])
-            l = 3
-        elif number <= 0xffffffff or l == 5:
+            length = 3
+        elif number <= 0xffffffff or length == 5:
             self += bytes([0xfe])
-            l = 5
-        elif number <= 0xffffffffffffffff or l == 9:
+            length = 5
+        elif number <= 0xffffffffffffffff or length == 9:
             self += bytes([0xff])
-            l = 9
+            length = 9
         self += utils.i2le(number)
 
-        if l is not None:
-            while len(self) < l:
+        if length is not None:
+            while len(self) < length:
                 self += b'\x00'
 
         self.number = number
@@ -199,7 +199,7 @@ class VarInt(ByteData):
 
         ret = VarInt(
             utils.le2i(num),
-            l=len(num) + 1 if non_compact else 0)
+            length=len(num) + 1 if non_compact else 0)
 
         return ret
 
@@ -465,8 +465,6 @@ class Tx(ByteData):
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
                     .format(riemann.network.SEGWIT_TX_FLAG, flag))
-            if tx_witnesses is None or len(tx_witnesses) is 0:
-                raise ValueError('Got segwit flag but no witnesses.')
 
         if tx_witnesses is not None:
             if flag is None:
@@ -572,17 +570,17 @@ class Tx(ByteData):
             current += len(tx_out)
             tx_outs.append(tx_out)
 
-        if not flag:
-            tx_witnesses = None
-        else:
+        if flag and len(byte_string[current:]) > 4:
             tx_witnesses = []
             tx_witnesses_num = tx_ins_num
             for _ in range(tx_witnesses_num.number):
                 tx_witness = InputWitness.from_bytes(byte_string[current:])
                 current += len(tx_witness)
                 tx_witnesses.append(tx_witness)
+        else:
+            tx_witnesses = None
 
-        lock_time = byte_string[current:current+4]
+        lock_time = byte_string[current:current + 4]
         return Tx(
             version=version,
             flag=flag,
