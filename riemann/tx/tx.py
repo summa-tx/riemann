@@ -1,4 +1,3 @@
-import math
 import riemann
 from riemann.script import serialization
 from riemann import utils
@@ -138,7 +137,7 @@ class VarInt(ByteData):
     '''
     NB: number must be integer
     '''
-    def __init__(self, number):
+    def __init__(self, number, length=None):
         super().__init__()
         if number < 0x0:
             raise ValueError('VarInt cannot be less than 0. '
@@ -149,17 +148,20 @@ class VarInt(ByteData):
                              .format(number))
         if number <= 0xfc:
             pass  # No prefix
-        elif number <= 0xffff:
+        elif number <= 0xffff or length == 3:
             self += bytes([0xfd])
-        elif number <= 0xffffffff:
+            length = 3
+        elif number <= 0xffffffff or length == 5:
             self += bytes([0xfe])
-        elif number <= 0xffffffffffffffff:
+            length = 5
+        elif number <= 0xffffffffffffffff or length == 9:
             self += bytes([0xff])
+            length = 9
         self += utils.i2le(number)
 
-        # This pads out to the next 2/4/8 bytes.
-        while len(self) > 1 and math.log(len(self) - 1, 2) % 1 != 0:
-            self += bytes([0x00])
+        if length is not None:
+            while len(self) < length:
+                self += b'\x00'
 
         self.number = number
 
@@ -180,7 +182,7 @@ class VarInt(ByteData):
             non_compact = False
         elif num[0] == 0xfd:
             num = num[1:3]
-            non_compact = (num[1] == 0)
+            non_compact = (num[-1:] == b'\x00')
         elif num[0] == 0xfe:
             num = num[1:5]
             non_compact = (num[-2:] == b'\x00\x00')
@@ -191,11 +193,13 @@ class VarInt(ByteData):
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
-        ret = VarInt(utils.le2i(num))
-
-        if non_compact:
+        if non_compact and 'overwinter' in riemann.get_current_network_name():
             raise ValueError('VarInt must be compact. Got: {}'
                              .format(byte_string.hex()))
+
+        ret = VarInt(
+            utils.le2i(num),
+            length=len(num) + 1 if non_compact else 0)
 
         return ret
 
@@ -297,12 +301,13 @@ class TxIn(ByteData):
             # If the last entry deserializes, it's a p2sh input
             # There is a vanishingly small edge case where the pubkey
             #   forms a deserializable script.
+            # Edge case: serialization errors on CODESEPARATOR
             deserialized = serialization.deserialize(script_sig)
             items = deserialized.split()
             serialization.hex_deserialize(items[-1])
             stack_script = serialization.serialize(' '.join(items[:-1]))
             redeem_script = serialization.serialize(items[-1])
-        except (IndexError, ValueError):
+        except (IndexError, ValueError, NotImplementedError):
             pass
 
         return stack_script, redeem_script
@@ -326,7 +331,6 @@ class TxIn(ByteData):
             redeem_script = b''
         else:
             stack_script, redeem_script = TxIn._parse_script_sig(script_sig)
-
         return TxIn(
             outpoint=outpoint,
             stack_script=stack_script,
@@ -344,13 +348,6 @@ class TxOut(ByteData):
 
         self.validate_bytes(value, 8)
         self.validate_bytes(output_script, None)
-
-        if (output_script != b''
-                and utils.le2i(value) <= 546
-                and output_script[0] != 0x6a):
-            raise ValueError('Transaction value below dust limit. '
-                             'Expected more than 546 sat. Got: {} sat.'
-                             .format(utils.le2i(value)))
 
         self += value
         self += VarInt(len(output_script))
@@ -468,8 +465,6 @@ class Tx(ByteData):
                     'Invald segwit flag. '
                     'Expected None or {}. Got: {}'
                     .format(riemann.network.SEGWIT_TX_FLAG, flag))
-            if tx_witnesses is None or len(tx_witnesses) is 0:
-                raise ValueError('Got segwit flag but no witnesses.')
 
         if tx_witnesses is not None:
             if flag is None:
@@ -485,9 +480,6 @@ class Tx(ByteData):
                         'Invalid InputWitness. '
                         'Expected instance of InputWitness. Got {}'
                         .format(type(witness)))
-
-        if max(len(tx_ins), len(tx_outs)) > 255:
-            raise ValueError('Too many inputs or outputs. Stop that.')
 
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
@@ -564,6 +556,7 @@ class Tx(ByteData):
         tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
 
         current = tx_ins_num_loc + len(tx_ins_num)
+
         for _ in range(tx_ins_num.number):
             tx_in = TxIn.from_bytes(byte_string[current:])
             current += len(tx_in)
@@ -571,24 +564,23 @@ class Tx(ByteData):
 
         tx_outs = []
         tx_outs_num = VarInt.from_bytes(byte_string[current:])
-
         current += len(tx_outs_num)
         for _ in range(tx_outs_num.number):
             tx_out = TxOut.from_bytes(byte_string[current:])
             current += len(tx_out)
             tx_outs.append(tx_out)
 
-        if not flag:
-            tx_witnesses = None
-        else:
+        if flag and len(byte_string[current:]) > 4:
             tx_witnesses = []
             tx_witnesses_num = tx_ins_num
             for _ in range(tx_witnesses_num.number):
                 tx_witness = InputWitness.from_bytes(byte_string[current:])
                 current += len(tx_witness)
                 tx_witnesses.append(tx_witness)
+        else:
+            tx_witnesses = None
 
-        lock_time = byte_string[current:]
+        lock_time = byte_string[current:current + 4]
         return Tx(
             version=version,
             flag=flag,
@@ -1117,9 +1109,6 @@ class DecredTx(DecredByteData):
         self.validate_bytes(lock_time, 4)
         self.validate_bytes(expiry, 4)
 
-        if max(len(tx_ins), len(tx_outs)) > 255:
-            raise ValueError('Too many inputs or outputs. Stop that.')
-
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
 
@@ -1481,9 +1470,6 @@ class SproutTx(ZcashByteData):
         self.validate_bytes(version, 4)
         self.validate_bytes(lock_time, 4)
 
-        if max(len(tx_ins), len(tx_outs)) > 255:
-            raise ValueError('Too many inputs or outputs. Stop that.')
-
         for tx_in in tx_ins:
             if not isinstance(tx_in, TxIn):
                 raise ValueError(
@@ -1841,9 +1827,6 @@ class OverwinterTx(ZcashByteData):
             raise ValueError('Expiry time too high.'
                              'Expected <= 499999999. Got {}'
                              .format(utils.le2i(expiry_height)))
-
-        if max(len(tx_ins), len(tx_outs)) > 255:
-            raise ValueError('Too many inputs or outputs. Stop that.')
 
         for tx_in in tx_ins:
             if not isinstance(tx_in, TxIn):

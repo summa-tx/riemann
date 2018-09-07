@@ -86,7 +86,7 @@ class TestVarInt(unittest.TestCase):
 
     def test_one_byte_boundary(self):
         res = tx.VarInt(0xff)
-        self.assertEqual(res, b'\xfd' + b'\xff')
+        self.assertEqual(res, b'\xfd' + b'\xff\x00')
         self.assertIsInstance(res, tx.VarInt)
 
     def test_two_bytes(self):
@@ -150,7 +150,7 @@ class TestVarInt(unittest.TestCase):
             str(context.exception))
 
     def test_zcash_compact_enforcement(self):
-        riemann.select_network('zcash_sprout_main')
+        riemann.select_network('zcash_overwinter_main')
 
         with self.assertRaises(ValueError) as context:
             tx.VarInt.from_bytes(b'\xfd\x00\x00')
@@ -344,15 +344,6 @@ class TestTxOut(unittest.TestCase):
 
         self.assertEqual(tx_out, tx_out_copy)  # They should be equal
         self.assertIsNot(tx_out, tx_out_copy)  # But not the same object
-
-    def test_dust_limit_error(self):
-        with self.assertRaises(ValueError) as context:
-            tx.TxOut(utils.i2le_padded(5, 8), self.output_script)
-
-        self.assertIn(
-            'Transaction value below dust limit. '
-            'Expected more than 546 sat. Got: 5 sat.',
-            str(context.exception))
 
     def test_from_bytes(self):
         output = helpers.P2PKH1['ser']['outs'][0]['value'] + \
@@ -557,20 +548,6 @@ class TestTx(unittest.TestCase):
             str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            tx.Tx(self.version, self.segwit_flag, self.tx_ins, self.tx_outs,
-                  None, self.lock_time)
-        self.assertIn(
-            'Got segwit flag but no witnesses.',
-            str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx.Tx(self.version, b'\x00\x01', self.tx_ins, self.tx_outs,
-                  [], self.lock_time)
-        self.assertIn(
-            'Got segwit flag but no witnesses.',
-            str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
             tx.Tx(self.version, None, self.tx_ins, self.tx_outs,
                   self.tx_witnesses, self.lock_time)
         self.assertIn(
@@ -598,22 +575,6 @@ class TestTx(unittest.TestCase):
                   self.none_witnesses, self.lock_time)
 
         self.assertEqual(t, helpers.P2PKH1['ser']['tx']['signed'])
-
-        with self.assertRaises(ValueError) as context:
-            tx_ins = [self.tx_ins[0] for _ in range(257)]
-            tx.Tx(self.version, self.none_flag, tx_ins, self.tx_outs,
-                  None, self.lock_time)
-        self.assertIn(
-            'Too many inputs or outputs. Stop that.',
-            str(context.exception))
-
-        with self.assertRaises(ValueError) as context:
-            tx_outs = [self.tx_outs[0] for _ in range(257)]
-            tx.Tx(self.version, self.none_flag, self.tx_ins, tx_outs,
-                  None, self.lock_time)
-        self.assertIn(
-            'Too many inputs or outputs. Stop that.',
-            str(context.exception))
 
         with self.assertRaises(ValueError) as context:
             tx_ins = []
@@ -1279,18 +1240,6 @@ class TestDecredTx(DecredTestCase):
 
         self.assertIn('Invalid TxWitness', str(context.exception))
 
-        with self.assertRaises(ValueError) as context:
-            tx.DecredTx(
-                version=self.version,
-                tx_ins=[self.tx_in] * 256,
-                tx_outs=[self.tx_out],
-                lock_time=self.lock_time,
-                expiry=self.expiry,
-                tx_witnesses=[self.witness] * 256)
-
-        self.assertIn('Too many inputs or outputs. Stop that.',
-                      str(context.exception))
-
         # with self.assertRaises(ValueError) as context:
         #     tx.DecredTx(
         #         version=self.version,
@@ -1653,9 +1602,7 @@ class TestSproutTx(SproutTestCase):
     def test_init_errors(self):
         self.attr_assert('version', b'', 'Expected byte-like object')
         self.attr_assert('lock_time', b'', 'Expected byte-like object')
-        self.attr_assert('tx_ins', [b''] * 256, 'Too many inputs or outputs.')
         self.attr_assert('tx_ins', [b''], 'Invalid TxIn. ')
-        self.attr_assert('tx_outs', [b''] * 256, 'Too many inputs or outputs.')
         self.attr_assert('tx_outs', [b''], 'Invalid TxOut. ')
         self.attr_assert(
             'version', b'\x01\x00\x00\x00', 'Joinsplits not allowed')
@@ -1784,9 +1731,7 @@ class TestOverwinterTx(OverwinterTestCase):
         self.attr_assert('lock_time', b'', 'Expected byte-like object')
         self.attr_assert('expiry_height', b'', 'Expected byte-like object')
         self.attr_assert('expiry_height', b'\xff' * 4, 'Expiry time too high')
-        self.attr_assert('tx_ins', [b''] * 256, 'Too many inputs or outputs.')
         self.attr_assert('tx_ins', [b''], 'Invalid TxIn. ')
-        self.attr_assert('tx_outs', [b''] * 256, 'Too many inputs or outputs.')
         self.attr_assert('tx_outs', [b''], 'Invalid TxOut. ')
         self.attr_assert('tx_joinsplits', [b''] * 6, 'Too many joinsplits.')
         self.attr_assert('tx_joinsplits', [b''], 'Invalid Joinsplit. ')
