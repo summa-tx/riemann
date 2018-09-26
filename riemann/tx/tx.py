@@ -544,6 +544,10 @@ class Tx(ByteData):
         self._make_immutable()
 
     @classmethod
+    def from_hex(Tx, hex_string):
+        return Tx.from_bytes(bytes.fromhex(hex_string))
+
+    @classmethod
     def from_bytes(Tx, byte_string):
         version = byte_string[0:4]
         if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:

@@ -629,6 +629,52 @@ class TestTx(unittest.TestCase):
         self.assertEqual(t.tx_id, helpers.P2PKH1['ser']['tx']['hash'])
         self.assertEqual(t.tx_id_le, helpers.P2PKH1['ser']['tx']['hash_le'])
 
+    def test_from_hex_pkh(self):
+        t = tx.Tx.from_hex(helpers.P2PKH1['human']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2PKH1['ser']['version'])
+        self.assertEqual(t.tx_ins[0],  helpers.P2PKH1['ser']['tx']['in'])
+        self.assertEqual(t.tx_outs[0], helpers.P2PKH1['ser']['outs'][0]['out'])
+        self.assertEqual(t.tx_outs[1], helpers.P2PKH1['ser']['outs'][1]['out'])
+        self.assertEqual(t.lock_time, helpers.P2PKH1['ser']['locktime'])
+        self.assertEqual(t, helpers.P2PKH1['ser']['tx']['signed'])
+
+    def test_from_hex_sh(self):
+        t = tx.Tx.from_hex(helpers.P2SH['human']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2SH['ser']['version'])
+        self.assertEqual(
+            t.tx_ins[0],
+            helpers.P2SH['ser']['ins'][0]['input'])
+        self.assertEqual(
+            t.tx_outs[0],
+            helpers.P2SH['ser']['outs'][0]['output'])
+        self.assertEqual(
+            t.tx_outs[1],
+            helpers.P2SH['ser']['outs'][1]['output'])
+        self.assertEqual(t.lock_time, helpers.P2SH['ser']['locktime'])
+        self.assertEqual(t, helpers.P2SH['ser']['tx']['signed'])
+
+    def test_from_hex_wsh(self):
+        t = tx.Tx.from_hex(helpers.P2WSH['human']['tx']['signed'])
+        self.assertEqual(t.version, helpers.P2WSH['ser']['version'])
+        self.assertEqual(t.tx_ins[0], helpers.P2WSH['ser']['ins'][0]['input'])
+        self.assertEqual(
+            t.tx_outs[0],
+            helpers.P2WSH['ser']['outs'][0]['output'])
+        self.assertEqual(
+            t.tx_outs[1],
+            helpers.P2WSH['ser']['outs'][1]['output'])
+        self.assertEqual(
+            t.tx_outs[2],
+            helpers.P2WSH['ser']['outs'][2]['output'])
+        self.assertEqual(
+            t.tx_outs[3],
+            helpers.P2WSH['ser']['outs'][3]['output'])
+        self.assertEqual(
+            t.tx_witnesses[0],
+            helpers.P2WSH['ser']['tx']['witness'])
+        self.assertEqual(t.lock_time, helpers.P2WSH['ser']['locktime'])
+        self.assertEqual(t, helpers.P2WSH['ser']['tx']['signed'])
+
     def test_from_bytes_pkh(self):
         t = tx.Tx.from_bytes(helpers.P2PKH1['ser']['tx']['signed'])
         self.assertEqual(t.version, helpers.P2PKH1['ser']['version'])
@@ -672,7 +718,7 @@ class TestTx(unittest.TestCase):
         self.assertEqual(
             t.tx_witnesses[0],
             helpers.P2WSH['ser']['tx']['witness'])
-        self.assertEqual(t.lock_time, helpers.P2SH['ser']['locktime'])
+        self.assertEqual(t.lock_time, helpers.P2WSH['ser']['locktime'])
         self.assertEqual(t, helpers.P2WSH['ser']['tx']['signed'])
 
     def test_calculate_fee(self):

@@ -42,15 +42,15 @@ riemann_note = 'made with ❤ by riemann'.encode('utf-8')
 op_return_output = tx_builder.make_op_return_output(riemann_note)
 
 unsigned_tx = simple.unsigned_legacy_tx(
-        tx_ins=[sender_input],
-        tx_outs=[sender_output, op_return_output],
-        version=version,
-        lock_time=locktime)
+    tx_ins=[sender_input],
+    tx_outs=[sender_output, op_return_output],
+    version=version,
+    lock_time=locktime)
 
 sighash_all = 0x01
 sighash = unsigned_tx.sighash_all(
-        index=0,
-        script=addr.to_output_script(sender_addr))
+    index=0,
+    script=addr.to_output_script(sender_addr))
 
 # Using instance of CKey from python-bitcoinlib to sign:
 # sig = sender.sign(sighash) + bytes([sighash_all])
@@ -58,10 +58,10 @@ sighash = unsigned_tx.sighash_all(
 sig = '30450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc01'    # noqa: E501
 
 signed_input = simple.p2pkh_input(
-        outpoint=sender_outpoint,
-        sig=sig,
-        pubkey=sender_pubkey,
-        sequence=sequence)
+    outpoint=sender_outpoint,
+    sig=sig,
+    pubkey=sender_pubkey,
+    sequence=sequence)
 
 tx_signed = unsigned_tx.copy(tx_ins=[signed_input])
 print('tx_signed')
