@@ -122,17 +122,30 @@ def make_p2wpkh_output(value, pubkey):
 
 
 def make_op_return_output(data):
-    '''
-    byte-like -> TxOut
+    '''Generates OP_RETURN output for data less than 78 bytes.
+    If data is 76 or 77 bytes, OP_PUSHDATA1 is included:
+    <OP_RETURN><OP_PUSHDATA1><data len><data>
+    If data is less than 76 bytes, OP_PUSHDATA1 is not included:
+    <OP_RETURN><data len><data>
+    80 bytes is the default setting for an OP_RETURN output script.
     https://github.com/bitpay/bitcore/issues/1389
+    Args:
+        data    (bytes):    data included in output
+    Returns:
+        (TxOut):            TxOut object with OP_RETURN output
     '''
     if len(data) > 77:  # 77 bytes is the limit
         raise ValueError('Data is too long. Expected <= 77 bytes')
+
     pk_script = bytearray()
-    pk_script.extend(b'\x6a')  # OP_RETURN
-    pk_script.extend(b'\x4c')  # OP_PUSHDATA1
+    pk_script.extend(b'\x6a')       # OP_RETURN
+
+    # OP_PUSHDATA1 only used if data is greater than 75 bytes
+    if len(data) in [76, 77]:
+        pk_script.extend(b'\x4c')  # OP_PUSHDATA1
+
     pk_script.extend([len(data)])  # One byte for length of data
-    pk_script.extend(data)  # Data
+    pk_script.extend(data)         # Data
     return _make_output(utils.i2le_padded(0, 8), pk_script)
 
 
