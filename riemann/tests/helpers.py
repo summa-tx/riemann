@@ -4,40 +4,38 @@
 # https://docs.google.com/presentation/d/1YGZf1VKKOnCdpuaVzU35CAXy8uGcztq0OBlTNMGSmkw/edit?usp=sharing
 from ..script import examples
 
-# Pay-to-Public-Key-Hash Transaction used in riemann.examples.p2pkh_tx_ex
-# UTXOs: https://blockchain.info/rawtx/264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188
-# https://blockchain.info/rawtx/1e7acd3d4715054c8fb0fdea25c5c704986006d2c6f30b0782e9b36a7ee072ef
+# Pay-to-Public-Key-Hash Transaction
 P2PKH = {
         'human': {
-            'version': 0,
+            'version': 1,
             'locktime': 00000000,
             'ins': [
                 {
                     'id': 0,
                     'sequence': 0xFFFFFFFE,
-                    'addr': '18mTD3dVy4Y69knfyRi5vKtDxqtFWmgg7v',
-                    'hash': '264b157c1c733bb42c42f2932702921ea23ac93259ca058cdf36311e36295188',
+                    'addr': 'bc1q0py7d067fvd6wg64wtgmpj7qjnczz0nv6e2wgq',
+                    'hash': 'ff7ff97060bfa1763dd9d4101b322157e841a4de865ddc28b1f71500f45c8135',
                     'hash_le': '',
                     'index': 0,
-                    'value': 100000,
-                    'outpoint': '885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b2600000000',
-                    'signature': '3045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e386701',
-                    'pubkey': '02bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca',
-                    'stack_script': '3045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e386701 02bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca'
+                    'value': 1000,
+                    'outpoint': '35815cf40015f7b128dc5d86dea441e85721321b10d4d93d76a1bf6070f97fff00000000',
+                    'signature': '30450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc01',
+                    'pubkey': '02a004b949e4769ed341064829137b18992be884da5932c755e48f9465c1069dc2',
+                    'stack_script': '30450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc01 02a004b949e4769ed341064829137b18992be884da5932c755e48f9465c1069dc2'
                     }
                 ],
             'outs': [
                 {
                     'id': 0,
-                    'addr': 'bc1qss5rslea60lftfe7pyk32s9j9dtr7z7mrqud3g',
-                    'value': 96900,
-                    'pk_script': '00148428387f3dd3fe95a73e092d1540b22b563f0bdb'
+                    'addr': 'bc1qp037f2sk26acz8dn9knp6s8fzuwg390zqxh966',
+                    'value': 990,
+                    'pk_script': '02ef21caa25eca974d3bdd73c034d6943cbf145a700d493adaa6f496bd87c5b33b'
                     },
                 {
                     'id': 1,
                     'memo': 'made with ❤ by riemann'.encode('utf-8'),
                     'value': 0,
-                    'pk_script': '6a4c186d616465207769746820e29da4206279207269656d616e6e'
+                    'pk_script': '6a186d616465207769746820e29da4206279207269656d616e6e'
                     }
                 ]
             },
@@ -47,35 +45,35 @@ P2PKH = {
             'ins': [
                 {
                     'id': 0,
-                    'hash': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26'),
+                    'hash': bytes.fromhex('ff7ff97060bfa1763dd9d4101b322157e841a4de865ddc28b1f71500f45c8135'),
                     'sequence': bytes.fromhex('feffffff'),
                     'index': bytes.fromhex('00000000'),
-                    'pk_script': bytes.fromhex('a91455310f53d91c7a6034b2c9abff3e0b9cf3fcee1e88ac'),
-                    'value': bytes.fromhex('a086010000000000'),
-                    'outpoint': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b2600000000'),
-                    'stack_script': bytes.fromhex('483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38ca'),
+                    'pk_script': bytes.fromhex('02ef21caa25eca974d3bdd73c034d6943cbf145a700d493adaa6f496bd87c5b33b'),
+                    'value': bytes.fromhex('e803000000000000'),
+                    'outpoint': bytes.fromhex('35815cf40015f7b128dc5d86dea441e85721321b10d4d93d76a1bf6070f97fff00000000'),
+                    'stack_script': bytes.fromhex('4830450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc012102a004b949e4769ed341064829137b18992be884da5932c755e48f9465c1069dc2'),
                     'redeem_script': bytes.fromhex(''),
-                    'input': bytes.fromhex('885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26000000006b483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38cafeffffff')
+                    'input': bytes.fromhex('35815cf40015f7b128dc5d86dea441e85721321b10d4d93d76a1bf6070f97fff000000006b4830450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc012102a004b949e4769ed341064829137b18992be884da5932c755e48f9465c1069dc2feffffff')
                     }
                 ],
             'outs': [
                 {
                     'id': 0,
-                    'value': bytes.fromhex('847a010000000000'),
-                    'pk_script': bytes.fromhex('00148428387f3dd3fe95a73e092d1540b22b563f0bdb'),
-                    'output': bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb')
+                    'value': bytes.fromhex('de03000000000000'),
+                    'pk_script': bytes.fromhex('02ef21caa25eca974d3bdd73c034d6943cbf145a700d493adaa6f496bd87c5b33b'),
+                    'output': bytes.fromhex('de030000000000001600140be3e4aa1656bb811db32da61d40e9171c8895e2')
                     },
                 {
                     'id': 1,
                     'value': bytes.fromhex('0000000000000000'),
-                    'pk_script': bytes.fromhex('6a4c186d616465207769746820e29da4206279207269656d616e6e'),
-                    'output': bytes.fromhex('00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e')
+                    'pk_script': bytes.fromhex('6a186d616465207769746820e29da4206279207269656d616e6e'),
+                    'output': bytes.fromhex('00000000000000001a6a186d616465207769746820e29da4206279207269656d616e6e')
                     }
                 ],
             'tx': {
-                'out': bytes.fromhex('847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
-                'unsigned': bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b260000000000feffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
-                'signed': bytes.fromhex('0100000001885129361e3136df8c05ca5932c93aa21e92022793f2422cb43b731c7c154b26000000006b483045022100969b9b2a0eb72af4018834dc17e7d2eb0a09e8ffa1d620847f85cebc29d6197002203378382cfbfefad6d659fe838c34549dc9a8c2e9e61087d4c648c6c3562e3867012102bfb0a1108262227c8415aa90edc6c1a10e1e447ae58587c537926ef7069a38cafeffffff02847a0100000000001600148428387f3dd3fe95a73e092d1540b22b563f0bdb00000000000000001b6a4c186d616465207769746820e29da4206279207269656d616e6e00000000'),
+                'out': bytes.fromhex('de030000000000001600140be3e4aa1656bb811db32da61d40e9171c8895e200000000000000001a6a186d616465207769746820e29da4206279207269656d616e6e00000000'),
+                'unsigned': bytes.fromhex('010000000135815cf40015f7b128dc5d86dea441e85721321b10d4d93d76a1bf6070f97fff0000000000feffffff02de030000000000001600140be3e4aa1656bb811db32da61d40e9171c8895e200000000000000001a6a186d616465207769746820e29da4206279207269656d616e6e00000000'),
+                'signed': bytes.fromhex('010000000135815cf40015f7b128dc5d86dea441e85721321b10d4d93d76a1bf6070f97fff000000006b4830450221009e8c7f85d6491169df139f25d26633efe48e98738331a37a1694d655dccebdbd02201a6444cfb364e91279f8c9a8b09cdbdeb4bf6cc0f00f53b9356f852c3b3151dc012102a004b949e4769ed341064829137b18992be884da5932c755e48f9465c1069dc2feffffff02de030000000000001600140be3e4aa1656bb811db32da61d40e9171c8895e200000000000000001a6a186d616465207769746820e29da4206279207269656d616e6e00000000'),
                 'hash': bytes.fromhex(''),
                 'hash_le': bytes.fromhex('')
                 }
@@ -115,7 +113,10 @@ P2PKH1 = {
                     'value': 10011545,
                     'pk_script': '76a9141c4bc762dd5423e332166702cb75f40df79fea1288ac'
                     }
-                ]
+                ],
+            'tx': {
+                'signed': '0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600'
+                }
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
@@ -195,7 +196,10 @@ P2SH = {
                     'value': 0,
                     'pk_script': ''
                     }
-                ]
+                ],
+            'tx': {
+                'signed': '01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'
+                }
             },
         'ser': {
             'version': bytes.fromhex('01000000'),
@@ -372,7 +376,10 @@ P2WSH = {
                     'stack': 'NONE 304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601 3045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe01',
                     'wit_script': 'OP_2 0375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c 03a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff 03c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f880 OP_3 OP_CHECKMULTISIG',
                     }
-                ]
+                ],
+            'tx': {
+                'signed': '010000000001011fceaec1c93a98af3e035b3ba0ef01c32be39a79dede5d03c2347097fac6283e0100000000ffffffff0440548900000000001976a9146199463742d1359a505881821d82f5d4148e3fc588ac60361e000000000017a9140df9a2a3c14a223733908e3e9127e2f6a9e2878e87502b7000000000001976a914f447146b86373c781a946d7ebd88cbbb79ec810288ac0370040000000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d040047304402201b1c2fc7d58870004c379575a47db60c3833174033f891ad5030cbf0c37c50c302206087d3ddc6f38da40e7eaf8c2af3f934a577de10e6ca75e00b4cdfbb34f5d40601483045022100a7ecde342ccacd1159e385bcd41c947723a7ae3fcea66c76b5b09d02fee310f7022058ca21324fcd0c90e69630f13975d993e11f62ec8d7aa1a9a49036b9607e58fe016952210375e00eb72e29da82b89367947f29ef34afb75e8654f6ea368e0acdfd92976b7c2103a1b26313f430c4b15bb1fdce663207659d8cac749a0e53d70eff01874496feff2103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae00000000'
+                }
             },
         'ser': {
             'version': bytes.fromhex('01000000'),

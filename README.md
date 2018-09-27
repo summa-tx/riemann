@@ -5,6 +5,8 @@
 
 ### Purpose
 
+`$ pip install riemann-tx`
+
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style transactions**. It is **compatible with many chains** and **supports SegWit**.
 
 Riemann aims to make it easy to create application-specific transactions. It serializes and unserializes scripts from human-readable strings. It contains a complete toolbox for transaction construction, as well as built-in support for ~20 live networks and ~40 testnet or regtest nets.
