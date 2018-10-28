@@ -193,7 +193,9 @@ class VarInt(ByteData):
             raise ValueError('Malformed VarInt. Got: {}'
                              .format(byte_string.hex()))
 
-        if non_compact and 'overwinter' in riemann.get_current_network_name():
+        if (non_compact and
+                ('overwinter' in riemann.get_current_network_name()
+                 or 'sapling' in riemann.get_current_network_name())):
             raise ValueError('VarInt must be compact. Got: {}'
                              .format(byte_string.hex()))
 
