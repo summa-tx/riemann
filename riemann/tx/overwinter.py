@@ -28,7 +28,7 @@ class OverwinterTx(z.ZcashByteData):
             if not isinstance(tx_in, TxIn):
                 raise ValueError(
                     'Invalid TxIn. '
-                    'Expected instance of TxOut. Got {}'
+                    'Expected instance of TxIn. Got {}'
                     .format(type(tx_in).__name__))
 
         for tx_out in tx_outs:
@@ -55,7 +55,7 @@ class OverwinterTx(z.ZcashByteData):
             raise ValueError('Transaction must have tx_ins or joinsplits.')
 
         self += b'\x03\x00\x00\x80'  # Version 3 + fOverwintered
-        self += b'\x70\x82\xc4\x03'        # Overwinter Group ID
+        self += b'\x70\x82\xc4\x03'  # Overwinter Group ID
         self += shared.VarInt(len(tx_ins))
         for tx_in in tx_ins:
             self += tx_in
@@ -65,8 +65,8 @@ class OverwinterTx(z.ZcashByteData):
         self += lock_time
         self += expiry_height
 
+        self += shared.VarInt(len(tx_joinsplits))
         if len(tx_joinsplits) != 0:
-            self += shared.VarInt(len(tx_joinsplits))
             for tx_joinsplit in tx_joinsplits:
                 self += tx_joinsplit
             self += joinsplit_pubkey
@@ -75,11 +75,8 @@ class OverwinterTx(z.ZcashByteData):
         self.header = b'\x03\x00\x00\x80'
         self.group_id = b'\x70\x82\xc4\x03'
         self.version = b'\x03\x00'
-        self.tx_ins_len = len(tx_ins)
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
-        self.tx_outs_len = len(tx_outs)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
-        self.tx_joinsplits_len = len(tx_joinsplits)
         self.lock_time = lock_time
         self.expiry_height = expiry_height
 
@@ -89,9 +86,9 @@ class OverwinterTx(z.ZcashByteData):
             self.joinsplit_sig = joinsplit_sig
             # Zcash spec 5.4.1.4 Hsig hash function
             self.hsigs = (tuple(self._hsig(i)
-                          for i in range(self.tx_joinsplits_len)))
+                          for i in range(len(self.tx_joinsplits))))
             self.primary_inputs = (tuple(self._primary_input(i)
-                                   for i in range(self.tx_joinsplits_len)))
+                                   for i in range(len(self.tx_joinsplits))))
         else:
             self.tx_joinsplits = tuple()
             self.joinsplit_pubkey = None
@@ -99,8 +96,8 @@ class OverwinterTx(z.ZcashByteData):
             self.hsigs = tuple()
             self.primary_inputs = tuple()
 
-        self.tx_id_le = 1
-        self.tx_id = 1
+        self.tx_id_le = self.tx_id_le = utils.hash256(self.to_bytes())
+        self.tx_id = self.tx_id_le[::-1]
 
         self._make_immutable()
 

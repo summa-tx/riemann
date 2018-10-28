@@ -74,11 +74,8 @@ class SproutTx(z.ZcashByteData):
             self += joinsplit_sig
 
         self.version = version
-        self.tx_ins_len = len(tx_ins)
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
-        self.tx_outs_len = len(tx_outs)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
-        self.tx_joinsplits_len = len(tx_joinsplits)
         self.tx_joinsplits = tuple(js for js in tx_joinsplits)
         self.lock_time = lock_time
 
@@ -86,10 +83,10 @@ class SproutTx(z.ZcashByteData):
             self.joinsplit_pubkey = joinsplit_pubkey
             self.joinsplit_sig = joinsplit_sig
             # Zcash spec 5.4.1.4 Hsig hash function
-            self.hsigs = [self._hsig(i) for i in range(self.tx_joinsplits_len)]
-
-            self.primary_inputs = [self._primary_input(i)
-                                   for i in range(self.tx_joinsplits_len)]
+            self.hsigs = (tuple(self._hsig(i)
+                          for i in range(len(self.tx_joinsplits))))
+            self.primary_inputs = (tuple(self._primary_input(i)
+                                   for i in range(len(self.tx_joinsplits))))
         else:
             self.joinsplit_pubkey = None
             self.joinsplit_sig = None
