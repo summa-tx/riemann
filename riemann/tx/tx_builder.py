@@ -1,7 +1,7 @@
 import riemann
-from . import tx
-from .. import utils
-from ..script import serialization
+from riemann import tx
+from riemann import utils
+from riemann.script import serialization
 
 
 def make_sh_script_pubkey(script_bytes, witness=False):
