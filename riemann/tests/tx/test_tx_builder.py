@@ -78,15 +78,6 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_p2wpkh_output_script(helpers.PK['ser'][0]['pk']),
             helpers.PK['ser'][0]['pkh_p2wpkh_output'])
 
-    def test_make_decred_output(self):
-        riemann.select_network('decred_main')
-        self.assertEqual(
-            tb._make_output(
-                value=helpers.DCR['ser']['outs'][0]['value'],
-                output_script=helpers.DCR['ser']['outs'][0]['pk_script'],
-                version=helpers.DCR['ser']['outs'][0]['version']),
-            helpers.DCR['ser']['outs'][0]['output'])
-
     def test_make_sh_output(self):
         pass  # covered by next two
 
@@ -139,18 +130,6 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_witness(self):
         pass
 
-    def test_make_decred_witness(self):
-        riemann.select_network('decred_main')
-        helper_witness = helpers.DCR['ser']['witnesses'][0]
-        self.assertEqual(
-            tb.make_decred_witness(
-                value=helper_witness['value'],
-                height=helper_witness['height'],
-                index=helper_witness['index'],
-                stack_script=helper_witness['stack_script'],
-                redeem_script=helper_witness['redeem_script']),
-            helper_witness['witness'])
-
     def test_make_outpoint(self):
         outpoint = tb.make_outpoint(
             tx_id_le=helpers.P2PKH1['ser']['ins'][0]['hash'],
@@ -159,15 +138,6 @@ class TestTxBuilder(unittest.TestCase):
         self.assertEqual(
             outpoint,
             helpers.P2PKH1['ser']['ins'][0]['outpoint'])
-
-    def test_make_decred_outpoint(self):
-        riemann.select_network('decred_main')
-        self.assertEqual(
-            tb.make_outpoint(
-                tx_id_le=helpers.DCR['ser']['ins'][0]['hash'],
-                index=0,
-                tree=0),
-            helpers.DCR['ser']['ins'][0]['outpoint'])
 
     def test_make_script_sig(self):
         tx_in = helpers.P2SH_PD1['human']['ins'][0]
@@ -193,82 +163,8 @@ class TestTxBuilder(unittest.TestCase):
     def test_make_legacy_input_and_empty_witness(self):
         pass
 
-    def test_make_decred_witness_input(self):
-        riemann.select_network('decred_main')
-        outpoint = tb.make_outpoint(
-            tx_id_le=helpers.DCR['ser']['ins'][0]['hash'],
-            index=0,
-            tree=0)
-        self.assertEqual(
-            tb.make_decred_input(
-                outpoint=outpoint,
-                sequence=helpers.DCR['human']['ins'][0]['sequence']),
-            helpers.DCR['ser']['tx']['in_unsigned'])
-
-    def test_make_decred_input(self):
-        riemann.select_network('decred_main')
-        outpoint = tb.make_outpoint(
-            tx_id_le=helpers.DCR['ser']['ins'][0]['hash'],
-            index=0,
-            tree=0)
-        self.assertEqual(
-            tb.make_witness_input(
-                outpoint=outpoint,
-                sequence=helpers.DCR['human']['ins'][0]['sequence']),
-            helpers.DCR['ser']['tx']['in_unsigned'])
-
     def test_make_witness_input_and_witness(self):
         pass
-
-    def test_make_decred_input_and_witness(self):
-        riemann.select_network('decred_main')
-        outpoint = tb.make_outpoint(
-            tx_id_le=helpers.DCR['ser']['ins'][0]['hash'],
-            index=0,
-            tree=0)
-        tx_in, witness = tb.make_witness_input_and_witness(
-            outpoint=outpoint,
-            sequence=helpers.DCR['human']['ins'][0]['sequence'],
-            value=helpers.DCR['ser']['witnesses'][0]['value'],
-            height=helpers.DCR['ser']['witnesses'][0]['height'],
-            index=helpers.DCR['ser']['witnesses'][0]['index'],
-            stack_script=helpers.DCR['ser']['witnesses'][0]['stack_script'],
-            redeem_script=helpers.DCR['ser']['witnesses'][0]['redeem_script'])
-        self.assertEqual(
-            tx_in,
-            helpers.DCR['ser']['tx']['in_unsigned'])
-        self.assertEqual(
-            witness,
-            helpers.DCR['ser']['witnesses'][0]['witness'])
-
-    def test_make_decred_tx(self):
-        riemann.select_network('decred_main')
-        helper_witness = helpers.DCR['ser']['witnesses'][0]
-        outpoint = tb.make_outpoint(
-            tx_id_le=helpers.DCR['ser']['ins'][0]['hash'],
-            index=0,
-            tree=0)
-        tx_in, witness = tb.make_witness_input_and_witness(
-            outpoint=outpoint,
-            sequence=helpers.DCR['human']['ins'][0]['sequence'],
-            value=helper_witness['value'],
-            height=helper_witness['height'],
-            index=helper_witness['index'],
-            stack_script=helper_witness['stack_script'],
-            redeem_script=helper_witness['redeem_script'])
-        tx_out = tb._make_output(
-            value=helpers.DCR['ser']['outs'][0]['value'],
-            output_script=helpers.DCR['ser']['outs'][0]['pk_script'],
-            version=helpers.DCR['ser']['outs'][0]['version'])
-        self.assertEqual(
-            tb.make_tx(
-                version=1,
-                tx_ins=[tx_in],
-                tx_outs=[tx_out],
-                lock_time=helpers.DCR['human']['locktime'],
-                expiry=helpers.DCR['human']['expiry'],
-                tx_witnesses=witness),
-            helpers.DCR['ser']['tx']['p2sh_2_p2pkh'])
 
     def test_length_prepend(self):
         self.assertEqual(

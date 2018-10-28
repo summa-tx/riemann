@@ -234,14 +234,14 @@ class SaplingTx(z.ZcashByteData):
                 raise ValueError(
                     'Invalid shielded spend. '
                     'Expected instance of SaplingShieldedSpend. Got {}'
-                    .format(type(tx_in).__name__))
+                    .format(type(shielded_spend).__name__))
 
         for shielded_output in tx_shielded_outputs:
-            if not isinstance(shielded_spend, SaplingShieldedOutput):
+            if not isinstance(shielded_output, SaplingShieldedOutput):
                 raise ValueError(
                     'Invalid shielded output. '
                     'Expected instance of SaplingShieldedOutput. Got {}'
-                    .format(type(tx_in).__name__))
+                    .format(type(shielded_output).__name__))
 
         for tx_joinsplit in tx_joinsplits:
             if not isinstance(tx_joinsplit, SaplingJoinsplit):
@@ -306,7 +306,7 @@ class SaplingTx(z.ZcashByteData):
         if len(tx_shielded_outputs) != 0:
             self.tx_shielded_outputs = tuple(so for so in tx_shielded_outputs)
         else:
-            self.tx_shielded_spends = tuple()
+            self.tx_shielded_outputs = tuple()
 
         if len(tx_joinsplits) != 0:
             self.tx_joinsplits = tuple(js for js in tx_joinsplits)
@@ -475,7 +475,7 @@ class SaplingTx(z.ZcashByteData):
         tx_joinsplits_num = shared.VarInt.from_bytes(byte_string[current:])
         current += len(tx_outs_num)
         for _ in range(tx_joinsplits_num.number):
-            tx_joinsplit = z.SaplingJoinsplit.from_bytes(
+            tx_joinsplit = SaplingJoinsplit.from_bytes(
                 byte_string[current:])
             current += len(tx_joinsplit)
             tx_joinsplits.append(tx_joinsplit)

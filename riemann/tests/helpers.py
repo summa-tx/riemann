@@ -168,81 +168,81 @@ P2PKH1 = {
 #  UTXO: https://blockchain.info/rawtx/adbd01a9a2e9cae0d601061e73c5b3dbb635bb6b9e9b63dd555f88355ff28407
 #  https://blockchain.info/rawtx/348231565
 P2SH = {
-        'human': {
-            'version': 1,
-            'locktime': 00000000,
-            'ins': [
-                {
-                    'sequence': 0xFFFFFFFE,
-                    'id': 0,
-                    'addr': '',
-                    'hash': '',
-                    'hash_le': '',
-                    'index': 0,
-                    'value': 0,
-                    'outpoint': ''
-                    }
-                ],
-            'outs': [
-                {
-                    'id': 0,
-                    'addr': '',
-                    'value': 0,
-                    'pk_script': ''
-                    },
-                {
-                    'id': 1,
-                    'addr': '',
-                    'value': 0,
-                    'pk_script': ''
-                    }
-                ],
-            'tx': {
-                'signed': '01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'
+    'human': {
+        'version': 1,
+        'locktime': 00000000,
+        'ins': [
+            {
+                'sequence': 0xFFFFFFFE,
+                'id': 0,
+                'addr': '',
+                'hash': '',
+                'hash_le': '',
+                'index': 0,
+                'value': 0,
+                'outpoint': ''
                 }
-            },
-        'ser': {
-            'version': bytes.fromhex('01000000'),
-            'locktime': bytes.fromhex('00000000'),
-            'ins': [
-                {
-                    'sequence': bytes.fromhex('ffffffff'),
-                    'id': 0,
-                    'hash': bytes.fromhex(''),
-                    'index': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex(''),
-                    'value': bytes.fromhex(''),
-                    'outpoint': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000'),
-                    'stack_script_len': bytes.fromhex(''),
-                    'stack_script': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501'),
-                    'redeem_script': bytes.fromhex('475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
-                    'script_sig': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
-                    'input': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff'),
-                    }
-                ],
-            'outs': [
-                {
-                    'id': 0,
-                    'value': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex(''),
-                    'output': bytes.fromhex('70c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e87')
-                    },
-                {
-                    'id': 1,
-                    'value': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex(''),
-                    'output': bytes.fromhex('0c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d87')
-                    }
-                ],
-            'tx': {
-                'out': bytes.fromhex(''),
-                'unsigned': bytes.fromhex(''),
-                'signed': bytes.fromhex('01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'),
+            ],
+        'outs': [
+            {
+                'id': 0,
+                'addr': '',
+                'value': 0,
+                'pk_script': ''
+                },
+            {
+                'id': 1,
+                'addr': '',
+                'value': 0,
+                'pk_script': ''
+                }
+            ],
+        'tx': {
+            'signed': '01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'
+            }
+        },
+    'ser': {
+        'version': bytes.fromhex('01000000'),
+        'locktime': bytes.fromhex('00000000'),
+        'ins': [
+            {
+                'sequence': bytes.fromhex('ffffffff'),
+                'id': 0,
                 'hash': bytes.fromhex(''),
-                'hash_le': bytes.fromhex('')
+                'index': bytes.fromhex(''),
+                'pk_script': bytes.fromhex(''),
+                'value': bytes.fromhex(''),
+                'outpoint': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000'),
+                'stack_script_len': bytes.fromhex(''),
+                'stack_script': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501'),
+                'redeem_script': bytes.fromhex('475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
+                'script_sig': bytes.fromhex('00473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952ae'),
+                'input': bytes.fromhex('0784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff'),
                 }
+            ],
+        'outs': [
+            {
+                'id': 0,
+                'value': bytes.fromhex(''),
+                'pk_script': bytes.fromhex(''),
+                'output': bytes.fromhex('70c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e87')
+                },
+            {
+                'id': 1,
+                'value': bytes.fromhex(''),
+                'pk_script': bytes.fromhex(''),
+                'output': bytes.fromhex('0c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d87')
+                }
+            ],
+        'tx': {
+            'out': bytes.fromhex(''),
+            'unsigned': bytes.fromhex(''),
+            'signed': bytes.fromhex('01000000010784f25f35885f55dd639b9e6bbb35b6dbb3c5731e0601d6e0cae9a2a901bdad01000000d900473044022006ef6bf5880315420936e7c1bdeb7d68e67706d183b69ea3437966fb817da9bc02203446effcdf377e913ed145423088b9acf86b09ad0d608dfffd0bfaca5a396f2f01473044022022b990a3765a4418dc7e600a33a9b4019eeb6d5ed1ba8ab056533c6a50aadedb02202577803366dd13f2003bf90bf4ec463b6201ea70ea7b8ed414e8c385debacff501475221024c122c7dc3c539eaf657e254bb30a25ccc6efc17c1f58e4e448b3b9305b27dab21031d46936f30c89bb975a96c531ddebb256c6965235dc5383f36317953f10ea48952aeffffffff0270c579000000000017a914ec8c50e0db21e67a1c07eca87d1018a4e825275e870c93be000000000017a914aea8d2f5708ff4257169233664bd776806170b4d8700000000'),
+            'hash': bytes.fromhex(''),
+            'hash_le': bytes.fromhex('')
             }
         }
+    }
 
 # Pay-to-Witness-Public-Key-Hash
 # https://blockchain.info/rawtx/d2941b532f6d3d54d596345b50972b3995983239884037a52aab799ec84292ee (parent)
@@ -689,228 +689,3 @@ CASHADDR = {
 # https://blockchain.info/rawtx/0739d0c7b7b7ff5f991e8e3f72a6f5eb56563880df982c4ab813cd71bc7a6a03?format=hex
 
 RAW_P2SH_TO_P2PKH = bytes.fromhex( '010000000101d15c2cc4621b2a319ba53714e2709f8ba2dbaf23f8c35a4bddcb203f9b391000000000df473044022000e02ea97289a35181a9bfabd324f12439410db11c4e94978cdade6a665bf1840220458b87c34d8bb5e4d70d01041c7c2d714ea8bfaca2c2d2b1f9e5749c3ee17e3d012102ed0851f0b4c4458f80e0310e57d20e12a84642b8e097fe82be229edbd7dbd53920f6665740b1f950eb58d646b1fae9be28cef842da5e51dc78459ad2b092e7fd6e514c5163a914bb408296de2420403aa79eb61426bb588a08691f8876a91431b31321831520e346b069feebe6e9cf3dd7239c670400925e5ab17576a9140d22433293fe9652ea00d21c5061697aef5ddb296888ac0000000001d0070000000000001976a914f2539f42058da784a9d54615ad074436cf3eb85188ac00000000')
-
-
-#  DCR helpers
-#  UTXO: http://explorer.dcrdata.org/api/tx/decoded/49245425967b7e39c1eb27d261c7fe972675cccacff19ae9cc21f434ccddd986?indent=true
-#  http://explorer.dcrdata.org/api/tx/decoded/fdd72f5841414a9c8b4a188a98a4d484df98f84e1c120e1ed59a66e51e8ae90c?indent=true
-
-DCR = {
-        'human': {
-            'version': '01000000',
-            'locktime': 0x59c2e2cd,
-            'expiry': 0,
-            'ins': [
-                {
-                    'id': 0,
-                    'sequence': 0xFFFFFFFF,
-                    'hash': 'fdd72f5841414a9c8b4a188a98a4d484df98f84e1c120e1ed59a66e51e8ae90c',
-                    'index': 0,
-                    'tree': 0,
-                    'outpoint': '0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000'
-                    }
-                ]
-            },
-        'ser': {
-            'version': bytes.fromhex('01000000'),
-            'locktime': bytes.fromhex('cde2c259'),
-            'expiry': bytes.fromhex('00000000'),
-            'ins': [
-                {
-                    'id': 0,
-                    'sequence': bytes.fromhex('ffffffff'),
-                    'hash': bytes.fromhex('0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd'),
-                    'index': bytes.fromhex('00000000'),
-                    'tree': bytes.fromhex('00'),
-                    'outpoint': bytes.fromhex('0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000'),
-                    }
-                ],
-            'outs': [
-                {
-                    'id': 0,
-                    'version': bytes.fromhex('0000'),
-                    'value': bytes.fromhex('a8ab570e00000000'),
-                    'output': bytes.fromhex('a8ab570e0000000000001976a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88ac'),
-                    'script_len': bytes.fromhex('19'),
-                    'pk_script': bytes.fromhex('76a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88ac')
-                    }
-                ],
-            'witnesses': [
-                {
-                    'value': bytes.fromhex('202e580e00000000'),
-                    'height': bytes.fromhex('97970200'),
-                    'index': bytes.fromhex('06000000'),
-                    'witness': bytes.fromhex('202e580e000000009797020006000000e0483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
-                    'hash': bytes.fromhex('ef6ea13e5e65874ef767eed3e3b93af63121b3c63207bdfff980b01d9878572e'),
-                    'stack_script': bytes.fromhex('483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed951'),
-                    'redeem_script': bytes.fromhex('4c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
-                    'script_sig_len': bytes.fromhex('e0'),
-                    'script_sig': bytes.fromhex('483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
-                    }
-                ],
-            'hash_pk': bytes([0x41, 0x04, 0xd6, 0x4b, 0xdf, 0xd0, 0x9e, 0xb1, 0xc5, 0xfe, 0x29, 0x5a, 0xbd, 0xeb, 0x1d, 0xca, 0x42, 0x81, 0xbe, 0x98, 0x8e, 0x2d, 0xa0, 0xb6, 0xc1, 0xc6, 0xa5, 0x9d, 0xc2, 0x26, 0xc2, 0x86, 0x24, 0xe1, 0x81, 0x75, 0xe8, 0x51, 0xc9, 0x6b, 0x97, 0x3d, 0x81, 0xb0, 0x1c, 0xc3, 0x1f, 0x04, 0x78, 0x34, 0xbc, 0x06, 0xd6, 0xd6, 0xed, 0xf6, 0x20, 0xd1, 0x84, 0x24, 0x1a, 0x6a, 0xed, 0x8b, 0x63, 0xa6, 0xac]),
-            'tx': {
-                'in_unsigned': bytes.fromhex('0ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000ffffffff'),
-                'p2sh_2_p2pkh': bytes.fromhex('01000000010ce98a1ee5669ad51e0e121c4ef898df84d4a4988a184a8b9c4a4141582fd7fd0000000000ffffffff01a8ab570e0000000000001976a9145688f515dcf3453ca9b7a2a93aa441158a0b482c88accde2c2590000000001202e580e000000009797020006000000e0483045022100d1c4e15834d1c405446d6ed6c05b5969483151b6b0401994a13e5bda5b73c36f022076bb7b6f00586ae8eb4b1590a4c670b13c66d04608a632b9d81da1f66470d7920121033f0306ce76970a7bd4506e0d243f571c7dd2d01d3747d9aa9081d89936cb7c1e20a9fc91d0a774083ba8016cac3254d35a99a815e632a7ee7d7d163b5f6723eed9514c5163a6147c0aef5c26e923e27336b945363f9939b97623598876a91410a35ba5323e7d6ac41d0400a7384d6d0767de3d6704cde2c259b17576a9147b5acb92ad78a9f983baa69c4434aa52499815826888ac'),
-                'expected_hash': bytes.fromhex('4538fc1618badd058ee88fd020984451024858796be0a1ed111877f887e1bd53'),
-                'hash': bytes.fromhex('49245425967b7e39c1eb27d261c7fe972675cccacff19ae9cc21f434ccddd986'),
-                'hash_le': bytes.fromhex('49245425967b7e39c1eb27d261c7fe972675cccacff19ae9cc21f434ccddd986')[::-1]
-                }
-            }
-        }
-
-# https://github.com/davecgh/btcd/blob/79fd35832fa39324c74b6022be092a5227f3fc0a/txscript/data/sighash.json
-DCR1 = {
-        'human': {
-            'version': '01000000',
-            'locktime': 0x00000000,
-            'expiry': 0,
-            'ins': [
-                {
-                    'id': 0,
-                    'hash': '',
-                    'index': 0,
-                    'outpoint': ''
-                    }
-                ]
-            },
-        'ser': {
-            'version': bytes.fromhex('01000000'),
-            'locktime': bytes.fromhex('00000000'),
-            'expiry': bytes.fromhex('00000000'),
-            'ins': [
-                {
-                    'id': 0,
-                    'hash': bytes.fromhex(''),
-                    'index': bytes.fromhex(''),
-                    'tree': bytes.fromhex(''),
-                    'outpoint': bytes.fromhex(''),
-                    'in': bytes.fromhex('04aacce7ca34e1f59e55d957f4d27aa6f54c5dd4046665840797ffe88b27320a0100000000ffffffff')
-                    },
-                {
-                    'id': 1,
-                    'hash': bytes.fromhex(''),
-                    'index': bytes.fromhex(''),
-                    'tree': bytes.fromhex(''),
-                    'outpoint': bytes.fromhex(''),
-                    'in': bytes.fromhex('0785b51df7d46512ebd63c4dd17f391360c9d6fc5c8846a0684184a601c30c790100000000ffffffff')
-                    },
-                {
-                    'id': 2,
-                    'hash': bytes.fromhex(''),
-                    'index': bytes.fromhex(''),
-                    'tree': bytes.fromhex(''),
-                    'outpoint': bytes.fromhex(''),
-                    'in': bytes.fromhex('0998d992230ab4b6ab112923bf8fd4db6bd977292ec52e722d27e389e229d1e10000000000ffffffff')
-                    }
-                ],
-            'outs': [
-                {
-                    'id': 0,
-                    'version': bytes.fromhex(''),
-                    'value': bytes.fromhex(''),
-                    'output': bytes.fromhex('e05d6a2f0000000000001976a9142fc06df75ec010d3ff25c3de77713fca4e731d4088ac'),
-                    'script_len': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex('')
-                    },
-                {
-                    'id': 1,
-                    'version': bytes.fromhex(''),
-                    'value': bytes.fromhex(''),
-                    'output': bytes.fromhex('e09cede90500000000001976a914c2a65fb57cd570a53ff6cc721d854d5d7549f23f88ac'),
-                    'script_len': bytes.fromhex(''),
-                    'pk_script': bytes.fromhex('')
-                    }
-                ],
-            'witness': [
-                {
-                    'id': 0,
-                    'value': bytes.fromhex('00e40b5402000000'),
-                    'height': bytes.fromhex('51010000'),
-                    'index': bytes.fromhex('04000000'),
-                    'witness': bytes.fromhex('00e40b540200000051010000040000006a47304402203162d5cea243874539bb6e35c9515342fcfa3fc7b8fa77ca9a17cef541c8957302204e00f31091c8f982eff563b805d1909679741c02c851919a709fce40dcd452ad012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb'),
-                    'stack_script': bytes.fromhex('47304402203162d5cea243874539bb6e35c9515342fcfa3fc7b8fa77ca9a17cef541c8957302204e00f31091c8f982eff563b805d1909679741c02c851919a709fce40dcd452ad012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb'),
-                    'script_sig': bytes.fromhex('6a47304402203162d5cea243874539bb6e35c9515342fcfa3fc7b8fa77ca9a17cef541c8957302204e00f31091c8f982eff563b805d1909679741c02c851919a709fce40dcd452ad012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb')
-                    },
-                {
-                    'id': 1,
-                    'value': bytes.fromhex('0012c2e801000000'),
-                    'height': bytes.fromhex('3f010000'),
-                    'index': bytes.fromhex('01000000'),
-                    'witness': bytes.fromhex('0012c2e8010000003f010000010000006a4730440220557f6069906bc945c9139f4d2d222abc30e521a20845513897d9ddcee3cb819002205edbda2708bb8df15c3a6f6b28144247544044e320448ff4ac766630bd6532aa012103d7502318c3205e4df6d0b2e9afa4c721526421914783fb33ce2aec9d40f0b449'),
-                    'stack_script': bytes.fromhex('4730440220557f6069906bc945c9139f4d2d222abc30e521a20845513897d9ddcee3cb819002205edbda2708bb8df15c3a6f6b28144247544044e320448ff4ac766630bd6532aa012103d7502318c3205e4df6d0b2e9afa4c721526421914783fb33ce2aec9d40f0b449'),
-                    'script_sig': bytes.fromhex('6a4730440220557f6069906bc945c9139f4d2d222abc30e521a20845513897d9ddcee3cb819002205edbda2708bb8df15c3a6f6b28144247544044e320448ff4ac766630bd6532aa012103d7502318c3205e4df6d0b2e9afa4c721526421914783fb33ce2aec9d40f0b449'),
-                    },
-                {
-                    'id': 2,
-                    'value': bytes.fromhex('0050d6dc01000000'),
-                    'height': bytes.fromhex('0d010000'),
-                    'index': bytes.fromhex('02000000'),
-                    'witness': bytes.fromhex('0050d6dc010000000d010000020000006b48304502210099f5cb0ca36e68f7f815e17538706b374e24ec9e61795984f767f230ee08dea802204c908c38e647e5d551dba5054adfd0430dde19ca94d83b68a795678d5246a90d012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb'),
-                    'stack_script': bytes.fromhex('48304502210099f5cb0ca36e68f7f815e17538706b374e24ec9e61795984f767f230ee08dea802204c908c38e647e5d551dba5054adfd0430dde19ca94d83b68a795678d5246a90d012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb'),
-                    'script_sig': bytes.fromhex('6b48304502210099f5cb0ca36e68f7f815e17538706b374e24ec9e61795984f767f230ee08dea802204c908c38e647e5d551dba5054adfd0430dde19ca94d83b68a795678d5246a90d012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb')
-                    }
-                ],
-            'tx': {
-                    'p2sh_2_p2pkh': bytes.fromhex('010000000304aacce7ca34e1f59e55d957f4d27aa6f54c5dd4046665840797ffe88b27320a0100000000ffffffff0785b51df7d46512ebd63c4dd17f391360c9d6fc5c8846a0684184a601c30c790100000000ffffffff0998d992230ab4b6ab112923bf8fd4db6bd977292ec52e722d27e389e229d1e10000000000ffffffff02e05d6a2f0000000000001976a9142fc06df75ec010d3ff25c3de77713fca4e731d4088ace09cede90500000000001976a914c2a65fb57cd570a53ff6cc721d854d5d7549f23f88ac00000000000000000300e40b540200000051010000040000006a47304402203162d5cea243874539bb6e35c9515342fcfa3fc7b8fa77ca9a17cef541c8957302204e00f31091c8f982eff563b805d1909679741c02c851919a709fce40dcd452ad012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb0012c2e8010000003f010000010000006a4730440220557f6069906bc945c9139f4d2d222abc30e521a20845513897d9ddcee3cb819002205edbda2708bb8df15c3a6f6b28144247544044e320448ff4ac766630bd6532aa012103d7502318c3205e4df6d0b2e9afa4c721526421914783fb33ce2aec9d40f0b4490050d6dc010000000d010000020000006b48304502210099f5cb0ca36e68f7f815e17538706b374e24ec9e61795984f767f230ee08dea802204c908c38e647e5d551dba5054adfd0430dde19ca94d83b68a795678d5246a90d012103ee327661befce7e68046a18aab5d2a566b0425069ad6b7b1951a737d40abd9cb')
-                    }
-            }
-        }
-
-# Not used:
-SIGHASH_DCR = {
-        'prevout_pk': bytes.fromhex('76a91478807bd86b22a9f23bb4e026705c3e52824d7f3e88ac'),
-        'all': bytes.fromhex('569f23573cd279d9fea347ed16d86984b271b0b4b4270cc7122201683fcd7708'),
-        'all_anyonecanpay': bytes.fromhex('c75779c947b3c0e8828db370c8d5597c6dd91a48e287d1bfca705637943d200e'),
-        'single': bytes.fromhex('a1f4f2ced71352153ffee5dd570da5d609ecd5ce04e1db808c238554d758fb13'),
-        'single_anyonecanpay': bytes.fromhex('1b83a4d2a1a70204587491f7f6e110704e98e1b8da04219efba5dde14eaccf1f')
-        }
-
-# https://zcash.blockexplorer.com/api/rawtx/67b17e92db8c6480df9030177fd5b98120d0455fd86c3bcd27de2ee7db6cdd1a
-ZCASH_SPROUT = {
-    'human': {},
-    'ser': {
-        'version': bytes.fromhex('02000000'),
-        'ins': [],
-        'outs': [{
-            'id': 0,
-            'value': bytes.fromhex('e0142e0000000000'),
-            'pk_script': bytes.fromhex('1976a9140a8ed3e5f90e20658d880ca74233abc5986e1fff88ac')
-        }],
-        'joinsplits': [{
-            'vpub_old': bytes.fromhex('0000000000000000'),
-            'vpub_new': bytes.fromhex('f03b2e0000000000'),
-            'anchor': bytes.fromhex('9ee80d2801a507e09867d73400daadfcb301dbff28e58ea5008d434c57e71c5c'),
-            'nullifiers': bytes.fromhex('10517e16d11c18b628e276dc29513bbeb8a6c904e598ea47dbad2c89efb82b78d3f3583e9c18bbca64700d35adb9af7d5c4867d2ddb00311a71b8d0a76be41ab'),
-            'commitments': bytes.fromhex('ea4eb688104ff24f1e7e6015e86458c99c44048ba3a7e12ab86ebd3f59687cec32a6b0f37a850bf298d5b347bb72a71a88152d337800e92987a922176f94ba7f'),
-            'ephemeral_key': bytes.fromhex('b0418dce0664330863a91f0a4e76b1401a592ff98e8948966df1e320743d0b55'),
-            'random_seed': bytes.fromhex('abbd4590b748c7c544e1a92f2267fd9da8d6ba3dea55bb5e888d86b8be1cf4af'),
-            'vmacs': bytes.fromhex('ea4565ddac68725e4154dcaad2d5a992140c08bf7304e81ada4ed2462ef8cb488166d9017409daf4256736959d4ccb59cf618bf90230a870cc3d2265816d8c7e'),
-            'zkproof': {
-                'pi_sub_a': bytes.fromhex('0305f166bac140c5dea09d126e32d51fce6191c5d842be02654b76aed5508bf693'),
-                'pi_prime_sub_a': bytes.fromhex('0310fac4dccaab31efcb6d2cac2ec3a71f82a2af9505694984a66e1ecd27d7b116'),
-                'pi_sub_b': bytes.fromhex('0b0275f336881dca40aa49e6ac620cc86e36e05c576e0be5c9d648dfb71027f24114e2f86e4238558feea25bf6b0ebfdcf0f8808e7a661c47d4aa873a532432ce8'),
-                'pi_prime_sub_b': bytes.fromhex('02174e19a01ceae668c78612e4905e1a82cea499ceb639d428ccad63464313104e'),
-                'pi_sub_c': bytes.fromhex('0201b3b623af03bd728c2b58f05031e87c9f8640373109d03bacca2dae76f4225a'),
-                'pi_prime_sub_c': bytes.fromhex('0327fc5792817d5cf86539143e8e8d467b34c380f87bf87bf4939fd7c1bf84f934'),
-                'pi_sub_k': bytes.fromhex('031c01f53baefa48fb5a23f2d5c8747ee098ed9746af0a6efeedddf8628a568d91'),
-                'pi_sub_h': bytes.fromhex('02268cc9c62c4717e9c486092f5b4263e423fef666b760f4d1e2994bd7b57208cf')
-            },
-            'proof': bytes.fromhex('0305f166bac140c5dea09d126e32d51fce6191c5d842be02654b76aed5508bf6930310fac4dccaab31efcb6d2cac2ec3a71f82a2af9505694984a66e1ecd27d7b1160b0275f336881dca40aa49e6ac620cc86e36e05c576e0be5c9d648dfb71027f24114e2f86e4238558feea25bf6b0ebfdcf0f8808e7a661c47d4aa873a532432ce802174e19a01ceae668c78612e4905e1a82cea499ceb639d428ccad63464313104e0201b3b623af03bd728c2b58f05031e87c9f8640373109d03bacca2dae76f4225a0327fc5792817d5cf86539143e8e8d467b34c380f87bf87bf4939fd7c1bf84f934031c01f53baefa48fb5a23f2d5c8747ee098ed9746af0a6efeedddf8628a568d9102268cc9c62c4717e9c486092f5b4263e423fef666b760f4d1e2994bd7b57208cf'),
-            'encoded_notes': bytes.fromhex('751d83351d74f9514a54cdfbe7fb93ed525c006537573b412cb9a080b8b8026acb77692e28fb5649dca76cfbef1c6e86f6074f83cf5509887a32c2e0242d89cf4cc8825e53520a073e1efb2d439514301accc5e3948e5597e59aeba9c7020898762e6ed3587f90177a057d2e1173c7034b4dce6a209979377469686c0d2d560aaa8236dbe699044181c33f49e4d43b40458684d8c4bd56a2fd89f017eeb63e04f99cf7c29275d0b6eccf229a21d8c89664bff5e2f797b799fd2cf6152960ad700ec85ea6c977cc60442ec76239521603eb6e3611347d48f894eb42cef5b1cb4a59feed7e7fcfabdb0e28b4f382b983e7d82d5cd36f28b1e0a4d986d4590aa3828c654b3b4732a526787bde2ea6b49cec12a81f5071bf872623ced77e78226884955fc8ae9551f8f37f23c45fba90ad1035d54cafa034e36e93772b8e2ceba6609f9d8c70644b570026933b4f177f7fd64b5ba835fc2fa13026485e8e9d72ae353cae97bd5f05187cf8c9326b5b72771a182f43e966620d74a932a0e7bc7bf02ac3d1882391a272bb33169404c8b1d50deb5105e55bec3ccd15a6bfcbd1f19c17ad337cff0ce55225018230420ab08018ea3781f07a79a71acfcf7742cebb20c24817d998025935517a60b092eb3a564a63c72dd68a4555eee0319d3c36229067b740eb42df4e6ec7465aef5d264d1c578785d3a2ee4b6e8f3f50c0ffd29b051e1f7f2895a098a3dba2319c0b6c3cf527e5dbf1f87c14201e58568fddecd86fbf3f6a23b23223e0db25a09e9e33d3d3b56ac4e167733021beeeb503329fee8d9e309ebcc4d5d903b6ba935b796c4a69455785d8971cdc8a81c017f54bdbea0599f85a99f9c30d427f3a4147c01bee75937905888c58867be2982cca4b3260e44daa753d2d56dcb3e5e77763048a16754dd1b11adf41d8549fd6f341005f83e323e13b54a087b7a025e6c5d6ce96c1e1d6343cff657abed3fb7f20f33f843adfcade21df5c686d23f8c14e81ef6a4830ba7c772ed491367a39531d04f9a2c7a969cc8fbaabbfccf854279f7bbbe2aac89252cc294ce86c4d88c6db81a5337bca4ec9484b0ce3276ed86911649430e2df697d1ee6f1ff33090c28d49d729a65393083d978dfe7ac85976a255f44a9b5199312b426a2eb682e59c1599ac837bd7ccb766884d2b35a49ac1a52a298920178941e0ae7d8d235467b2290f178811c2f76a91e5396768053176098c708f6253bb6c7d2aa93eace91d8ea7158e7a3f1e0dae49b737f628224b16403f7b9a37c1122e8c24e2eae0e2c315fbf8bb0a3fe7836de61aa0708a10f421e7aa068f2480ab37c0d5084f9c85d5c0963084ca78a7aa10f526db8486d7b7eccb8d34c60bf53763ac03a0033c8da9e78b4e7e91a42169abc551f52df351fa69555bcafb7cfde8a4c36cd9a5eb66215c1da2b10471f5bbca5a4547d3f608e1d38c455c582c4a1f0624ef5b302a75d75332c720d2144a86d174d9b8b78deeb93b205e2483de152845443275458b632a5d0641b2ba2119c0a35396f3f25c7b0141e5d7261fbce557bec9aec19dbebcfcbaf9012d7c45d027ff99909e0d3a6811701e63de1a939d6c163dc5f9a4d950cabeb070f642c8c162e00693f89051348c241e8cb0129e4bf4591522df667cd2910b3b8346382f3f6c0ef5e8e392d9cca8164e959a71ab55b6517ac')
-        }],
-        'lock_time': bytes.fromhex('00000000'),
-        'joinsplit_pubkey': bytes.fromhex('abe1da14bd6ffb08c4015e1bd8d43d305605697c8d67aae2331144f9e98b6634'),
-        'joinsplit_sig': bytes.fromhex('ab3f349909c98d946b13450e1fa49d6877895545c8ef9b13454411067b16ff94a900c288361372f03bf03447ebe7ce098498bfcb41940b4a01b6449290738406'),
-        'joinsplit_0': bytes.fromhex('0000000000000000f03b2e00000000009ee80d2801a507e09867d73400daadfcb301dbff28e58ea5008d434c57e71c5c10517e16d11c18b628e276dc29513bbeb8a6c904e598ea47dbad2c89efb82b78d3f3583e9c18bbca64700d35adb9af7d5c4867d2ddb00311a71b8d0a76be41abea4eb688104ff24f1e7e6015e86458c99c44048ba3a7e12ab86ebd3f59687cec32a6b0f37a850bf298d5b347bb72a71a88152d337800e92987a922176f94ba7fb0418dce0664330863a91f0a4e76b1401a592ff98e8948966df1e320743d0b55abbd4590b748c7c544e1a92f2267fd9da8d6ba3dea55bb5e888d86b8be1cf4afea4565ddac68725e4154dcaad2d5a992140c08bf7304e81ada4ed2462ef8cb488166d9017409daf4256736959d4ccb59cf618bf90230a870cc3d2265816d8c7e0305f166bac140c5dea09d126e32d51fce6191c5d842be02654b76aed5508bf6930310fac4dccaab31efcb6d2cac2ec3a71f82a2af9505694984a66e1ecd27d7b1160b0275f336881dca40aa49e6ac620cc86e36e05c576e0be5c9d648dfb71027f24114e2f86e4238558feea25bf6b0ebfdcf0f8808e7a661c47d4aa873a532432ce802174e19a01ceae668c78612e4905e1a82cea499ceb639d428ccad63464313104e0201b3b623af03bd728c2b58f05031e87c9f8640373109d03bacca2dae76f4225a0327fc5792817d5cf86539143e8e8d467b34c380f87bf87bf4939fd7c1bf84f934031c01f53baefa48fb5a23f2d5c8747ee098ed9746af0a6efeedddf8628a568d9102268cc9c62c4717e9c486092f5b4263e423fef666b760f4d1e2994bd7b57208cf751d83351d74f9514a54cdfbe7fb93ed525c006537573b412cb9a080b8b8026acb77692e28fb5649dca76cfbef1c6e86f6074f83cf5509887a32c2e0242d89cf4cc8825e53520a073e1efb2d439514301accc5e3948e5597e59aeba9c7020898762e6ed3587f90177a057d2e1173c7034b4dce6a209979377469686c0d2d560aaa8236dbe699044181c33f49e4d43b40458684d8c4bd56a2fd89f017eeb63e04f99cf7c29275d0b6eccf229a21d8c89664bff5e2f797b799fd2cf6152960ad700ec85ea6c977cc60442ec76239521603eb6e3611347d48f894eb42cef5b1cb4a59feed7e7fcfabdb0e28b4f382b983e7d82d5cd36f28b1e0a4d986d4590aa3828c654b3b4732a526787bde2ea6b49cec12a81f5071bf872623ced77e78226884955fc8ae9551f8f37f23c45fba90ad1035d54cafa034e36e93772b8e2ceba6609f9d8c70644b570026933b4f177f7fd64b5ba835fc2fa13026485e8e9d72ae353cae97bd5f05187cf8c9326b5b72771a182f43e966620d74a932a0e7bc7bf02ac3d1882391a272bb33169404c8b1d50deb5105e55bec3ccd15a6bfcbd1f19c17ad337cff0ce55225018230420ab08018ea3781f07a79a71acfcf7742cebb20c24817d998025935517a60b092eb3a564a63c72dd68a4555eee0319d3c36229067b740eb42df4e6ec7465aef5d264d1c578785d3a2ee4b6e8f3f50c0ffd29b051e1f7f2895a098a3dba2319c0b6c3cf527e5dbf1f87c14201e58568fddecd86fbf3f6a23b23223e0db25a09e9e33d3d3b56ac4e167733021beeeb503329fee8d9e309ebcc4d5d903b6ba935b796c4a69455785d8971cdc8a81c017f54bdbea0599f85a99f9c30d427f3a4147c01bee75937905888c58867be2982cca4b3260e44daa753d2d56dcb3e5e77763048a16754dd1b11adf41d8549fd6f341005f83e323e13b54a087b7a025e6c5d6ce96c1e1d6343cff657abed3fb7f20f33f843adfcade21df5c686d23f8c14e81ef6a4830ba7c772ed491367a39531d04f9a2c7a969cc8fbaabbfccf854279f7bbbe2aac89252cc294ce86c4d88c6db81a5337bca4ec9484b0ce3276ed86911649430e2df697d1ee6f1ff33090c28d49d729a65393083d978dfe7ac85976a255f44a9b5199312b426a2eb682e59c1599ac837bd7ccb766884d2b35a49ac1a52a298920178941e0ae7d8d235467b2290f178811c2f76a91e5396768053176098c708f6253bb6c7d2aa93eace91d8ea7158e7a3f1e0dae49b737f628224b16403f7b9a37c1122e8c24e2eae0e2c315fbf8bb0a3fe7836de61aa0708a10f421e7aa068f2480ab37c0d5084f9c85d5c0963084ca78a7aa10f526db8486d7b7eccb8d34c60bf53763ac03a0033c8da9e78b4e7e91a42169abc551f52df351fa69555bcafb7cfde8a4c36cd9a5eb66215c1da2b10471f5bbca5a4547d3f608e1d38c455c582c4a1f0624ef5b302a75d75332c720d2144a86d174d9b8b78deeb93b205e2483de152845443275458b632a5d0641b2ba2119c0a35396f3f25c7b0141e5d7261fbce557bec9aec19dbebcfcbaf9012d7c45d027ff99909e0d3a6811701e63de1a939d6c163dc5f9a4d950cabeb070f642c8c162e00693f89051348c241e8cb0129e4bf4591522df667cd2910b3b8346382f3f6c0ef5e8e392d9cca8164e959a71ab55b6517ac'),
-        'tx_out_0': bytes.fromhex('e0142e00000000001976a9140a8ed3e5f90e20658d880ca74233abc5986e1fff88ac'),
-        'tx': bytes.fromhex('020000000001e0142e00000000001976a9140a8ed3e5f90e20658d880ca74233abc5986e1fff88ac00000000010000000000000000f03b2e00000000009ee80d2801a507e09867d73400daadfcb301dbff28e58ea5008d434c57e71c5c10517e16d11c18b628e276dc29513bbeb8a6c904e598ea47dbad2c89efb82b78d3f3583e9c18bbca64700d35adb9af7d5c4867d2ddb00311a71b8d0a76be41abea4eb688104ff24f1e7e6015e86458c99c44048ba3a7e12ab86ebd3f59687cec32a6b0f37a850bf298d5b347bb72a71a88152d337800e92987a922176f94ba7fb0418dce0664330863a91f0a4e76b1401a592ff98e8948966df1e320743d0b55abbd4590b748c7c544e1a92f2267fd9da8d6ba3dea55bb5e888d86b8be1cf4afea4565ddac68725e4154dcaad2d5a992140c08bf7304e81ada4ed2462ef8cb488166d9017409daf4256736959d4ccb59cf618bf90230a870cc3d2265816d8c7e0305f166bac140c5dea09d126e32d51fce6191c5d842be02654b76aed5508bf6930310fac4dccaab31efcb6d2cac2ec3a71f82a2af9505694984a66e1ecd27d7b1160b0275f336881dca40aa49e6ac620cc86e36e05c576e0be5c9d648dfb71027f24114e2f86e4238558feea25bf6b0ebfdcf0f8808e7a661c47d4aa873a532432ce802174e19a01ceae668c78612e4905e1a82cea499ceb639d428ccad63464313104e0201b3b623af03bd728c2b58f05031e87c9f8640373109d03bacca2dae76f4225a0327fc5792817d5cf86539143e8e8d467b34c380f87bf87bf4939fd7c1bf84f934031c01f53baefa48fb5a23f2d5c8747ee098ed9746af0a6efeedddf8628a568d9102268cc9c62c4717e9c486092f5b4263e423fef666b760f4d1e2994bd7b57208cf751d83351d74f9514a54cdfbe7fb93ed525c006537573b412cb9a080b8b8026acb77692e28fb5649dca76cfbef1c6e86f6074f83cf5509887a32c2e0242d89cf4cc8825e53520a073e1efb2d439514301accc5e3948e5597e59aeba9c7020898762e6ed3587f90177a057d2e1173c7034b4dce6a209979377469686c0d2d560aaa8236dbe699044181c33f49e4d43b40458684d8c4bd56a2fd89f017eeb63e04f99cf7c29275d0b6eccf229a21d8c89664bff5e2f797b799fd2cf6152960ad700ec85ea6c977cc60442ec76239521603eb6e3611347d48f894eb42cef5b1cb4a59feed7e7fcfabdb0e28b4f382b983e7d82d5cd36f28b1e0a4d986d4590aa3828c654b3b4732a526787bde2ea6b49cec12a81f5071bf872623ced77e78226884955fc8ae9551f8f37f23c45fba90ad1035d54cafa034e36e93772b8e2ceba6609f9d8c70644b570026933b4f177f7fd64b5ba835fc2fa13026485e8e9d72ae353cae97bd5f05187cf8c9326b5b72771a182f43e966620d74a932a0e7bc7bf02ac3d1882391a272bb33169404c8b1d50deb5105e55bec3ccd15a6bfcbd1f19c17ad337cff0ce55225018230420ab08018ea3781f07a79a71acfcf7742cebb20c24817d998025935517a60b092eb3a564a63c72dd68a4555eee0319d3c36229067b740eb42df4e6ec7465aef5d264d1c578785d3a2ee4b6e8f3f50c0ffd29b051e1f7f2895a098a3dba2319c0b6c3cf527e5dbf1f87c14201e58568fddecd86fbf3f6a23b23223e0db25a09e9e33d3d3b56ac4e167733021beeeb503329fee8d9e309ebcc4d5d903b6ba935b796c4a69455785d8971cdc8a81c017f54bdbea0599f85a99f9c30d427f3a4147c01bee75937905888c58867be2982cca4b3260e44daa753d2d56dcb3e5e77763048a16754dd1b11adf41d8549fd6f341005f83e323e13b54a087b7a025e6c5d6ce96c1e1d6343cff657abed3fb7f20f33f843adfcade21df5c686d23f8c14e81ef6a4830ba7c772ed491367a39531d04f9a2c7a969cc8fbaabbfccf854279f7bbbe2aac89252cc294ce86c4d88c6db81a5337bca4ec9484b0ce3276ed86911649430e2df697d1ee6f1ff33090c28d49d729a65393083d978dfe7ac85976a255f44a9b5199312b426a2eb682e59c1599ac837bd7ccb766884d2b35a49ac1a52a298920178941e0ae7d8d235467b2290f178811c2f76a91e5396768053176098c708f6253bb6c7d2aa93eace91d8ea7158e7a3f1e0dae49b737f628224b16403f7b9a37c1122e8c24e2eae0e2c315fbf8bb0a3fe7836de61aa0708a10f421e7aa068f2480ab37c0d5084f9c85d5c0963084ca78a7aa10f526db8486d7b7eccb8d34c60bf53763ac03a0033c8da9e78b4e7e91a42169abc551f52df351fa69555bcafb7cfde8a4c36cd9a5eb66215c1da2b10471f5bbca5a4547d3f608e1d38c455c582c4a1f0624ef5b302a75d75332c720d2144a86d174d9b8b78deeb93b205e2483de152845443275458b632a5d0641b2ba2119c0a35396f3f25c7b0141e5d7261fbce557bec9aec19dbebcfcbaf9012d7c45d027ff99909e0d3a6811701e63de1a939d6c163dc5f9a4d950cabeb070f642c8c162e00693f89051348c241e8cb0129e4bf4591522df667cd2910b3b8346382f3f6c0ef5e8e392d9cca8164e959a71ab55b6517acabe1da14bd6ffb08c4015e1bd8d43d305605697c8d67aae2331144f9e98b6634ab3f349909c98d946b13450e1fa49d6877895545c8ef9b13454411067b16ff94a900c288361372f03bf03447ebe7ce098498bfcb41940b4a01b6449290738406')
-    }
-}
-# https://zcash.blockexplorer.com/api/rawtx/92423ae0b69c1f2dd911671264933e576ac1c205467145544e5cc650184e32a3
-ZCASH_OVERWINTER_NO_JS = {
-    'human': {},
-    'ser': {
-        'tx': bytes.fromhex('030000807082c403010000000000000000000000000000000000000000000000000000000000000000ffffffff050306760500ffffffff0200ca9a3b000000001976a914361683f47d7dfc6a8d17f8f7b9413ff1a27ec62988ac80b2e60e0000000017a914ee16b664f7bca502cad662e5e36bad071423951987000000000000000000')
-    }
-}

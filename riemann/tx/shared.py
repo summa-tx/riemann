@@ -134,6 +134,10 @@ class ByteData():
                              'Got {} with length {}.'
                              .format(length, type(data), len(data)))
 
+    @classmethod
+    def from_hex(C, hex_string):
+        return C.from_bytes(bytes.fromhex(hex_string))
+
 
 class VarInt(ByteData):
     '''
