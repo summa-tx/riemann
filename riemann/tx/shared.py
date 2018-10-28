@@ -11,22 +11,24 @@ SIGHASH_ANYONECANPAY = 0x80
 
 class ByteData():
     '''
-    Wrapper class for byte-like data.
-    Iterable
-    Can be made immutable.
-    self._bytes is a bytearray object when mutable.
-    self._bytes is a byte object when immutable.
-    Should be mostly transparent to the user.
-    Can be treated like bytes or a bytearray in most cases.
+    Wrapper class for byte-like data
+    Iterable and subscriptable (by iterating and subscribing to wrapped data)
+    Can be made immutable
+    self._bytes is a bytearray object when mutable
+    self._bytes is a byte object when immutable
+    Should be mostly transparent to the user
+    Can be treated like bytes or a bytearray in most cases
     '''
     __immutable = False
 
     def __init__(self):
         self._bytes = bytearray()
-        self._current = 0
 
     def __iter__(self):
         return iter(self._bytes)
+
+    def __getitem__(self, val):
+        return self._bytes[val]
 
     def __iadd__(self, other):
         '''
@@ -97,8 +99,8 @@ class ByteData():
     def _make_immutable(self):
         '''
         Prevents any future changes to the object
-        self._bytes = bytes(self._bytes)
         '''
+        self._bytes = bytes(self._bytes)
         self.__immutable = True
 
     def find(self, substring):
