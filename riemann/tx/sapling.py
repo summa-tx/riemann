@@ -7,8 +7,7 @@ from riemann.tx import zcash_shared as z
 
 class SaplingShieldedSpend(z.ZcashByteData):
 
-    def __init__(self, cv, anchor, nullifier, rk, spend_auth_sig,
-                 zkproof):
+    def __init__(self, cv, anchor, nullifier, rk, zkproof, spend_auth_sig):
         super().__init__()
 
         self.validate_bytes(cv, 32)
@@ -254,8 +253,8 @@ class SaplingTx(z.ZcashByteData):
             self.validate_bytes(joinsplit_pubkey, 32)
             self.validate_bytes(joinsplit_sig, 64)
 
-        if len(tx_joinsplits) == 0 and len(tx_ins) == 0:
-            raise ValueError('Transaction must have tx_ins or joinsplits.')
+        if len(tx_joinsplits) + len(tx_ins) + len(tx_shielded_spends) == 0:
+            raise ValueError('Transaction must have some input value.')
 
         self += b'\x04\x00\x00\x00'  # Sapling is always v4
         self += b'\x85\x20\x2f\x89'  # Sapling version group id
