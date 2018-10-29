@@ -9,10 +9,9 @@ class TestSaplingTx(unittest.TestCase):
 
     def setUp(self):
         riemann.select_network('zcash_sapling_main')
-        self.helpers = sapling_helpers.TXNS
 
     def test_from_hex(self):
-        for txn in self.helpers:
+        for txn in sapling_helpers.TXNS:
             test_tx = sapling.SaplingTx.from_hex(txn['hex'])
             self.assertEqual(
                 test_tx.binding_sig.hex(),
@@ -40,3 +39,36 @@ class TestSaplingTx(unittest.TestCase):
     def test_init_errors(self):
         # TODO
         pass
+
+    def test_sighash(self):
+        # TODO: Check blake2b implementation
+        for txn in sapling_helpers.SIGHASH:
+            test_tx = sapling.SaplingTx.from_hex(txn['hex'])
+            self.assertEqual(
+                test_tx._hash_prevouts(anyone_can_pay=False).hex(),
+                txn['hashPrevouts'])
+            self.assertEqual(
+                test_tx._hash_sequence(
+                    sighash_type=txn['sighash_type'],
+                    anyone_can_pay=False).hex(),
+                txn['hashSequence'])
+            self.assertEqual(
+                test_tx._hash_outputs(
+                    sighash_type=txn['sighash_type'],
+                    index=txn['index']).hex(),
+                txn['hashOutputs'])
+            self.assertEqual(
+                test_tx._hash_joinsplits().hex(),
+                txn['hashJoinSplits'])
+            self.assertEqual(
+                test_tx._hash_shielded_spends().hex(),
+                txn['hashShieldedSpends'])
+            self.assertEqual(
+                test_tx._hash_shielded_outputs().hex(),
+                txn['hashShieldedOutputs'])
+            self.assertEqual(
+                test_tx.sighash(
+                    sighash_type=txn['sighash_type'],
+                    index=txn['index'],
+                    joinsplit=txn['joinsplit']).hex(),
+                txn['sighash'])

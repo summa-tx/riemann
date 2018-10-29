@@ -290,7 +290,7 @@ class SaplingTx(z.ZcashByteData):
             self += binding_sig
             self.binding_sig = binding_sig
 
-        self.heder = b'\x04\x00\x00\x80'  # Sapling is always v4
+        self.header = b'\x04\x00\x00\x80'  # Sapling is always v4
         self.group_id = b'\x85\x20\x2f\x89'  # Sapling version group id
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
@@ -565,6 +565,7 @@ class SaplingTx(z.ZcashByteData):
         data = z.ZcashByteData()
         for tx_in in self.tx_ins:
             data += tx_in.outpoint
+        print(data.hex())
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
