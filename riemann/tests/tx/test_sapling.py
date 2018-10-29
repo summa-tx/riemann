@@ -10,6 +10,17 @@ class TestSaplingTx(unittest.TestCase):
     def setUp(self):
         riemann.select_network('zcash_sapling_main')
 
+    def attr_assert(self, attr_name, replacement, err_text):
+        # Removes a named key from a dictionary and replaces it with b'\x00'
+        temp_dict = dict((a, self.tx[a])
+                         for a in self.tx
+                         if a != attr_name)
+        temp_dict[attr_name] = replacement
+        with self.assertRaises(ValueError) as context:
+            sapling.SaplingTx(**temp_dict)
+
+        self.assertIn(err_text, str(context.exception))
+
     def test_from_hex(self):
         for txn in sapling_helpers.TXNS:
             test_tx = sapling.SaplingTx.from_hex(txn['hex'])
