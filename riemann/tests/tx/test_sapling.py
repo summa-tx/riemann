@@ -36,3 +36,7 @@ class TestSaplingTx(unittest.TestCase):
                 self.assertEqual(
                     pair[0].spend_auth_sig.hex(),
                     pair[1]['spendAuthSig'])
+
+    def test_init_errors(self):
+        # TODO
+        pass

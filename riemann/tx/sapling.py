@@ -507,3 +507,143 @@ class SaplingTx(z.ZcashByteData):
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig,
             binding_sig=binding_sig)
+
+    def is_witness(self):
+        return False
+
+    def sighash_all(self, anyone_can_pay=False, **kwargs):
+        return self.sighash(sighash_type=shared.SIGHASH_ALL, **kwargs)
+
+    def sighash_single(self, anyone_can_pay=False, **kwargs):
+        return self.sighash(sighash_type=shared.SIGHASH_SINGLE, **kwargs)
+
+    def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
+                anyone_can_pay=False, prevout_value=None):
+        '''
+        ZIP243
+        https://github.com/zcash/zips/blob/master/zip-0243.rst
+        '''
+
+        if joinsplit and anyone_can_pay:
+            raise ValueError('ANYONECANPAY can\'t be used with joinsplits')
+
+        data = z.ZcashByteData()
+
+        data += self.header
+        data += self.group_id
+
+        data += self._hash_prevouts(anyone_can_pay)
+        data += self._hash_sequence(sighash_type, anyone_can_pay)
+        data += self._hash_outputs(sighash_type, index)
+        data += self._hash_joinsplits()
+        data += self._hash_shielded_spends()
+        data += self._hash_shielded_outputs()
+
+        data += self.lock_time
+        data += self.expiry_height
+        data += self.value_balance
+
+        if anyone_can_pay:
+            sighash_type = sighash_type | shared.SIGHASH_ANYONECANPAY
+        data += utils.i2le_padded(sighash_type, 4)
+
+        if not joinsplit:
+            data += self.tx_ins[index].outpoint
+            data += script_code
+            data += prevout_value
+            data += self.tx_ins[index].sequence
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashSigHash' + bytes.fromhex('bb09b876'))  # Branch ID
+
+    def _hash_prevouts(self, anyone_can_pay):
+        if anyone_can_pay:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.outpoint
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashPrevoutHash')
+
+    def _hash_sequence(self, sighash_type, anyone_can_pay):
+        if anyone_can_pay or sighash_type == shared.SIGHASH_SINGLE:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+        for tx_in in self.tx_ins:
+            data += tx_in.sequence
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashSequencHash')
+
+    def _hash_outputs(self, sighash_type, index):
+        if sighash_type not in [shared.SIGHASH_ALL, shared.SIGHASH_SINGLE]:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+
+        if sighash_type == shared.SIGHASH_ALL:
+            for tx_out in self.tx_outs:
+                data += tx_out
+
+        if sighash_type == shared.SIGHASH_SINGLE:
+            if index > len(self.tx_outs):
+                raise NotImplementedError(
+                    'I refuse to implement the SIGHASH_SINGLE bug.')
+            data += self.tx_outs[index]
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashOutputsHash')
+
+    def _hash_joinsplits(self):
+        if len(self.tx_joinsplits) == 0:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+
+        for joinsplit in self.tx_joinsplits:
+            data += joinsplit
+
+        data += self.joinsplit_pubkey
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashJSplitsHash')
+
+    def _hash_shielded_spends(self):
+        if len(self.tx_shielded_spends) == 0:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+
+        for ss in self.tx_shielded_spends:
+            data += ss[:320]  # Strip off spend_auth_sig
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashSSpendsHash')
+
+    def _hash_shielded_outputs(self):
+        if len(self.tx_shielded_outputs) == 0:
+            return b'\x00' * 32
+
+        data = z.ZcashByteData()
+
+        for so in self.tx_shielded_outputs:
+            data += so
+
+        return utils.blake2b(
+            data=data.to_bytes(),
+            digest_size=32,
+            person=b'ZcashSOutputHash')

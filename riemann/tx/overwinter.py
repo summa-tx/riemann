@@ -243,14 +243,18 @@ class OverwinterTx(z.ZcashByteData):
         return self.sighash(sighash_type=shared.SIGHASH_ALL, **kwargs)
 
     def sighash_single(self, anyone_can_pay=False, **kwargs):
-
         return self.sighash(sighash_type=shared.SIGHASH_SINGLE, **kwargs)
 
     def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
                 anyone_can_pay=False, prevout_value=None):
         '''
+        ZIP143
         https://github.com/zcash/zips/blob/master/zip-0143.rst
         '''
+
+        if joinsplit and anyone_can_pay:
+            raise ValueError('ANYONECANPAY can\'t be used with joinsplits')
+
         data = z.ZcashByteData()
 
         data += self.header
