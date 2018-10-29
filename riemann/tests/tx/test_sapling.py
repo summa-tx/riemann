@@ -104,7 +104,27 @@ class TestSaplingShieldedOutput(SaplingTestCase):
 
 
 class TestSaplingZkproof(SaplingTestCase):
-    pass
+
+    def test_from_hex(self):
+        zk = sapling_helpers.ZKPROOF
+        zkproof = sapling.SaplingZkproof.from_hex(zk['full'])
+        self.assertEqual(
+            zkproof.pi_sub_a.hex(),
+            zk['pi_sub_a'].hex())
+        self.assertEqual(
+            zkproof.pi_sub_b.hex(),
+            zk['pi_sub_b'].hex())
+        self.assertEqual(
+            zkproof.pi_sub_c.hex(),
+            zk['pi_sub_c'].hex())
+
+    def test_init_errors(self):
+        Z = sapling.SaplingZkproof
+        zk = sapling_helpers.ZKPROOF.copy()
+        zk.pop('full')
+        self.attr_assert(Z, zk, 'pi_sub_a', b'', 'Expected byte-like')
+        self.attr_assert(Z, zk, 'pi_sub_b', b'', 'Expected byte-like')
+        self.attr_assert(Z, zk, 'pi_sub_c', b'', 'Expected byte-like')
 
 
 class TestSaplingJoinsplit(SaplingTestCase):
