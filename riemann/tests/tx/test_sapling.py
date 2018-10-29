@@ -106,6 +106,16 @@ class TestSaplingShieldedOutput(SaplingTestCase):
         self.attr_assert(S, so, 'zkproof', b'', 'Invalid zkproof')
 
 
+class TestSaplingZkproof(SaplingTestCase):
+    # TODO
+    pass
+
+
+class TestSaplingJoinsplit(SaplingTestCase):
+    # TODO
+    pass
+
+
 class TestSaplingTx(SaplingTestCase):
 
     def setUp(self):
