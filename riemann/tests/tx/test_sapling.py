@@ -70,9 +70,6 @@ class TestSaplingShieldedSpend(SaplingTestCase):
 
 class TestSaplingShieldedOutput(SaplingTestCase):
 
-    def setUp(self):
-        super().setUp()
-
     def test_from_hex(self):
         for so in sapling_helpers.TXNS[0]['vShieldedOutput']:
             output = sapling.SaplingShieldedOutput.from_hex(so['full'])
@@ -107,13 +104,63 @@ class TestSaplingShieldedOutput(SaplingTestCase):
 
 
 class TestSaplingZkproof(SaplingTestCase):
-    # TODO
     pass
 
 
 class TestSaplingJoinsplit(SaplingTestCase):
-    # TODO
-    pass
+
+    def test_from_hex(self):
+        for js in sapling_helpers.TXNS[0]['vJoinsplits']:
+            output = sapling.SaplingJoinsplit.from_hex(js['full'])
+            self.assertEqual(
+                output.vpub_old.hex(),
+                js['vpub_old'].hex())
+            self.assertEqual(
+                output.vpub_new.hex(),
+                js['vpub_new'].hex())
+            self.assertEqual(
+                output.anchor.hex(),
+                js['anchor'].hex())
+            self.assertEqual(
+                output.nullifiers.hex(),
+                js['nullifiers'].hex())
+            self.assertEqual(
+                output.commitments.hex(),
+                js['commitments'].hex())
+            self.assertEqual(
+                output.ephemeral_key.hex(),
+                js['ephemeral_key'].hex())
+            self.assertEqual(
+                output.random_seed.hex(),
+                js['random_seed'].hex())
+            self.assertEqual(
+                output.vmacs.hex(),
+                js['vmacs'].hex())
+            self.assertEqual(
+                output.zkproof.hex(),
+                js['zkproof'].hex())
+            self.assertEqual(
+                output.encoded_notes.hex(),
+                js['encoded_notes'].hex())
+
+    def test_init_errors(self):
+        J = sapling.SaplingJoinsplit
+        js = sapling_helpers.TXNS[0]['vJoinsplits'][0].copy()
+        js.pop('full')
+
+        self.attr_assert(J, js, 'vpub_old', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'vpub_new', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'anchor', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'nullifiers', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'commitments', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'ephemeral_key', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'random_seed', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'vmacs', b'', 'Expected byte-like')
+        self.attr_assert(J, js, 'zkproof', b'', 'Invalid zkproof')
+        self.attr_assert(J, js, 'encoded_notes', b'', 'Expected byte-like')
+
+        js['vpub_old'] = b'\xff' * 8
+        self.attr_assert(J, js, 'vpub_new', b'\xff' * 8, 'must be zero')
 
 
 class TestSaplingTx(SaplingTestCase):
