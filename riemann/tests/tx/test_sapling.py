@@ -70,5 +70,8 @@ class TestSaplingTx(unittest.TestCase):
                 test_tx.sighash(
                     sighash_type=txn['sighash_type'],
                     index=txn['index'],
-                    joinsplit=txn['joinsplit']).hex(),
+                    joinsplit=txn['joinsplit'],
+                    script_code=bytes.fromhex(txn['script_code']),
+                    anyone_can_pay=txn['anyone_can_pay'],
+                    prevout_value=bytes.fromhex(txn['amount'])).hex(),
                 txn['sighash'])

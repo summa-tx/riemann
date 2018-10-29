@@ -209,7 +209,7 @@ class SaplingTx(z.ZcashByteData):
             raise ValueError('If no shielded inputs or outputs, value balance '
                              'must be 8 0-bytes. Got {}'
                              .format(value_balance.hex()))
-        else:
+        elif binding_sig is not None:
             self.validate_bytes(binding_sig, 64)
 
         for tx_in in tx_ins:
@@ -565,7 +565,6 @@ class SaplingTx(z.ZcashByteData):
         data = z.ZcashByteData()
         for tx_in in self.tx_ins:
             data += tx_in.outpoint
-        print(data.hex())
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
