@@ -1,7 +1,7 @@
 import riemann
-from . import tx
-from .. import utils
-from ..script import serialization
+from riemann import tx
+from riemann import utils
+from riemann.script import serialization
 
 
 def make_sh_script_pubkey(script_bytes, witness=False):
@@ -261,8 +261,9 @@ def make_witness_input_and_witness(outpoint, sequence,
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            expiry=None, tx_witnesses=None,
-            tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
+            expiry=None, value_balance=None, tx_shielded_spends=None,
+            tx_shielded_outputs=None, tx_witnesses=None, tx_joinsplits=None,
+            joinsplit_pubkey=None, joinsplit_sig=None, binding_sig=None):
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
@@ -293,6 +294,21 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             tx_joinsplits=tx_joinsplits if tx_joinsplits is not None else [],
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
+    if 'sapling' in n:
+        return tx.SaplingTx(
+            tx_ins=tx_ins,
+            tx_outs=tx_outs,
+            lock_time=utils.i2le_padded(lock_time, 4),
+            expiry_height=utils.i2le_padded(expiry, 4),
+            value_balance=utils.i2le_padded[value_balance],
+            tx_shielded_spends=(tx_shielded_spends
+                                if tx_shielded_spends is not None else []),
+            tx_shielded_outputs=(tx_shielded_outputs
+                                 if tx_shielded_outputs is not None else []),
+            tx_joinsplits=tx_joinsplits if tx_joinsplits is not None else [],
+            joinsplit_pubkey=joinsplit_pubkey,
+            joinsplit_sig=joinsplit_sig,
+            binding_sig=binding_sig)
     flag = riemann.network.SEGWIT_TX_FLAG \
         if tx_witnesses is not None else None
     return tx.Tx(version=utils.i2le_padded(version, 4),

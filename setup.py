@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='riemann-tx',
-    version='1.0.9',
+    version='1.1.0',
     description=('Transaction creation library for Bitcoin-like coins'),
     url='https://github.com/summa-tx/riemann',
     author='James Prestwich',
@@ -14,6 +14,7 @@ setup(
     packages=find_packages(),
     package_dir={'riemann': 'riemann'},
     keywords = 'bitcoin litecoin cryptocurrency decred blockchain development',
+    python_requires='>=3.6',
     classifiers = [
         'Programming Language :: Python',
         'Programming Language :: Python :: 3 :: Only',
@@ -22,6 +23,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
         'Operating System :: OS Independent',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        ],
+        'Topic :: Software Development :: Libraries :: Python Modules'
+    ],
 )

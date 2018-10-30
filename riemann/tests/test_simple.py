@@ -106,19 +106,6 @@ class TestSimple(unittest.TestCase):
                 sequence=0x1234abcd),
             outpoint.to_bytes() + b'\x00' + b'\xcd\xab\x34\x12')
 
-        riemann.select_network('decred_main')
-
-        outpoint = simple.outpoint(
-            tx_id=helpers.DCR['human']['ins'][0]['hash'],
-            index=helpers.DCR['human']['ins'][0]['index'],
-            tree=helpers.DCR['human']['ins'][0]['tree'])
-
-        self.assertEqual(
-            simple.unsigned_input(
-                outpoint=outpoint,
-                sequence=helpers.DCR['human']['ins'][0]['sequence']),
-            helpers.DCR['ser']['tx']['in_unsigned'])
-
     def test_empty_input(self):
         self.assertEqual(
             simple.empty_input(),
