@@ -410,7 +410,7 @@ class Tx(ByteData):
         return bytes(tx)
 
     def is_witness(self):
-        return self.flag is not None
+        return self.flag is not None or self.tx_witnesses is not None
 
     def calculate_fee(self, input_values):
         '''
@@ -450,9 +450,6 @@ class Tx(ByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = self._get_script_code(index=index)
-        if sub_script == b'':
-            sub_script = script
         # 0 out scripts in tx_ins
         copy_tx_ins = [tx_in.copy(stack_script=b'', redeem_script=b'')
                        for tx_in in self.tx_ins]
@@ -460,7 +457,7 @@ class Tx(ByteData):
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
         copy_tx_ins[index] = \
-            copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
+            copy_tx_ins[index].copy(stack_script=b'', redeem_script=script)
 
         return self.copy(tx_ins=copy_tx_ins)
 
@@ -470,7 +467,7 @@ class Tx(ByteData):
         Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with shared.SIGHASH_ALL
-        https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_shared.SIGHASH_ALL_.28default.29
+        https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
         '''
 
         if riemann.network.FORKID is not None:
@@ -572,9 +569,7 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        data += self._adjusted_script_code(
-            index=index,
-            script=script)
+        data += self._adjusted_script_code(script=script)
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value
@@ -636,6 +631,14 @@ class Tx(ByteData):
         return hash_prevouts
 
     def _hash_sequence(self, sighash_type, anyone_can_pay):
+        '''BIP143 hashSequence implementation
+
+        Args:
+            sighash_type    (int): SIGHASH_SINGLE or SIGHASH_ALL
+            anyone_can_pay (bool): true if ANYONECANPAY should be set
+        Returns:
+            (bytes): the hashSequence, a 32 byte hash
+        '''
         if anyone_can_pay or sighash_type == shared.SIGHASH_SINGLE:
             # If any of ANYONECANPAY, SINGLE sighash type is set,
             # hashSequence is a uint256 of 0x0000......0000.
@@ -647,26 +650,34 @@ class Tx(ByteData):
                 sequences += tx_in.sequence
             return utils.hash256(sequences.to_bytes())
 
-    def _get_script_code(self, index):
-        if len(self.tx_ins[index].redeem_script) != 0:
-            script = ByteData()
-            # redeemScript in case of P2SH
-            script += self.tx_ins[index].redeem_script
-            return script.to_bytes()
-        return b''
+    def _adjusted_script_code(self, script):
+        '''
+        Checks if the script code pased in to the sighash function is already
+        length-prepended
+        This will break if there's a redeem script that's just a pushdata
+        That won't happen in practice
 
-    def _adjusted_script_code(self, index, script):
+        Args:
+            script (bytes): the spend script
+        Returns:
+            (bytes): the length-prepended script (if necessary)
+        '''
         script_code = ByteData()
-        tx_in_redeem_script = self._get_script_code(index=index)
-        if tx_in_redeem_script == b'':
-            script_code += VarInt(len(script))
-            script_code += script
-            return script_code
-        script_code += VarInt(len(tx_in_redeem_script))
-        script_code += tx_in_redeem_script
+        if script[0] == len(script) - 1:
+            return script
+        script_code += VarInt(len(script))
+        script_code += script
         return script_code
 
     def _hash_outputs(self, index, sighash_type):
+        '''BIP143 hashOutputs implementation
+
+        Args:
+            index        (int): index of input being signed
+            sighash_type (int): SIGHASH_SINGLE or SIGHASH_ALL
+        Returns:
+            (bytes): the hashOutputs, a 32 byte hash
+        '''
         if sighash_type == shared.SIGHASH_ALL:
             # If the sighash type is ALL,
             # hashOutputs is the double SHA256 of all output amounts
@@ -725,9 +736,7 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        data += self._adjusted_script_code(
-            index=index,
-            script=script)
+        data += self._adjusted_script_code(script=script)
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value

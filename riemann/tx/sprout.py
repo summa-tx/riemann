@@ -216,17 +216,6 @@ class SproutTx(z.ZcashByteData):
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
 
-    def _get_script_code(self, index):
-        '''
-        SproutTx, int -> bytes
-        '''
-        if len(self.tx_ins) > 0 and len(self.tx_ins[index].redeem_script) > 0:
-            script = z.ZcashByteData()
-            # redeemScript in case of P2SH
-            script += self.tx_ins[index].redeem_script
-            return script.to_bytes()
-        return b''
-
     def _sighash_prep(self, index, script):
         '''
         SproutTx, int, byte-like -> SproutTx
@@ -236,9 +225,6 @@ class SproutTx(z.ZcashByteData):
         https://bitcoin.stackexchange.com/questions/3374/how-to-redeem-a-basic-tx
         We save on complexity by refusing to support OP_CODESEPARATOR
         '''
-        sub_script = self._get_script_code(index=index)
-        if sub_script == b'':
-            sub_script = script
 
         if len(self.tx_ins) == 0:
             return self.copy(joinsplit_sig=b'')
@@ -249,7 +235,7 @@ class SproutTx(z.ZcashByteData):
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
         copy_tx_ins[index] = \
-            copy_tx_ins[index].copy(stack_script=b'', redeem_script=sub_script)
+            copy_tx_ins[index].copy(stack_script=b'', redeem_script=script)
 
         return self.copy(tx_ins=copy_tx_ins, joinsplit_sig=b'')
 

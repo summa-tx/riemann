@@ -735,13 +735,3 @@ class TestTx(unittest.TestCase):
         self.assertEqual(
             sighash,
             helpers.SIGHASH_FORKID['all_anyone_can_pay'])
-
-    def test_get_script_code(self):
-        tx_ins = [tx.TxIn.from_bytes(
-            helpers.P2SH['ser']['ins'][0]['input'])]
-        t = tx.Tx(self.version, self.none_flag, tx_ins, self.tx_outs,
-                  self.none_witnesses, self.lock_time)
-
-        self.assertEqual(
-            t._get_script_code(0),
-            helpers.P2SH['ser']['ins'][0]['redeem_script'])
