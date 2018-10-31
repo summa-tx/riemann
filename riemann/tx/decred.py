@@ -304,25 +304,14 @@ class DecredTx(DecredByteData):
             tx_witnesses=(tx_witnesses if tx_witnesses is not None
                           else self.tx_witnesses))
 
-    def _get_script_code(self, index):
-        if len(self.tx_witnesses[index].redeem_script) != 0:
-            script = DecredByteData()
-            # redeemScript in case of P2SH
-            script += self.tx_witnesses[index].redeem_script
-            return script.to_bytes()
-        return b''
-
     def sighash_none(self):
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
     def _sighash_prep(self, index, script=None):
-        sub_script = self._get_script_code(index)
-        if sub_script == b'':
-            sub_script = script
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
-            copy_tx_witnesses[index].copy(stack_script=sub_script,
+            copy_tx_witnesses[index].copy(stack_script=script,
                                           redeem_script=b'')
 
         return self.copy(tx_witnesses=copy_tx_witnesses)
