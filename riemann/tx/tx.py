@@ -325,11 +325,6 @@ class Tx(ByteData):
             else None
         self.lock_time = lock_time
 
-        if len(self) > 100000:
-            raise ValueError(
-                'Tx is too large. '
-                'Expect less than 100kB. Got: {} bytes'.format(len(self)))
-
         if flag is not None:
             self.tx_id_le = utils.hash256(self.no_witness())
             self.wtx_id_le = utils.hash256(self.to_bytes())
