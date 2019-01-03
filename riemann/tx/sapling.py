@@ -256,7 +256,7 @@ class SaplingTx(z.ZcashByteData):
         if len(tx_joinsplits) + len(tx_ins) + len(tx_shielded_spends) == 0:
             raise ValueError('Transaction must have some input value.')
 
-        self += b'\x04\x00\x00\x00'  # Sapling is always v4
+        self += b'\x04\x00\x00\x80'  # Sapling is always v4 with overwintered
         self += b'\x85\x20\x2f\x89'  # Sapling version group id
         self += shared.VarInt(len(tx_ins))
         for tx_in in tx_ins:

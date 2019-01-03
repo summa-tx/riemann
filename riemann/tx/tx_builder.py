@@ -261,7 +261,7 @@ def make_witness_input_and_witness(outpoint, sequence,
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            expiry=None, value_balance=None, tx_shielded_spends=None,
+            expiry=None, value_balance=0, tx_shielded_spends=None,
             tx_shielded_outputs=None, tx_witnesses=None, tx_joinsplits=None,
             joinsplit_pubkey=None, joinsplit_sig=None, binding_sig=None):
     '''
