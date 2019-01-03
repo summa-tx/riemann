@@ -224,7 +224,7 @@ class TestWitnessStackItem(unittest.TestCase):
         self.assertEqual(
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
-    # 
+
     # def test_item_too_long(self):
     #     with self.assertRaises(ValueError) as context:
     #         tx.WitnessStackItem(b'\xff' * 521)
