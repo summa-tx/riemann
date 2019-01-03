@@ -379,7 +379,9 @@ class SaplingTx(z.ZcashByteData):
             joinsplit_pubkey=(joinsplit_pubkey if joinsplit_pubkey is not None
                               else self.joinsplit_pubkey),
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
-                           else self.joinsplit_sig))
+                           else self.joinsplit_sig),
+            binding_sig=(binding_sig if binding_sig is not None
+                         else self.binding_sig))
 
     def _hsig(self, index):
         return utils.blake2b(
