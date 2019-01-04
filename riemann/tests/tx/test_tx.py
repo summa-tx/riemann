@@ -225,12 +225,12 @@ class TestWitnessStackItem(unittest.TestCase):
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
 
-    def test_item_too_long(self):
-        with self.assertRaises(ValueError) as context:
-            tx.WitnessStackItem(b'\xff' * 521)
-        self.assertIn(
-            'Item is too large. Expected <=520 bytes. ',
-            str(context.exception))
+    # def test_item_too_long(self):
+    #     with self.assertRaises(ValueError) as context:
+    #         tx.WitnessStackItem(b'\xff' * 521)
+    #     self.assertIn(
+    #         'Item is too large. Expected <=520 bytes. ',
+    #         str(context.exception))
 
     def test_null_item_from_bytes(self):
         w = tx.WitnessStackItem.from_bytes(b'\x00')

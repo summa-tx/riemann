@@ -186,10 +186,11 @@ class WitnessStackItem(ByteData):
         super().__init__()
 
         self.validate_bytes(item, None)
-        if len(item) > 520:
-            raise ValueError(
-                'Item is too large. Expected <=520 bytes. '
-                'Got: {} bytes'.format(len(item)))
+        # if len(item) > 520:
+        #     print(item.hex())
+        #     raise ValueError(
+        #         'Item is too large. Expected <=520 bytes. '
+        #         'Got: {} bytes'.format(len(item)))
         self += VarInt(len(item))
         self += item
 

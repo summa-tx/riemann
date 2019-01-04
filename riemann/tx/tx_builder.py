@@ -261,7 +261,7 @@ def make_witness_input_and_witness(outpoint, sequence,
 
 
 def make_tx(version, tx_ins, tx_outs, lock_time,
-            expiry=None, value_balance=None, tx_shielded_spends=None,
+            expiry=None, value_balance=0, tx_shielded_spends=None,
             tx_shielded_outputs=None, tx_witnesses=None, tx_joinsplits=None,
             joinsplit_pubkey=None, joinsplit_sig=None, binding_sig=None):
     '''
@@ -300,7 +300,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             tx_outs=tx_outs,
             lock_time=utils.i2le_padded(lock_time, 4),
             expiry_height=utils.i2le_padded(expiry, 4),
-            value_balance=utils.i2le_padded[value_balance],
+            value_balance=utils.i2le_padded(value_balance, 8),
             tx_shielded_spends=(tx_shielded_spends
                                 if tx_shielded_spends is not None else []),
             tx_shielded_outputs=(tx_shielded_outputs
