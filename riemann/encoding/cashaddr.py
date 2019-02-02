@@ -60,7 +60,7 @@ def decode(data):
     prefix, data = data.split(':')
     decoded = b32decode(data)
     if not verify_checksum(prefix, decoded):
-            raise ValueError('Bad cash address checksum')
+        raise ValueError('Bad cash address checksum')
     converted = convertbits(decoded, 5, 8)
 
     return bytes(converted[:-6])  # remove the checksum from the end
