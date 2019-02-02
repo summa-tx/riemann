@@ -88,7 +88,7 @@ class TxIn(ByteData):
             sequence=sequence if sequence is not None else self.sequence)
 
     def is_p2sh(self):
-        return self.redeem_script is not b''
+        return self.redeem_script != b''
 
     @classmethod
     def _parse_script_sig(TxIn, script_sig):
