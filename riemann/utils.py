@@ -21,9 +21,28 @@ def i2le_padded(number, length):
         number  (int): int value to convert to l.e. bytes
         length  (int): length of resulting bytearray
     Returns:
-        (bytearray)
+        (bytes)
     '''
     return number.to_bytes(length, 'little')
+
+
+def i2le_script(number):
+    '''Convert int to signed little endian (l.e.) hex for scripts
+    Args:
+        number  (int): int value to convert to bytes in l.e. format
+    Returns:
+                (str): the hex-encoded signed LE number
+    '''
+    if number == 0:
+        return '00'
+    for i in range(80):
+        try:
+            return number.to_bytes(
+                length=i,  # minimal bytes lol
+                byteorder='little',
+                signed=True).hex()
+        except Exception:
+            continue
 
 
 def le2i(b, signed=False):
