@@ -28,7 +28,7 @@ import riemann
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
 
 
-def encode(data):
+def encode(data: bytes) -> str:
     if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'
@@ -36,7 +36,7 @@ def encode(data):
     return segwit_encode(riemann.network.BECH32_HRP, data[0], data[2:])
 
 
-def decode(bech):
+def decode(bech: str) -> bytes:
     if riemann.network.BECH32_HRP is None:
         raise ValueError(
             'Network ({}) does not support bech32 encoding.'

@@ -1,11 +1,13 @@
 import riemann
-from .. import utils
-from ..script import serialization as script_ser
+from riemann import utils
+from riemann.script import serialization as script_ser
 
 
-def _hash_to_sh_address(script_hash, witness=False, cashaddr=True):
+def _hash_to_sh_address(
+        script_hash: bytes,
+        witness: bool = False,
+        cashaddr: bool = True) -> str:
     '''
-    bytes, bool, bool -> str
     cashaddrs are preferred where possible
     but cashaddr is ignored in most cases
     is there a better way to structure this?
@@ -25,10 +27,11 @@ def _hash_to_sh_address(script_hash, witness=False, cashaddr=True):
         return riemann.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
-def _ser_script_to_sh_address(script_bytes, witness=False, cashaddr=True):
-    '''
-    makes an p2sh address from a serialized script
-    '''
+def _ser_script_to_sh_address(
+        script_bytes: bytes,
+        witness: bool = False,
+        cashaddr: bool = True) -> str:
+    '''makes a p2sh address from a serialized script'''
     if witness:
         script_hash = utils.sha256(script_bytes)
     else:
@@ -39,10 +42,11 @@ def _ser_script_to_sh_address(script_bytes, witness=False, cashaddr=True):
         cashaddr=cashaddr)
 
 
-def make_sh_address(script_string, witness=False, cashaddr=True):
-    '''
-    str, bool, bool -> str
-    '''
+def make_sh_address(
+        script_string: str,
+        witness: bool = False,
+        cashaddr: bool = True) -> str:
+    '''Turns a human-readable script into an address'''
     script_bytes = script_ser.serialize(script_string)
 
     return _ser_script_to_sh_address(
@@ -51,26 +55,30 @@ def make_sh_address(script_string, witness=False, cashaddr=True):
         cashaddr=cashaddr)
 
 
-def make_p2wsh_address(script_string):
+def make_p2wsh_address(script_string: str) -> str:
+    '''Turns a human-readable script into a p2wsh address'''
     return make_sh_address(script_string=script_string,
                            witness=True)
 
 
-def make_p2sh_address(script_string):
+def make_p2sh_address(script_string: str) -> str:
+    '''Turns a human-readable script into a p2sh address'''
     return make_sh_address(script_string=script_string,
                            witness=False)
 
 
-def make_legacy_p2sh_address(script_string):
+def make_legacy_p2sh_address(script_string: str) -> str:
+    '''Turns a human-readable script into a non-cashaddr p2sh address'''
     return make_sh_address(script_string=script_string,
                            witness=False,
                            cashaddr=False)
 
 
-def _make_pkh_address(pubkey_hash, witness=False, cashaddr=True):
-    '''
-    bytes, bool -> str
-    '''
+def _make_pkh_address(
+        pubkey_hash: bytes,
+        witness: bool = False,
+        cashaddr: bool = True) -> str:
+    '''Turns a 20-byte public key has into an address'''
     addr_bytes = bytearray()
     if riemann.network.CASHADDR_P2PKH is not None and cashaddr:
         addr_bytes.extend(riemann.network.CASHADDR_P2PKH)
@@ -86,29 +94,30 @@ def _make_pkh_address(pubkey_hash, witness=False, cashaddr=True):
         return riemann.network.LEGACY_ENCODER.encode(addr_bytes)
 
 
-def make_pkh_address(pubkey, witness=False, cashaddr=True):
-    '''
-    bytes, bool -> str
-    '''
+def make_pkh_address(
+        pubkey: bytes,
+        witness: bool = False,
+        cashaddr: bool = True) -> str:
+    '''Turns a pubkey into an address'''
     pubkey_hash = utils.hash160(pubkey)
     return _make_pkh_address(pubkey_hash=pubkey_hash,
                              witness=witness,
                              cashaddr=cashaddr)
 
 
-def make_p2wpkh_address(pubkey):
+def make_p2wpkh_address(pubkey: bytes) -> str:
     return make_pkh_address(pubkey=pubkey, witness=True)
 
 
-def make_p2pkh_address(pubkey):
+def make_p2pkh_address(pubkey: bytes) -> str:
     return make_pkh_address(pubkey=pubkey, witness=False)
 
 
-def make_legacy_p2pkh_address(pubkey):
+def make_legacy_p2pkh_address(pubkey: bytes) -> str:
     return make_pkh_address(pubkey=pubkey, witness=False, cashaddr=False)
 
 
-def parse(address):
+def parse(address: str) -> bytes:
     try:
         return bytearray(riemann.network.LEGACY_ENCODER.decode(address))
     except ValueError:
@@ -128,9 +137,9 @@ def parse(address):
         'Unsupported address format. Got: {}'.format(address))
 
 
-def to_output_script(address):
+def to_output_script(address: str) -> bytes:
     '''
-    str -> bytes
+    Convert an address into its associated output script
     There's probably a better way to do this
     '''
     parsed = parse(address)
@@ -187,9 +196,8 @@ def to_output_script(address):
     return output_script
 
 
-def from_output_script(output_script, cashaddr=True):
+def from_output_script(output_script: bytes, cashaddr: bool = True) -> str:
     '''
-    bytes -> str
     Convert output script (the on-chain format) to an address
     There's probably a better way to do this
     '''
@@ -221,12 +229,10 @@ def from_output_script(output_script, cashaddr=True):
     raise ValueError('Cannot parse address from script.')
 
 
-def parse_hash(address):
+def parse_hash(address: str) -> bytes:
     '''
-    str -> bytes
     There's probably a better way to do this.
     '''
-
     raw = parse(address)
 
     # Cash addresses
@@ -254,3 +260,5 @@ def parse_hash(address):
         return raw[len(riemann.network.P2SH_PREFIX):]
     if raw.find(riemann.network.P2PKH_PREFIX) == 0:
         return raw[len(riemann.network.P2PKH_PREFIX):]
+
+    raise ValueError('Could not parse hash, unknown error')

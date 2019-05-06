@@ -651,7 +651,7 @@ PK = {
 
 
 MSIG_2_2 = {
-        'redeem_script': examples.msig_two_two.format(pk0=PK['human'][0]['pk'], pk1=PK['human'][1]['pk']),
+        'redeem_script': examples.msig_two_two.format(pk0=PK['human'][0]['pk'], pk1=PK['human'][1]['pk']),  # type: ignore
         'ser_script': bytes.fromhex('5241000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111152ae'),
         'p2sh': '3R23EEkAzy7HPWKN8rcL4ZzSjEWNsipxWV',
         'script_hash': bytes.fromhex('ffe3e2be6ba8d465041d3da1cdfe472b901b215a'),

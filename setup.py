@@ -13,6 +13,7 @@ setup(
     install_requires=[],
     packages=find_packages(),
     package_dir={'riemann': 'riemann'},
+    package_data={'riemann': ['py.typed']},
     keywords = 'bitcoin litecoin cryptocurrency decred blockchain development',
     python_requires='>=3.6',
     classifiers = [

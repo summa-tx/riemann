@@ -16,7 +16,7 @@ class DecredByteData(shared.ByteData):
 
 class DecredOutpoint(DecredByteData):
 
-    def __init__(self, tx_id, index, tree):
+    def __init__(self, tx_id: bytes, index: bytes, tree: bytes):
         super().__init__()
 
         self.validate_bytes(tx_id, 32)
@@ -33,14 +33,17 @@ class DecredOutpoint(DecredByteData):
 
         self._make_immutable()
 
-    def copy(self, tx_id=None, index=None, tree=None):
+    def copy(self,
+             tx_id: bytes = None,
+             index: bytes = None,
+             tree: bytes = None):
         return DecredOutpoint(
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index,
             tree=tree if tree is not None else self.tree)
 
     @classmethod
-    def from_bytes(DecredOutpoint, byte_string):
+    def from_bytes(DecredOutpoint, byte_string: bytes) -> 'DecredOutpoint':
         return DecredOutpoint(
             tx_id=byte_string[:32],
             index=byte_string[32:36],
@@ -49,7 +52,7 @@ class DecredOutpoint(DecredByteData):
 
 class DecredTxIn(DecredByteData):
 
-    def __init__(self, outpoint, sequence):
+    def __init__(self, outpoint: bytes, sequence: bytes):
         super().__init__()
 
         self.validate_bytes(outpoint, 37)
