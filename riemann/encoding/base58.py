@@ -22,24 +22,25 @@
 
 """Implementation of Base58 encoding with checksum"""
 
-from .. import utils
+from riemann import utils
+from typing import Callable, Tuple
 
 BASE58_ALPHABET = b'123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 BASE58_BASE = len(BASE58_ALPHABET)
 BASE58_LOOKUP = dict((c, i) for i, c in enumerate(BASE58_ALPHABET))
 
 
-def encode(data, checksum=True):
+def encode(data: bytes, checksum: bool = True) -> str:
     """Convert binary to base58 using BASE58_ALPHABET."""
 
     if checksum:
         data = data + utils.hash256(data)[:4]
-    v, prefix = to_long(256, lambda x: x, iter(data))
+    v, prefix = to_long(256, lambda x: x, data)
     data = from_long(v, prefix, BASE58_BASE, lambda v: BASE58_ALPHABET[v])
     return data.decode("utf8")
 
 
-def decode(s, checksum=True):
+def decode(s: str, checksum: bool = True) -> bytes:
     """Convert base58 to binary using BASE58_ALPHABET."""
     v, prefix = to_long(
         BASE58_BASE, lambda c: BASE58_LOOKUP[c], s.encode("utf8"))
@@ -55,7 +56,7 @@ def decode(s, checksum=True):
     return data
 
 
-def encode_with_checksum(data):
+def encode_with_checksum(data: bytes) -> str:
     """
     A "hashed_base58" structure is a base58 integer (which looks like a string)
     with four bytes of hash data at the end.
@@ -64,7 +65,7 @@ def encode_with_checksum(data):
     return encode(data, checksum=True)
 
 
-def decode_with_checksum(s):
+def decode_with_checksum(s: str) -> bytes:
     """
     If the passed string is hashed_base58, return the binary data.
     Otherwise raises a ValueError.
@@ -72,7 +73,7 @@ def decode_with_checksum(s):
     return decode(s, checksum=True)
 
 
-def has_checksum(base58):
+def has_checksum(base58: str) -> bool:
     """Return True if and only if base58 is valid hashed_base58."""
     try:
         decode_with_checksum(base58)
@@ -81,7 +82,11 @@ def has_checksum(base58):
     return True
 
 
-def from_long(v, prefix, base, charset):
+def from_long(
+        v: int,
+        prefix: int,
+        base: int,
+        charset: Callable[..., int]) -> bytes:
     """The inverse of to_long. Convert an integer to an arbitrary base.
     v: the integer value to convert
     prefix: the number of prefixed 0s to include
@@ -101,7 +106,10 @@ def from_long(v, prefix, base, charset):
     return bytes(ba)
 
 
-def to_long(base, lookup_f, s):
+def to_long(
+        base: int,
+        lookup_f: Callable[..., int],
+        s: bytes) -> Tuple[int, int]:
     """
     Convert an array to a (possibly bignum) integer, along with a prefix value
     of how many prefixed zeros there are.

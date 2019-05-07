@@ -1,4 +1,5 @@
-from ..encoding import base58, bech32, cashaddr
+from riemann.encoding import base58, bech32, cashaddr
+from typing import Dict, List, Optional, Tuple
 
 
 class Network:
@@ -7,28 +8,26 @@ class Network:
     holding space for the various prefixes.
     Not all features are used by all coins.
     '''
-    SYMBOL = None
-    NETWORK_NAME = None
-    SUBNET_NAME = None
-    P2PKH_PREFIX = None
-    P2SH_PREFIX = None
-    SEGWIT = False
-    MALLEABLE = not SEGWIT
-    P2WSH_PREFIX = None
-    P2WPKH_PREFIX = None
-    BECH32_HRP = None
-    WITNESS_SCRIPT_VERSION = '\x00'
+    SYMBOL: Optional[str] = None
+    NETWORK_NAME: Optional[str] = None
+    SUBNET_NAME: Optional[str] = None
+    P2PKH_PREFIX: bytes = b'\x00'
+    P2SH_PREFIX: bytes = b'\x05'
+    SEGWIT: bool = False
+    P2WSH_PREFIX: bytes = b'\x00\x20'
+    P2WPKH_PREFIX: bytes = b'\x00\x14'
+    BECH32_HRP: Optional[str] = None
     SEGWIT_ENCODER = bech32
     LEGACY_ENCODER = base58
     CASHADDR_ENCODER = cashaddr
     SEGWIT_TX_FLAG = b'\x00\x01'
-    FORKID = None
-    OPCODE_CHANGES = [(None, None)]
-    CASHADDR_PREFIX = None
-    CASHADDR_P2SH = None
-    CASHADDR_P2PKH = None
-    CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
-    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
+    FORKID: Optional[int] = None
+    OPCODE_CHANGES: List[Tuple[str, int]] = []
+    CASHADDR_PREFIX: Optional[str] = None
+    CASHADDR_P2SH: Optional[bytes] = None
+    CASHADDR_P2PKH: Optional[bytes] = None
+    CODE_TO_INT_OVERWRITE: Dict[str, int] = {}
+    INT_TO_CODE_OVERWRITE: Dict[int, str] = {}
 
 
 class BitcoinMain(Network):
@@ -326,13 +325,12 @@ class DecredMain(Network):
     P2PK_PREFIX = b'\x13\x86'
     P2SH_PREFIX = b'\x07\x1a'
     SEGWIT = False
-    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
     ]
     CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
-    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict((o[1], o[0]) for o in OPCODE_CHANGES)
 
 
 class DecredTest(Network):
@@ -342,13 +340,12 @@ class DecredTest(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
-    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
     ]
     CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
-    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict((o[1], o[0]) for o in OPCODE_CHANGES)
 
 
 class DecredSimnet(Network):
@@ -358,13 +355,12 @@ class DecredSimnet(Network):
     P2PKH_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
-    MALLEABLE = False
     OPCODE_CHANGES = [
         ('OP_BLAKE256', 168),
         ('OP_SHA256', 192)
     ]
     CODE_TO_INT_OVERWRITE = dict(o for o in OPCODE_CHANGES)
-    INT_TO_CODE_OVERWRITE = dict(reversed(o) for o in OPCODE_CHANGES)
+    INT_TO_CODE_OVERWRITE = dict((o[1], o[0]) for o in OPCODE_CHANGES)
 
 
 class PivxMain(Network):

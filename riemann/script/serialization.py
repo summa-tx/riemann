@@ -1,12 +1,10 @@
 import riemann
-from .. import utils
-from .opcodes import CODE_TO_INT, INT_TO_CODE
+from riemann import utils
+from riemann.script.opcodes import CODE_TO_INT, INT_TO_CODE
 
 
-def serialize(script_string):
-    '''
-    str -> bytearray
-    '''
+def serialize(script_string: str) -> bytes:
+    '''serialize a human-readable script to bytes'''
     string_tokens = script_string.split()
     serialized_script = bytearray()
 
@@ -49,17 +47,13 @@ def serialize(script_string):
     return serialized_script
 
 
-def hex_serialize(script_string):
-    '''
-    str -> hex_str
-    '''
+def hex_serialize(script_string: str) -> str:
+    '''serialize a human-readable script to hex'''
     return serialize(script_string).hex()
 
 
-def deserialize(serialized_script):
-    '''
-    bytearray -> str
-    '''
+def deserialize(serialized_script: bytes) -> str:
+    '''deserialize a script from bytes to human-readable'''
     deserialized = []
     i = 0
     while i < len(serialized_script):
@@ -113,8 +107,6 @@ def deserialize(serialized_script):
     return ' '.join(deserialized)
 
 
-def hex_deserialize(script_hex):
-    '''
-    hex_str -> str
-    '''
+def hex_deserialize(script_hex: str) -> str:
+    '''deserialize a script from hex to human-readable'''
     return deserialize(bytes.fromhex(script_hex))

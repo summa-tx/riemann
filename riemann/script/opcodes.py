@@ -26,7 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-OPCODE_LIST = [
+from typing import Dict, List, Tuple
+
+OPCODE_LIST: List[Tuple[str, int]] = [
     ("OP_0", 0),
     ("OP_PUSHDATA1", 76),
     ("OP_PUSHDATA2", 77),
@@ -146,5 +148,5 @@ OPCODE_LIST = [
 for i in range(1, 76):
     OPCODE_LIST.append(("OP_PUSH_%d" % i, i))
 
-CODE_TO_INT = dict(o for o in OPCODE_LIST)
-INT_TO_CODE = dict(reversed(o) for o in OPCODE_LIST)
+CODE_TO_INT: Dict[str, int] = dict(o for o in OPCODE_LIST)
+INT_TO_CODE: Dict[int, str] = dict((o[1], o[0]) for o in OPCODE_LIST)

@@ -1,10 +1,12 @@
 import riemann
-from riemann import tx
 from riemann import utils
 from riemann.script import serialization
+from riemann.tx import tx, decred, overwinter, sapling, sprout, zcash_shared
+
+from typing import cast, List, Optional, overload
 
 
-def make_sh_script_pubkey(script_bytes, witness=False):
+def make_sh_script_pubkey(script_bytes: bytes, witness: bool = False) -> bytes:
     output_script = bytearray()
     if witness:
         script_hash = utils.sha256(script_bytes)
@@ -16,10 +18,10 @@ def make_sh_script_pubkey(script_bytes, witness=False):
         output_script.extend(script_hash)
         output_script.extend(b'\x87')  # OP_EQUAL
 
-    return output_script
+    return bytes(output_script)
 
 
-def make_sh_output_script(script_string, witness=False):
+def make_sh_output_script(script_string: str, witness: bool = False) -> bytes:
     '''
     str -> bytearray
     '''
@@ -32,10 +34,8 @@ def make_sh_output_script(script_string, witness=False):
     return make_sh_script_pubkey(script_bytes=script_bytes, witness=witness)
 
 
-def make_pkh_output_script(pubkey, witness=False):
-    '''
-    bytearray -> bytearray
-    '''
+def make_pkh_output_script(pubkey: bytes, witness: bool = False) -> bytes:
+    '''Makes a pkh pubkey script'''
     if witness and not riemann.network.SEGWIT:
         raise ValueError(
             'Network {} does not support witness scripts.'
@@ -56,72 +56,89 @@ def make_pkh_output_script(pubkey, witness=False):
         output_script.extend(b'\x76\xa9\x14')  # OP_DUP OP_HASH160 PUSH14
         output_script.extend(pubkey_hash)
         output_script.extend(b'\x88\xac')  # OP_EQUALVERIFY OP_CHECKSIG
-    return output_script
+    return bytes(output_script)
 
 
-def make_p2sh_output_script(script_string):
+def make_p2sh_output_script(script_string: str) -> bytes:
     return make_sh_output_script(script_string, witness=False)
 
 
-def make_p2pkh_output_script(pubkey):
+def make_p2pkh_output_script(pubkey: bytes) -> bytes:
     return make_pkh_output_script(pubkey, witness=False)
 
 
-def make_p2wsh_output_script(script_string):
+def make_p2wsh_output_script(script_string: str) -> bytes:
     return make_sh_output_script(script_string, witness=True)
 
 
-def make_p2wpkh_output_script(pubkey):
+def make_p2wpkh_output_script(pubkey: bytes) -> bytes:
     return make_pkh_output_script(pubkey, witness=True)
 
 
-def _make_output(value, output_script, version=None):
-    '''
-    byte-like, byte-like -> TxOut
-    '''
+@overload
+def _make_output(
+        value: bytes,
+        output_script: bytes,
+        version: bytes) -> decred.DecredTxOut:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def _make_output(
+        value: bytes,
+        output_script: bytes) -> tx.TxOut:
+    ...  # pragma: nocover
+
+
+def _make_output(  # noqa: F811
+        value,
+        output_script,
+        version=None):
+    '''Instantiates a TxOut from value and output script'''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTxOut(
+        return decred.DecredTxOut(
             value=value,
-            version=version,
+            version=cast(int, version),
             output_script=output_script)
     return tx.TxOut(value=value, output_script=output_script)
 
 
-def make_sh_output(value, output_script, witness=False):
-    '''
-    int, str -> TxOut
-    '''
+def make_sh_output(
+        value: int,
+        output_script: str,
+        witness: bool = False) -> tx.TxOut:
+    '''Instantiates'''
     return _make_output(
         value=utils.i2le_padded(value, 8),
         output_script=make_sh_output_script(output_script, witness))
 
 
-def make_p2sh_output(value, output_script):
+def make_p2sh_output(value: int, output_script: str) -> tx.TxOut:
     return make_sh_output(value, output_script, witness=False)
 
 
-def make_p2wsh_output(value, output_script):
+def make_p2wsh_output(value: int, output_script: str) -> tx.TxOut:
     return make_sh_output(value, output_script, witness=True)
 
 
-def make_pkh_output(value, pubkey, witness=False):
-    '''
-    int, bytearray -> TxOut
-    '''
+def make_pkh_output(
+        value: int,
+        pubkey: bytes,
+        witness: bool = False) -> tx.TxOut:
     return _make_output(
         value=utils.i2le_padded(value, 8),
         output_script=make_pkh_output_script(pubkey, witness))
 
 
-def make_p2pkh_output(value, pubkey):
+def make_p2pkh_output(value: int, pubkey: bytes) -> tx.TxOut:
     return make_pkh_output(value, pubkey, witness=False)
 
 
-def make_p2wpkh_output(value, pubkey):
+def make_p2wpkh_output(value: int, pubkey: bytes) -> tx.TxOut:
     return make_pkh_output(value, pubkey, witness=True)
 
 
-def make_op_return_output(data):
+def make_op_return_output(data: bytes) -> tx.TxOut:
     '''Generates OP_RETURN output for data less than 78 bytes.
     If data is 76 or 77 bytes, OP_PUSHDATA1 is included:
     <OP_RETURN><OP_PUSHDATA1><data len><data>
@@ -149,27 +166,29 @@ def make_op_return_output(data):
     return _make_output(utils.i2le_padded(0, 8), pk_script)
 
 
-def make_empty_witness():
+def make_empty_witness() -> tx.InputWitness:
     return make_witness([])
 
 
-def make_witness_stack_item(data):
-    '''
-    bytearray -> WitnessStackItem
-    '''
+def make_witness_stack_item(data: bytes) -> tx.WitnessStackItem:
     return tx.WitnessStackItem(item=data)
 
 
-def make_witness(data_list):
+def make_witness(data_list: List[bytes]) -> tx.InputWitness:
     '''
-    list(bytearray) -> InputWitness
+    list(bytes) -> InputWitness
     '''
     return tx.InputWitness(
         stack=[make_witness_stack_item(item) for item in data_list])
 
 
-def make_decred_witness(value, height, index, stack_script, redeem_script):
-    return tx.DecredInputWitness(
+def make_decred_witness(
+        value: bytes,
+        height: bytes,
+        index: bytes,
+        stack_script: bytes,
+        redeem_script: bytes) -> decred.DecredInputWitness:
+    return decred.DecredInputWitness(
         value=value,
         height=height,
         index=index,
@@ -177,33 +196,66 @@ def make_decred_witness(value, height, index, stack_script, redeem_script):
         redeem_script=redeem_script)
 
 
-def make_outpoint(tx_id_le, index, tree=None):
+@overload
+def make_outpoint(
+        tx_id_le: bytes, index: int, tree: int) -> decred.DecredOutpoint:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def make_outpoint(tx_id_le: bytes, index: int) -> tx.Outpoint:
+    ...  # pragma: nocover
+
+
+def make_outpoint(tx_id_le, index, tree=None):  # noqa: F811
     '''
     byte-like, int, int -> Outpoint
     '''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredOutpoint(tx_id=tx_id_le,
-                                 index=utils.i2le_padded(index, 4),
-                                 tree=utils.i2le_padded(tree, 1))
+        tree_bytes = b'\x00' if tree is None else utils.i2le_padded(tree, 1)
+        return decred.DecredOutpoint(tx_id=tx_id_le,
+                                     index=utils.i2le_padded(index, 4),
+                                     tree=tree_bytes)
     return tx.Outpoint(tx_id=tx_id_le,
                        index=utils.i2le_padded(index, 4))
 
 
-def make_script_sig(stack_script, redeem_script):
+def make_script_sig(stack_script: str, redeem_script: str) -> bytes:
     '''
     str, str -> bytearray
     '''
-    stack_script += ' {}'.format(
+    script_sig = '{} {}'.format(
+        stack_script,
         serialization.hex_serialize(redeem_script))
-    return serialization.serialize(stack_script)
+    return serialization.serialize(script_sig)
 
 
-def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
-    '''
-    Outpoint, byte-like, byte-like, int -> TxIn
-    '''
+@overload
+def make_legacy_input(
+        outpoint: decred.DecredOutpoint,
+        stack_script: bytes,
+        redeem_script: bytes,
+        sequence: int) -> decred.DecredTxIn:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def make_legacy_input(
+        outpoint: tx.Outpoint,
+        stack_script: bytes,
+        redeem_script: bytes,
+        sequence: int) -> tx.TxIn:
+    ...  # pragma: nocover
+
+
+def make_legacy_input(  # noqa: F811
+        outpoint,
+        stack_script,
+        redeem_script,
+        sequence):
+    '''Make a legacy input'''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTxIn(
+        return decred.DecredTxIn(
             outpoint=outpoint,
             sequence=utils.i2le_padded(sequence, 4))
     return tx.TxIn(outpoint=outpoint,
@@ -212,24 +264,24 @@ def make_legacy_input(outpoint, stack_script, redeem_script, sequence):
                    sequence=utils.i2le_padded(sequence, 4))
 
 
-def make_legacy_input_and_empty_witness(outpoint, stack_script,
-                                        redeem_script, sequence):
-    '''
-    Outpoint, byte-like, byte-like, int -> (TxIn, InputWitness)
-    '''
-    return (make_legacy_input(outpoint=outpoint,
-                              stack_script=stack_script,
-                              redeem_script=redeem_script,
-                              sequence=sequence),
-            make_empty_witness())
+@overload
+def make_witness_input(
+        outpoint: decred.DecredOutpoint,
+        sequence: int) -> decred.DecredTxIn:
+    ...  # pragma: nocover
 
 
-def make_witness_input(outpoint, sequence):
-    '''
-    Outpoint, int -> TxIn
-    '''
+@overload  # noqa: F811
+def make_witness_input(
+        outpoint: tx.Outpoint,
+        sequence: int) -> tx.TxIn:
+    ...  # pragma: nocover
+
+
+def make_witness_input(outpoint, sequence):  # noqa: F811
+    '''Make a witness input'''
     if 'decred' in riemann.get_current_network_name():
-        return tx.DecredTxIn(
+        return decred.DecredTxIn(
             outpoint=outpoint,
             sequence=utils.i2le_padded(sequence, 4))
     return tx.TxIn(outpoint=outpoint,
@@ -238,38 +290,97 @@ def make_witness_input(outpoint, sequence):
                    sequence=utils.i2le_padded(sequence, 4))
 
 
-def make_decred_input(outpoint, sequence):
-    return tx.DecredTxIn(
+def make_decred_input(
+        outpoint: decred.DecredOutpoint,
+        sequence: int) -> decred.DecredTxIn:
+    return decred.DecredTxIn(
         outpoint=outpoint,
         sequence=utils.i2le_padded(sequence, 4))
 
 
-def make_witness_input_and_witness(outpoint, sequence,
-                                   stack=None, **kwargs):
-    '''
-    Outpoint, int, list(bytearray) -> (Input, InputWitness)
-    '''
-    if 'decred' in riemann.get_current_network_name():
-        return(make_witness_input(outpoint, sequence),
-               make_decred_witness(value=kwargs['value'],
-                                   height=kwargs['height'],
-                                   index=kwargs['index'],
-                                   stack_script=kwargs['stack_script'],
-                                   redeem_script=kwargs['redeem_script']))
-    return (make_witness_input(outpoint, sequence),
-            make_witness(stack))
+@overload
+def make_tx(
+        version: int,
+        tx_ins: List[decred.DecredTxIn],
+        tx_outs: List[decred.DecredTxOut],
+        lock_time: int,
+        expiry: int,
+        tx_witnesses: List[decred.DecredInputWitness]) -> decred.DecredTx:
+    ...  # pragma: nocover
 
 
-def make_tx(version, tx_ins, tx_outs, lock_time,
-            expiry=None, value_balance=0, tx_shielded_spends=None,
-            tx_shielded_outputs=None, tx_witnesses=None, tx_joinsplits=None,
-            joinsplit_pubkey=None, joinsplit_sig=None, binding_sig=None):
+@overload  # noqa: F811
+def make_tx(
+        version: int,
+        tx_ins: List[tx.TxIn],
+        tx_outs: List[tx.TxOut],
+        lock_time: int,
+        tx_joinsplits: List[zcash_shared.SproutJoinsplit],
+        joinsplit_pubkey: Optional[bytes],
+        joinsplit_sig: Optional[bytes],
+        binding_sig: Optional[bytes]) -> sprout.SproutTx:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def make_tx(
+        tx_ins: List[tx.TxIn],
+        tx_outs: List[tx.TxOut],
+        lock_time: int,
+        expiry: int,
+        tx_joinsplits: List[zcash_shared.SproutJoinsplit],
+        joinsplit_pubkey: Optional[bytes],
+        joinsplit_sig: Optional[bytes],
+        binding_sig: Optional[bytes]) -> overwinter.OverwinterTx:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def make_tx(
+        tx_ins: List[tx.TxIn],
+        tx_outs: List[tx.TxOut],
+        lock_time: int,
+        expiry: int,
+        value_balance: int,
+        tx_shielded_spends: List[sapling.SaplingShieldedSpend],
+        tx_shielded_outputs: List[sapling.SaplingShieldedOutput],
+        tx_joinsplits: List[sapling.SaplingJoinsplit],
+        joinsplit_pubkey: Optional[bytes],
+        joinsplit_sig: Optional[bytes],
+        binding_sig: Optional[bytes]) -> sapling.SaplingTx:
+    ...  # pragma: nocover
+
+
+@overload  # noqa: F811
+def make_tx(
+        version: int,
+        tx_ins: List[tx.TxIn],
+        tx_outs: List[tx.TxOut],
+        lock_time: int,
+        tx_witnesses: Optional[List[tx.InputWitness]] = None) -> tx.Tx:
+    ...  # pragma: nocover
+
+
+def make_tx(  # noqa: F811
+        version,
+        tx_ins,
+        tx_outs,
+        lock_time,
+        expiry=None,
+        value_balance=0,
+        tx_shielded_spends=None,
+        tx_shielded_outputs=None,
+        tx_witnesses=None,
+        tx_joinsplits=None,
+        joinsplit_pubkey=None,
+        joinsplit_sig=None,
+        binding_sig=None):
     '''
     int, list(TxIn), list(TxOut), int, list(InputWitness) -> Tx
     '''
     n = riemann.get_current_network_name()
     if 'decred' in n:
-        return tx.DecredTx(
+        return decred.DecredTx(
             version=utils.i2le_padded(version, 4),
             tx_ins=tx_ins,
             tx_outs=tx_outs,
@@ -277,7 +388,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             expiry=utils.i2le_padded(expiry, 4),
             tx_witnesses=[tx_witnesses])
     if 'sprout' in n and tx_joinsplits is not None:
-        return tx.SproutTx(
+        return sprout.SproutTx(
             version=version,
             tx_ins=tx_ins,
             tx_outs=tx_outs,
@@ -286,7 +397,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
     if 'overwinter' in n:
-        return tx.OverwinterTx(
+        return overwinter.OverwinterTx(
             tx_ins=tx_ins,
             tx_outs=tx_outs,
             lock_time=utils.i2le_padded(lock_time, 4),
@@ -295,17 +406,15 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
     if 'sapling' in n:
-        return tx.SaplingTx(
+        return sapling.SaplingTx(
             tx_ins=tx_ins,
             tx_outs=tx_outs,
             lock_time=utils.i2le_padded(lock_time, 4),
             expiry_height=utils.i2le_padded(expiry, 4),
             value_balance=utils.i2le_padded(value_balance, 8),
-            tx_shielded_spends=(tx_shielded_spends
-                                if tx_shielded_spends is not None else []),
-            tx_shielded_outputs=(tx_shielded_outputs
-                                 if tx_shielded_outputs is not None else []),
-            tx_joinsplits=tx_joinsplits if tx_joinsplits is not None else [],
+            tx_shielded_spends=tx_shielded_spends,
+            tx_shielded_outputs=tx_shielded_outputs,
+            tx_joinsplits=tx_joinsplits,
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig,
             binding_sig=binding_sig)
@@ -319,9 +428,7 @@ def make_tx(version, tx_ins, tx_outs, lock_time,
                  lock_time=utils.i2le_padded(lock_time, 4))
 
 
-def length_prepend(byte_string):
-    '''
-    bytes -> bytes
-    '''
+def length_prepend(byte_string: bytes) -> bytes:
+    '''Adds a VarInt length marker to a bytestring'''
     length = tx.VarInt(len(byte_string))
     return length.to_bytes() + byte_string

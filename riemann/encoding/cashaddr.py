@@ -26,7 +26,7 @@ import riemann
 CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 
-def encode(data):
+def encode(data: bytes) -> str:
     '''
     bytes -> str
     '''
@@ -45,7 +45,7 @@ def encode(data):
         payload=payload)
 
 
-def decode(data):
+def decode(data: str) -> bytes:
     '''
     str -> bytes
     '''
@@ -54,7 +54,7 @@ def decode(data):
                          .format(riemann.get_current_network_name()))
     if data.find(riemann.network.CASHADDR_PREFIX) != 0:
         raise ValueError('Malformed cashaddr. Cannot locate prefix: {}'
-                         .format(riemann.netowrk.CASHADDR_PREFIX))
+                         .format(riemann.network.CASHADDR_PREFIX))
 
     # the data is everything after the colon
     prefix, data = data.split(':')
