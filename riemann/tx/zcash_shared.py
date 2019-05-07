@@ -14,8 +14,24 @@ class ZcashByteData(shared.ByteData):
 
 class SproutZkproof(ZcashByteData):
 
-    def __init__(self, pi_sub_a, pi_prime_sub_a, pi_sub_b, pi_prime_sub_b,
-                 pi_sub_c, pi_prime_sub_c, pi_sub_k, pi_sub_h):
+    pi_sub_a: bytes
+    pi_prime_sub_a: bytes
+    pi_sub_b: bytes
+    pi_prime_sub_b: bytes
+    pi_sub_c: bytes
+    pi_prime_sub_c: bytes
+    pi_sub_k: bytes
+    pi_sub_h: bytes
+
+    def __init__(self,
+                 pi_sub_a: bytes,
+                 pi_prime_sub_a: bytes,
+                 pi_sub_b: bytes,
+                 pi_prime_sub_b: bytes,
+                 pi_sub_c: bytes,
+                 pi_prime_sub_c: bytes,
+                 pi_sub_k: bytes,
+                 pi_sub_h: bytes):
         super().__init__()
 
         self.validate_bytes(pi_sub_a, 33)
@@ -48,7 +64,7 @@ class SproutZkproof(ZcashByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SproutZkproof, byte_string):
+    def from_bytes(SproutZkproof, byte_string: bytes) -> 'SproutZkproof':
         return SproutZkproof(
             pi_sub_a=byte_string[0:33],
             pi_prime_sub_a=byte_string[33:66],
@@ -62,8 +78,28 @@ class SproutZkproof(ZcashByteData):
 
 class SproutJoinsplit(ZcashByteData):
 
-    def __init__(self, vpub_old, vpub_new, anchor, nullifiers, commitments,
-                 ephemeral_key, random_seed, vmacs, zkproof, encoded_notes):
+    vpub_old: bytes
+    vpub_new: bytes
+    anchor: bytes
+    nullifiers: bytes
+    commitments: bytes
+    ephemeral_key: bytes
+    random_seed: bytes
+    vmacs: bytes
+    zkproof: SproutZkproof
+    encoded_notes: bytes
+
+    def __init__(self,
+                 vpub_old: bytes,
+                 vpub_new: bytes,
+                 anchor: bytes,
+                 nullifiers: bytes,
+                 commitments: bytes,
+                 ephemeral_key: bytes,
+                 random_seed: bytes,
+                 vmacs: bytes,
+                 zkproof: SproutZkproof,
+                 encoded_notes: bytes):
         super().__init__()
 
         if not isinstance(zkproof, SproutZkproof):
@@ -109,7 +145,7 @@ class SproutJoinsplit(ZcashByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SproutJoinsplit, byte_string):
+    def from_bytes(SproutJoinsplit, byte_string: bytes) -> 'SproutJoinsplit':
         return SproutJoinsplit(
             vpub_old=byte_string[0:8],
             vpub_new=byte_string[8:16],

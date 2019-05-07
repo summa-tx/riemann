@@ -466,7 +466,7 @@ class Tx(ByteData):
                   lock_time=(lock_time if lock_time is not None
                              else self.lock_time))
 
-    def _sighash_prep(self, index: int, script: Optional[bytes]) -> 'Tx':
+    def _sighash_prep(self, index: int, script: bytes) -> 'Tx':
         '''
         Sighashes suck
         Performs the sighash setup described here:
@@ -489,7 +489,7 @@ class Tx(ByteData):
     @overload
     def sighash_all(self,
                     index: int,
-                    script: Optional[bytes],
+                    script: bytes,
                     prevout_value: bytes,
                     anyone_can_pay: bool) -> bytes:
         ...
@@ -497,7 +497,7 @@ class Tx(ByteData):
     @overload  # noqa: F811
     def sighash_all(self,
                     index: int,
-                    script: Optional[bytes],
+                    script: bytes,
                     anyone_can_pay: bool) -> bytes:
         ...
 

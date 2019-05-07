@@ -4,10 +4,56 @@ from riemann.tx import shared
 from riemann.tx.tx import TxIn, TxOut
 from riemann.tx import zcash_shared as z
 
+from typing import cast, Optional, Sequence, Tuple
+
+
+class SaplingZkproof(z.ZcashByteData):
+
+    pi_sub_a: bytes
+    pi_sub_b: bytes
+    pi_sub_c: bytes
+
+    def __init__(self, pi_sub_a: bytes, pi_sub_b: bytes, pi_sub_c: bytes):
+        super().__init__()
+
+        self.validate_bytes(pi_sub_a, 48)
+        self.validate_bytes(pi_sub_b, 96)
+        self.validate_bytes(pi_sub_c, 48)
+
+        self += pi_sub_a
+        self += pi_sub_b
+        self += pi_sub_c
+
+        self.pi_sub_a = pi_sub_a
+        self.pi_sub_b = pi_sub_b
+        self.pi_sub_c = pi_sub_c
+
+        self._make_immutable()
+
+    @classmethod
+    def from_bytes(SaplingZkproof, byte_string: bytes) -> 'SaplingZkproof':
+        return SaplingZkproof(
+            pi_sub_a=byte_string[0:48],
+            pi_sub_b=byte_string[48:144],
+            pi_sub_c=byte_string[144:192])
+
 
 class SaplingShieldedSpend(z.ZcashByteData):
 
-    def __init__(self, cv, anchor, nullifier, rk, zkproof, spend_auth_sig):
+    cv: bytes
+    anchor: bytes
+    nullifier: bytes
+    rk: bytes
+    zkproof: SaplingZkproof
+    spend_auth_sig: bytes
+
+    def __init__(self,
+                 cv: bytes,
+                 anchor: bytes,
+                 nullifier: bytes,
+                 rk: bytes,
+                 zkproof: SaplingZkproof,
+                 spend_auth_sig: bytes):
         super().__init__()
 
         self.validate_bytes(cv, 32)
@@ -38,7 +84,8 @@ class SaplingShieldedSpend(z.ZcashByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SaplingShieldedSpend, byte_string):
+    def from_bytes(SaplingShieldedSpend,
+                   byte_string: bytes) -> 'SaplingShieldedSpend':
         return SaplingShieldedSpend(
             cv=byte_string[0:32],
             anchor=byte_string[32:64],
@@ -50,8 +97,20 @@ class SaplingShieldedSpend(z.ZcashByteData):
 
 class SaplingShieldedOutput(z.ZcashByteData):
 
-    def __init__(self, cv, cmu, ephemeral_key, enc_ciphertext, out_ciphertext,
-                 zkproof):
+    cv: bytes
+    cmu: bytes
+    ephemeral_key: bytes
+    enc_ciphertext: bytes
+    out_ciphertext: bytes
+    zkproof: SaplingZkproof
+
+    def __init__(self,
+                 cv: bytes,
+                 cmu: bytes,
+                 ephemeral_key: bytes,
+                 enc_ciphertext: bytes,
+                 out_ciphertext: bytes,
+                 zkproof: SaplingZkproof):
         super().__init__()
 
         self.validate_bytes(cv, 32)
@@ -82,7 +141,9 @@ class SaplingShieldedOutput(z.ZcashByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SaplingShieldedOutput, byte_string):
+    def from_bytes(
+            SaplingShieldedOutput,
+            byte_string: bytes) -> 'SaplingShieldedOutput':
         return SaplingShieldedOutput(
             cv=byte_string[0:32],
             cmu=byte_string[32:64],
@@ -92,36 +153,30 @@ class SaplingShieldedOutput(z.ZcashByteData):
             zkproof=SaplingZkproof.from_bytes(byte_string[756:948]))
 
 
-class SaplingZkproof(z.ZcashByteData):
-
-    def __init__(self, pi_sub_a, pi_sub_b, pi_sub_c):
-        super().__init__()
-
-        self.validate_bytes(pi_sub_a, 48)
-        self.validate_bytes(pi_sub_b, 96)
-        self.validate_bytes(pi_sub_c, 48)
-
-        self += pi_sub_a
-        self += pi_sub_b
-        self += pi_sub_c
-
-        self.pi_sub_a = pi_sub_a
-        self.pi_sub_b = pi_sub_b
-        self.pi_sub_c = pi_sub_c
-
-        self._make_immutable()
-
-    @classmethod
-    def from_bytes(SaplingZkproof, byte_string):
-        return SaplingZkproof(
-            pi_sub_a=byte_string[0:48],
-            pi_sub_b=byte_string[48:144],
-            pi_sub_c=byte_string[144:192])
-
-
 class SaplingJoinsplit(z.ZcashByteData):
-    def __init__(self, vpub_old, vpub_new, anchor, nullifiers, commitments,
-                 ephemeral_key, random_seed, vmacs, zkproof, encoded_notes):
+
+    vpub_old: bytes
+    vpub_new: bytes
+    anchor: bytes
+    nullifiers: bytes
+    commitments: bytes
+    ephemeral_key: bytes
+    random_seed: bytes
+    vmacs: bytes
+    zkproof: SaplingZkproof
+    encoded_notes: bytes
+
+    def __init__(self,
+                 vpub_old: bytes,
+                 vpub_new: bytes,
+                 anchor: bytes,
+                 nullifiers: bytes,
+                 commitments: bytes,
+                 ephemeral_key: bytes,
+                 random_seed: bytes,
+                 vmacs: bytes,
+                 zkproof: SaplingZkproof,
+                 encoded_notes: bytes):
         super().__init__()
 
         if not isinstance(zkproof, SaplingZkproof):
@@ -168,7 +223,7 @@ class SaplingJoinsplit(z.ZcashByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(SaplingJoinsplit, byte_string):
+    def from_bytes(SaplingJoinsplit, byte_string: bytes) -> 'SaplingJoinsplit':
         return SaplingJoinsplit(
             vpub_old=byte_string[0:8],
             vpub_new=byte_string[8:16],
@@ -184,9 +239,34 @@ class SaplingJoinsplit(z.ZcashByteData):
 
 class SaplingTx(z.ZcashByteData):
 
-    def __init__(self, tx_ins, tx_outs, lock_time, expiry_height,
-                 value_balance, tx_shielded_spends, tx_shielded_outputs,
-                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig, binding_sig):
+    tx_ins: Tuple[TxIn, ...]
+    tx_outs: Tuple[TxOut, ...]
+    lock_time: bytes
+    expiry_height: bytes
+    value_balance: bytes
+    tx_shielded_spends: Tuple[SaplingShieldedSpend, ...]
+    tx_shielded_outputs: Tuple[SaplingShieldedOutput, ...]
+    tx_joinsplits: Tuple[SaplingJoinsplit, ...]
+    joinsplit_pubkey: Optional[bytes]
+    joinsplit_sig: Optional[bytes]
+    binding_sig: Optional[bytes]
+    hsigs: Tuple[bytes, ...]
+    primary_inputs: Tuple[bytes, ...]
+    tx_id_le: bytes
+    tx_id: bytes
+
+    def __init__(self,
+                 tx_ins: Sequence[TxIn],
+                 tx_outs: Sequence[TxOut],
+                 lock_time: bytes,
+                 expiry_height: bytes,
+                 value_balance: bytes,
+                 tx_shielded_spends: Sequence[SaplingShieldedSpend],
+                 tx_shielded_outputs: Sequence[SaplingShieldedOutput],
+                 tx_joinsplits: Sequence[SaplingJoinsplit],
+                 joinsplit_pubkey: Optional[bytes],
+                 joinsplit_sig: Optional[bytes],
+                 binding_sig: Optional[bytes]):
         super().__init__()
 
         if 'sapling' not in riemann.get_current_network_name():
@@ -250,8 +330,8 @@ class SaplingTx(z.ZcashByteData):
                     .format(type(tx_joinsplit).__name__))
 
         if len(tx_joinsplits) != 0:
-            self.validate_bytes(joinsplit_pubkey, 32)
-            self.validate_bytes(joinsplit_sig, 64)
+            self.validate_bytes(cast(bytes, joinsplit_pubkey), 32)
+            self.validate_bytes(cast(bytes, joinsplit_sig), 64)
 
         if len(tx_joinsplits) + len(tx_ins) + len(tx_shielded_spends) == 0:
             raise ValueError('Transaction must have some input value.')
@@ -282,12 +362,14 @@ class SaplingTx(z.ZcashByteData):
         if len(tx_joinsplits) != 0:
             for tx_joinsplit in tx_joinsplits:
                 self += tx_joinsplit
-            self += joinsplit_pubkey
-            self += joinsplit_sig
+            self += cast(bytes, joinsplit_pubkey)
+            self += cast(bytes, joinsplit_sig)
 
         if len(tx_shielded_outputs) + len(tx_shielded_spends) != 0:
-            self += binding_sig
+            self += cast(bytes, binding_sig)
             self.binding_sig = binding_sig
+        else:
+            self.binding_sig = None
 
         self.header = b'\x04\x00\x00\x80'  # Sapling is always v4
         self.group_id = b'\x85\x20\x2f\x89'  # Sapling version group id
@@ -323,12 +405,7 @@ class SaplingTx(z.ZcashByteData):
             self.hsigs = tuple()
             self.primary_inputs = tuple()
 
-        if len(tx_shielded_outputs) + len(tx_shielded_spends) != 0:
-            self.binding_sig = binding_sig
-        else:
-            self.binding_sig = None
-
-        self.tx_id_le = self.tx_id_le = utils.hash256(self.to_bytes())
+        self.tx_id_le = utils.hash256(self.to_bytes())
         self.tx_id = self.tx_id_le[::-1]
 
         self._make_immutable()
@@ -338,7 +415,7 @@ class SaplingTx(z.ZcashByteData):
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
-    def calculate_fee(self, input_values):
+    def calculate_fee(self, input_values: Sequence[int]) -> int:
         '''
         SaplingTx, list(int) -> int
         '''
@@ -350,10 +427,20 @@ class SaplingTx(z.ZcashByteData):
             total_out += utils.le2i(js.vpub_old)
         return total_in - total_out + shileded_net
 
-    def copy(self, tx_ins=None, tx_outs=None, lock_time=None,
-             expiry_height=None, value_balance=None, tx_shielded_spends=None,
-             tx_shielded_outputs=None, tx_joinsplits=None,
-             joinsplit_pubkey=None, joinsplit_sig=None, binding_sig=None):
+    def copy(self,
+             tx_ins: Optional[Sequence[TxIn]] = None,
+             tx_outs: Optional[Sequence[TxOut]] = None,
+             lock_time: Optional[bytes] = None,
+             expiry_height: Optional[bytes] = None,
+             value_balance: Optional[bytes] = None,
+             tx_shielded_spends:
+             Optional[Sequence[SaplingShieldedSpend]] = None,
+             tx_shielded_outputs:
+             Optional[Sequence[SaplingShieldedOutput]] = None,
+             tx_joinsplits: Optional[Sequence[SaplingJoinsplit]] = None,
+             joinsplit_pubkey: Optional[bytes] = None,
+             joinsplit_sig: Optional[bytes] = None,
+             binding_sig: Optional[bytes] = None):
         '''
         SaplingTx, ... -> SaplingTx
 
@@ -383,23 +470,23 @@ class SaplingTx(z.ZcashByteData):
             binding_sig=(binding_sig if binding_sig is not None
                          else self.binding_sig))
 
-    def _hsig(self, index):
+    def _hsig(self, index: int) -> bytes:
         return utils.blake2b(
             data=self._hsig_input(index),
             digest_size=32,
             person=b'ZcashComputehSig')
 
-    def _hsig_input(self, index):
+    def _hsig_input(self, index: int) -> bytes:
         '''
         inputs for the hsig hash
         '''
         hsig_input = z.ZcashByteData()
         hsig_input += self.tx_joinsplits[index].random_seed
         hsig_input += self.tx_joinsplits[index].nullifiers
-        hsig_input += self.joinsplit_pubkey
+        hsig_input += cast(bytes, self.joinsplit_pubkey)
         return hsig_input.to_bytes()
 
-    def _primary_input(self, index):
+    def _primary_input(self, index: int) -> bytes:
         '''
         Primary input for the zkproof
         '''
@@ -414,7 +501,7 @@ class SaplingTx(z.ZcashByteData):
         return primary_input.to_bytes()
 
     @classmethod
-    def from_bytes(SaplingTx, byte_string):
+    def from_bytes(SaplingTx, byte_string: bytes) -> 'SaplingTx':
         '''
         byte-like -> SaplingTx
         '''
@@ -481,6 +568,8 @@ class SaplingTx(z.ZcashByteData):
             current += len(tx_joinsplit)
             tx_joinsplits.append(tx_joinsplit)
 
+        joinsplit_pubkey: Optional[bytes]
+        joinsplit_sig: Optional[bytes]
         if len(tx_joinsplits) > 0:
             joinsplit_pubkey = byte_string[current:current + 32]
             current += 32
@@ -490,6 +579,7 @@ class SaplingTx(z.ZcashByteData):
             joinsplit_pubkey = None
             joinsplit_sig = None
 
+        binding_sig: Optional[bytes]
         if len(tx_shielded_spends) + len(tx_shielded_outputs) > 0:
             binding_sig = byte_string[current:current + 64]
             current += 64
@@ -509,17 +599,22 @@ class SaplingTx(z.ZcashByteData):
             joinsplit_sig=joinsplit_sig,
             binding_sig=binding_sig)
 
-    def is_witness(self):
+    def is_witness(self) -> bool:
         return False
 
-    def sighash_all(self, anyone_can_pay=False, **kwargs):
+    def sighash_all(self, anyone_can_pay: bool = False, **kwargs) -> bytes:
         return self.sighash(sighash_type=shared.SIGHASH_ALL, **kwargs)
 
-    def sighash_single(self, anyone_can_pay=False, **kwargs):
+    def sighash_single(self, anyone_can_pay: bool = False, **kwargs) -> bytes:
         return self.sighash(sighash_type=shared.SIGHASH_SINGLE, **kwargs)
 
-    def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
-                anyone_can_pay=False, prevout_value=None):
+    def sighash(self,
+                sighash_type: int,
+                prevout_value: bytes,
+                index: int = 0,
+                joinsplit: bool = False,
+                script_code: Optional[bytes] = None,
+                anyone_can_pay: bool = False) -> bytes:
         '''
         ZIP243
         https://github.com/zcash/zips/blob/master/zip-0243.rst
@@ -550,7 +645,7 @@ class SaplingTx(z.ZcashByteData):
 
         if not joinsplit:
             data += self.tx_ins[index].outpoint
-            data += script_code
+            data += cast(bytes, script_code)
             data += prevout_value
             data += self.tx_ins[index].sequence
 
@@ -559,7 +654,7 @@ class SaplingTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashSigHash' + bytes.fromhex('bb09b876'))  # Branch ID
 
-    def _hash_prevouts(self, anyone_can_pay):
+    def _hash_prevouts(self, anyone_can_pay: bool) -> bytes:
         if anyone_can_pay:
             return b'\x00' * 32
 
@@ -571,7 +666,7 @@ class SaplingTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashPrevoutHash')
 
-    def _hash_sequence(self, sighash_type, anyone_can_pay):
+    def _hash_sequence(self, sighash_type: int, anyone_can_pay: bool) -> bytes:
         if anyone_can_pay or sighash_type == shared.SIGHASH_SINGLE:
             return b'\x00' * 32
 
@@ -584,7 +679,7 @@ class SaplingTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashSequencHash')
 
-    def _hash_outputs(self, sighash_type, index):
+    def _hash_outputs(self, sighash_type: int, index: int) -> bytes:
         if sighash_type not in [shared.SIGHASH_ALL, shared.SIGHASH_SINGLE]:
             return b'\x00' * 32
 
@@ -605,7 +700,7 @@ class SaplingTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashOutputsHash')
 
-    def _hash_joinsplits(self):
+    def _hash_joinsplits(self) -> bytes:
         if len(self.tx_joinsplits) == 0:
             return b'\x00' * 32
 
@@ -614,14 +709,14 @@ class SaplingTx(z.ZcashByteData):
         for joinsplit in self.tx_joinsplits:
             data += joinsplit
 
-        data += self.joinsplit_pubkey
+        data += cast(bytes, self.joinsplit_pubkey)
 
         return utils.blake2b(
             data=data.to_bytes(),
             digest_size=32,
             person=b'ZcashJSplitsHash')
 
-    def _hash_shielded_spends(self):
+    def _hash_shielded_spends(self) -> bytes:
         if len(self.tx_shielded_spends) == 0:
             return b'\x00' * 32
 
@@ -635,7 +730,7 @@ class SaplingTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashSSpendsHash')
 
-    def _hash_shielded_outputs(self):
+    def _hash_shielded_outputs(self) -> bytes:
         if len(self.tx_shielded_outputs) == 0:
             return b'\x00' * 32
 
