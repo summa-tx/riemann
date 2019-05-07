@@ -1,7 +1,7 @@
 import riemann
 from riemann import utils
 
-from typing import Optional, Union
+from typing import Any, Optional, Union
 Byteslike = Union[bytes, bytearray, 'ByteData']
 
 SIGHASH_ALL = 0x01
@@ -115,7 +115,7 @@ class ByteData():
         return self._bytes.find(substring)
 
     @staticmethod
-    def validate_bytes(data: Byteslike, length: Optional[int] = 4):
+    def validate_bytes(data: Any, length: Optional[int] = 4):
         '''
         Raises ValueError if data is not bytes.
         Raises ValueError if len(data) is not length.

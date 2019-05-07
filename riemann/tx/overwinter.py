@@ -4,11 +4,33 @@ from riemann.tx import shared
 from riemann.tx.tx import TxIn, TxOut
 from riemann.tx import zcash_shared as z
 
+from typing import cast, Optional, Sequence, Tuple
+
 
 class OverwinterTx(z.ZcashByteData):
 
-    def __init__(self, tx_ins, tx_outs, lock_time, expiry_height,
-                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+    tx_ins: Tuple[TxIn, ...]
+    tx_outs: Tuple[TxOut, ...]
+    lock_time: bytes
+    expiry_height: bytes
+    tx_joinsplits: Tuple[z.SproutJoinsplit, ...]
+    joinsplit_pubkey: Optional[bytes]
+    joinsplit_sig: Optional[bytes]
+    header: bytes
+    group_id: bytes
+    hsigs: Tuple[bytes, ...]
+    primary_inputs: Tuple[bytes, ...]
+    tx_id_le: bytes
+    tx_id: bytes
+
+    def __init__(self,
+                 tx_ins: Sequence[TxIn],
+                 tx_outs: Sequence[TxOut],
+                 lock_time: bytes,
+                 expiry_height: bytes,
+                 tx_joinsplits: Sequence[z.SproutJoinsplit],
+                 joinsplit_pubkey: Optional[bytes],
+                 joinsplit_sig: Optional[bytes]):
         super().__init__()
 
         if 'overwinter' not in riemann.get_current_network_name():
@@ -69,8 +91,8 @@ class OverwinterTx(z.ZcashByteData):
         if len(tx_joinsplits) != 0:
             for tx_joinsplit in tx_joinsplits:
                 self += tx_joinsplit
-            self += joinsplit_pubkey
-            self += joinsplit_sig
+            self += cast(bytes, joinsplit_pubkey)
+            self += cast(bytes, joinsplit_sig)
 
         self.header = b'\x03\x00\x00\x80'
         self.group_id = b'\x70\x82\xc4\x03'
@@ -106,7 +128,7 @@ class OverwinterTx(z.ZcashByteData):
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
-    def calculate_fee(self, input_values):
+    def calculate_fee(self, input_values: Sequence[int]) -> int:
         '''
         Tx, list(int) -> int
         '''
@@ -117,9 +139,14 @@ class OverwinterTx(z.ZcashByteData):
             total_out += utils.le2i(js.vpub_old)
         return total_in - total_out
 
-    def copy(self, tx_ins=None, tx_outs=None, lock_time=None,
-             expiry_height=None, tx_joinsplits=None, joinsplit_pubkey=None,
-             joinsplit_sig=None):
+    def copy(self,
+             tx_ins: Optional[Sequence[TxIn]] = None,
+             tx_outs: Optional[Sequence[TxOut]] = None,
+             lock_time: Optional[bytes] = None,
+             expiry_height: Optional[bytes] = None,
+             tx_joinsplits: Optional[Sequence[z.SproutJoinsplit]] = None,
+             joinsplit_pubkey: Optional[bytes] = None,
+             joinsplit_sig: Optional[bytes] = None) -> 'OverwinterTx':
         '''
         OverwinterTx, ... -> OverwinterTx
 
@@ -139,23 +166,23 @@ class OverwinterTx(z.ZcashByteData):
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
 
-    def _hsig(self, index):
+    def _hsig(self, index: int) -> bytes:
         return utils.blake2b(
             data=self._hsig_input(index),
             digest_size=32,
             person=b'ZcashComputehSig')
 
-    def _hsig_input(self, index):
+    def _hsig_input(self, index: int) -> bytes:
         '''
         inputs for the hsig hash
         '''
         hsig_input = z.ZcashByteData()
         hsig_input += self.tx_joinsplits[index].random_seed
         hsig_input += self.tx_joinsplits[index].nullifiers
-        hsig_input += self.joinsplit_pubkey
+        hsig_input += cast(bytes, self.joinsplit_pubkey)
         return hsig_input.to_bytes()
 
-    def _primary_input(self, index):
+    def _primary_input(self, index: int) -> bytes:
         '''
         Primary input for the zkproof
         '''
@@ -170,7 +197,7 @@ class OverwinterTx(z.ZcashByteData):
         return primary_input.to_bytes()
 
     @classmethod
-    def from_bytes(OverwinterTx, byte_string):
+    def from_bytes(OverwinterTx, byte_string: bytes) -> 'OverwinterTx':
         '''
         byte-like -> OverwinterTx
         '''
@@ -208,6 +235,7 @@ class OverwinterTx(z.ZcashByteData):
         expiry_height = byte_string[current:current + 4]
         current += 4
 
+        tx_joinsplits: Sequence[z.SproutJoinsplit]
         if current == len(byte_string):
             # No joinsplits
             tx_joinsplits = tuple()
@@ -236,17 +264,22 @@ class OverwinterTx(z.ZcashByteData):
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
 
-    def is_witness(self):
+    def is_witness(self) -> bool:
         return False
 
-    def sighash_all(self, anyone_can_pay=False, **kwargs):
+    def sighash_all(self, anyone_can_pay: bool = False, **kwargs) -> bytes:
         return self.sighash(sighash_type=shared.SIGHASH_ALL, **kwargs)
 
-    def sighash_single(self, anyone_can_pay=False, **kwargs):
+    def sighash_single(self, anyone_can_pay: bool = False, **kwargs) -> bytes:
         return self.sighash(sighash_type=shared.SIGHASH_SINGLE, **kwargs)
 
-    def sighash(self, sighash_type, index=0, joinsplit=False, script_code=None,
-                anyone_can_pay=False, prevout_value=None):
+    def sighash(self,
+                sighash_type: int,
+                prevout_value: bytes,
+                script_code: bytes,
+                index: int = 0,
+                joinsplit: bool = False,
+                anyone_can_pay: bool = False) -> bytes:
         '''
         ZIP143
         https://github.com/zcash/zips/blob/master/zip-0143.rst
@@ -282,7 +315,7 @@ class OverwinterTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashSigHash' + bytes.fromhex('191ba85b'))  # Branch ID
 
-    def _hash_prevouts(self, anyone_can_pay):
+    def _hash_prevouts(self, anyone_can_pay: bool) -> bytes:
         if anyone_can_pay:
             return b'\x00' * 32
 
@@ -295,7 +328,7 @@ class OverwinterTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashPrevoutHash')
 
-    def _hash_sequence(self, sighash_type, anyone_can_pay):
+    def _hash_sequence(self, sighash_type: int, anyone_can_pay: bool) -> bytes:
         if anyone_can_pay or sighash_type == shared.SIGHASH_SINGLE:
             return b'\x00' * 32
 
@@ -308,7 +341,7 @@ class OverwinterTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashSequencHash')
 
-    def _hash_outputs(self, sighash_type, index):
+    def _hash_outputs(self, sighash_type: int, index: int) -> bytes:
         if sighash_type not in [shared.SIGHASH_ALL, shared.SIGHASH_SINGLE]:
             return b'\x00' * 32
 
@@ -329,7 +362,7 @@ class OverwinterTx(z.ZcashByteData):
             digest_size=32,
             person=b'ZcashOutputsHash')
 
-    def _hash_joinsplits(self):
+    def _hash_joinsplits(self) -> bytes:
         if len(self.tx_joinsplits) == 0:
             return b'\x00' * 32
 
@@ -338,7 +371,7 @@ class OverwinterTx(z.ZcashByteData):
         for joinsplit in self.tx_joinsplits:
             data += joinsplit
 
-        data += self.joinsplit_pubkey
+        data += cast(bytes, self.joinsplit_pubkey)
 
         return utils.blake2b(
             data=data.to_bytes(),

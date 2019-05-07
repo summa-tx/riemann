@@ -180,10 +180,10 @@ class TestSproutTx(SproutTestCase):
         t = tx.SproutTx(**self.tx)
         self.assertEqual(
             t.tx_id_le,
-            '1add6cdbe72ede27cd3b6cd85f45d02081b9d57f173090df80648cdb927eb167')
+            bytes.fromhex('1add6cdbe72ede27cd3b6cd85f45d02081b9d57f173090df80648cdb927eb167'))  # noqa: E501
         self.assertEqual(
             t.tx_id,
-            '67b17e92db8c6480df9030177fd5b98120d0455fd86c3bcd27de2ee7db6cdd1a')
+            bytes.fromhex('67b17e92db8c6480df9030177fd5b98120d0455fd86c3bcd27de2ee7db6cdd1a'))  # noqa: E501
 
     def test_from_bytes_with_tx_in(self):
         # This is a bit hard to read
@@ -214,7 +214,8 @@ class TestSproutTx(SproutTestCase):
 
     def test_print_sighash(self):
         t = tx.SproutTx(**self.tx)
-        print('SproutTx Test Sighash:', t.sighash_all())
+        print('SproutTx Test Sighash:',
+              t.sighash_all(index=0, script=b'\x0100'))
 
     def test_calculate_fee(self):
         t = tx.SproutTx(**self.tx)

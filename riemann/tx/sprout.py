@@ -4,11 +4,31 @@ from riemann.tx import shared
 from riemann.tx.tx import TxIn, TxOut
 from riemann.tx import zcash_shared as z
 
+from typing import cast, Optional, Sequence, Tuple
+
 
 class SproutTx(z.ZcashByteData):
 
-    def __init__(self, version, tx_ins, tx_outs, lock_time,
-                 tx_joinsplits, joinsplit_pubkey, joinsplit_sig):
+    tx_ins: Tuple[TxIn, ...]
+    tx_outs: Tuple[TxOut, ...]
+    lock_time: bytes
+    tx_joinsplits: Tuple[z.SproutJoinsplit, ...]
+    joinsplit_pubkey: Optional[bytes]
+    joinsplit_sig: Optional[bytes]
+    version: bytes
+    hsigs: Tuple[bytes, ...]
+    primary_inputs: Tuple[bytes, ...]
+    tx_id_le: bytes
+    tx_id: bytes
+
+    def __init__(self,
+                 version: bytes,
+                 tx_ins: Sequence[TxIn],
+                 tx_outs: Sequence[TxOut],
+                 lock_time: bytes,
+                 tx_joinsplits: Sequence[z.SproutJoinsplit],
+                 joinsplit_pubkey: Optional[bytes],
+                 joinsplit_sig: Optional[bytes]):
 
         super().__init__()
 
@@ -70,8 +90,8 @@ class SproutTx(z.ZcashByteData):
             self += shared.VarInt(len(tx_joinsplits))
             for tx_joinsplit in tx_joinsplits:
                 self += tx_joinsplit
-            self += joinsplit_pubkey
-            self += joinsplit_sig
+            self += cast(bytes, joinsplit_pubkey)
+            self += cast(bytes, joinsplit_sig)
 
         self.version = version
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
@@ -90,11 +110,11 @@ class SproutTx(z.ZcashByteData):
         else:
             self.joinsplit_pubkey = None
             self.joinsplit_sig = None
-            self.hsigs = None
-            self.primary_inputs = None
+            self.hsigs = tuple()
+            self.primary_inputs = tuple()
 
-        self.tx_id_le = utils.hash256(self.to_bytes()).hex()
-        self.tx_id = utils.hash256(self.to_bytes())[::-1].hex()
+        self.tx_id_le = utils.hash256(self.to_bytes())
+        self.tx_id = utils.hash256(self.to_bytes())[::-1]
 
         self._make_immutable()
 
@@ -103,23 +123,23 @@ class SproutTx(z.ZcashByteData):
                 'Tx is too large. '
                 'Expect less than 100kB. Got: {} bytes'.format(len(self)))
 
-    def _hsig(self, index):
+    def _hsig(self, index: int) -> bytes:
         return utils.blake2b(
             data=self._hsig_input(index),
             digest_size=32,
             person=b'ZcashComputehSig')
 
-    def _hsig_input(self, index):
+    def _hsig_input(self, index: int) -> bytes:
         '''
         inputs for the hsig hash
         '''
         hsig_input = z.ZcashByteData()
         hsig_input += self.tx_joinsplits[index].random_seed
         hsig_input += self.tx_joinsplits[index].nullifiers
-        hsig_input += self.joinsplit_pubkey
+        hsig_input += cast(bytes, self.joinsplit_pubkey)
         return hsig_input.to_bytes()
 
-    def _primary_input(self, index):
+    def _primary_input(self, index: int) -> bytes:
         '''
         Primary input for the zkproof
         '''
@@ -134,7 +154,7 @@ class SproutTx(z.ZcashByteData):
         return primary_input.to_bytes()
 
     @classmethod
-    def from_bytes(SproutTx, byte_string):
+    def from_bytes(SproutTx, byte_string: bytes) -> 'SproutTx':
         '''
         byte-like -> SproutTx
         '''
@@ -185,7 +205,7 @@ class SproutTx(z.ZcashByteData):
             joinsplit_pubkey=joinsplit_pubkey,
             joinsplit_sig=joinsplit_sig)
 
-    def calculate_fee(self, input_values):
+    def calculate_fee(self, input_values: Sequence[int]) -> int:
         '''
         Tx, list(int) -> int
         '''
@@ -196,10 +216,16 @@ class SproutTx(z.ZcashByteData):
             total_out += utils.le2i(js.vpub_old)
         return total_in - total_out
 
-    def copy(self, version=None, tx_ins=None, tx_outs=None, lock_time=None,
-             tx_joinsplits=None, joinsplit_pubkey=None, joinsplit_sig=None):
+    def copy(self,
+             version: Optional[bytes] = None,
+             tx_ins: Optional[Sequence[TxIn]] = None,
+             tx_outs: Optional[Sequence[TxOut]] = None,
+             lock_time: Optional[bytes] = None,
+             tx_joinsplits: Optional[Sequence[z.SproutJoinsplit]] = None,
+             joinsplit_pubkey: Optional[bytes] = None,
+             joinsplit_sig: Optional[bytes] = None) -> 'SproutTx':
         '''
-        SproutTx, ... -> Tx
+        SproutTx, ... -> SproutTx
 
         Makes a copy. Allows over-writing specific pieces.
         '''
@@ -216,7 +242,7 @@ class SproutTx(z.ZcashByteData):
             joinsplit_sig=(joinsplit_sig if joinsplit_sig is not None
                            else self.joinsplit_sig))
 
-    def _sighash_prep(self, index, script):
+    def _sighash_prep(self, index: int, script: bytes) -> 'SproutTx':
         '''
         SproutTx, int, byte-like -> SproutTx
         Sighashes suck
@@ -234,26 +260,22 @@ class SproutTx(z.ZcashByteData):
 
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
+        to_strip = shared.VarInt.from_bytes(script)
         copy_tx_ins[index] = \
-            copy_tx_ins[index].copy(stack_script=b'', redeem_script=script)
+            copy_tx_ins[index].copy(redeem_script=script[len(to_strip):])
 
         return self.copy(tx_ins=copy_tx_ins, joinsplit_sig=b'')
 
-    def sighash_all(self, index=0, script=None,
-                    prevout_value=None, anyone_can_pay=False):
+    def sighash_all(self,
+                    index: int,
+                    script: bytes,
+                    anyone_can_pay: bool = False):
         '''
         SproutTx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
         Generates the hash to be signed with SIGHASH_ALL
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
         '''
-
-        if riemann.network.FORKID is not None:
-            return self._sighash_forkid(index=index,
-                                        script=script,
-                                        prevout_value=prevout_value,
-                                        sighash_type=shared.SIGHASH_ALL,
-                                        anyone_can_pay=anyone_can_pay)
 
         copy_tx = self._sighash_prep(index=index, script=script)
         if anyone_can_pay:
@@ -262,8 +284,10 @@ class SproutTx(z.ZcashByteData):
 
         return self._sighash_final_hashing(copy_tx, shared.SIGHASH_ALL)
 
-    def sighash_single(self, index=0, script=None,
-                       prevout_value=None, anyone_can_pay=False):
+    def sighash_single(self,
+                       index: int,
+                       script: bytes,
+                       anyone_can_pay: bool = False):
         '''
         SproutTx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
@@ -279,13 +303,6 @@ class SproutTx(z.ZcashByteData):
         if index >= len(self.tx_outs):
             raise NotImplementedError(
                 'I refuse to implement the SIGHASH_SINGLE bug.')
-
-        if riemann.network.FORKID is not None:
-            return self._sighash_forkid(index=index,
-                                        script=script,
-                                        prevout_value=prevout_value,
-                                        sighash_type=shared.SIGHASH_SINGLE,
-                                        anyone_can_pay=anyone_can_pay)
 
         copy_tx = self._sighash_prep(index=index, script=script)
 
@@ -311,7 +328,11 @@ class SproutTx(z.ZcashByteData):
 
         return self._sighash_final_hashing(copy_tx, shared.SIGHASH_SINGLE)
 
-    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
+    def _sighash_anyone_can_pay(
+            self,
+            index: int,
+            copy_tx: 'SproutTx',
+            sighash_type: int) -> bytes:
         '''
         int, SproutTx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
@@ -331,7 +352,10 @@ class SproutTx(z.ZcashByteData):
         return self._sighash_final_hashing(
             copy_tx, sighash_type | shared.SIGHASH_ANYONECANPAY)
 
-    def _sighash_final_hashing(self, copy_tx, sighash_type):
+    def _sighash_final_hashing(
+            self,
+            copy_tx: 'SproutTx',
+            sighash_type: int) -> bytes:
         '''
         SproutTx, int -> bytes
         Returns the hash that should be signed

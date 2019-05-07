@@ -330,8 +330,8 @@ class SaplingTx(z.ZcashByteData):
                     .format(type(tx_joinsplit).__name__))
 
         if len(tx_joinsplits) != 0:
-            self.validate_bytes(cast(bytes, joinsplit_pubkey), 32)
-            self.validate_bytes(cast(bytes, joinsplit_sig), 64)
+            self.validate_bytes(joinsplit_pubkey, 32)
+            self.validate_bytes(joinsplit_sig, 64)
 
         if len(tx_joinsplits) + len(tx_ins) + len(tx_shielded_spends) == 0:
             raise ValueError('Transaction must have some input value.')
