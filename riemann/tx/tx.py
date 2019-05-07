@@ -4,13 +4,15 @@ from riemann.tx import shared
 from riemann.script import serialization
 from riemann.tx.shared import ByteData, VarInt
 
+from typing import List, Optional, overload, Sequence, Tuple
+
 
 class Outpoint(ByteData):
     '''
     NB: Args must be little-endian
     '''
 
-    def __init__(self, tx_id, index):
+    def __init__(self, tx_id: bytes, index: bytes):
         super().__init__()
 
         self.validate_bytes(tx_id, 32)
@@ -24,13 +26,15 @@ class Outpoint(ByteData):
 
         self._make_immutable()
 
-    def copy(self, tx_id=None, index=None):
+    def copy(self,
+             tx_id: Optional[bytes] = None,
+             index: Optional[bytes] = None) -> 'Outpoint':
         return Outpoint(
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index)
 
     @classmethod
-    def from_bytes(Outpoint, byte_string):
+    def from_bytes(Outpoint, byte_string: bytes) -> 'Outpoint':
         '''
         bytes -> Outpoint
         '''
@@ -46,7 +50,16 @@ class TxIn(ByteData):
     NB: sequence must be little-endian
     '''
 
-    def __init__(self, outpoint, stack_script, redeem_script, sequence):
+    outpoint: Outpoint
+    stack_script: bytes
+    redeem_script: bytes
+    sequence: bytes
+
+    def __init__(self,
+                 outpoint: Outpoint,
+                 stack_script: bytes,
+                 redeem_script: bytes,
+                 sequence: bytes):
         super().__init__()
 
         self.validate_bytes(outpoint, 36)
@@ -66,7 +79,6 @@ class TxIn(ByteData):
         self += sequence
 
         self.outpoint = outpoint
-        self.script_len = len(stack_script + redeem_script)
         self.stack_script = stack_script
         self.redeem_script = redeem_script
         self.script_sig = self.stack_script + self.redeem_script
@@ -74,11 +86,12 @@ class TxIn(ByteData):
 
         self._make_immutable()
 
-    def copy(self, outpoint=None, stack_script=None,
-             redeem_script=None, sequence=None):
-        '''
-        TxIn -> TxIn
-        '''
+    def copy(self,
+             outpoint: Optional[Outpoint] = None,
+             stack_script: Optional[bytes] = None,
+             redeem_script: Optional[bytes] = None,
+             sequence: Optional[bytes] = None) -> 'TxIn':
+        '''Make a copy with modifications'''
         return TxIn(
             outpoint=outpoint if outpoint is not None else self.outpoint,
             stack_script=(stack_script if stack_script is not None
@@ -87,11 +100,11 @@ class TxIn(ByteData):
                            else self.redeem_script),
             sequence=sequence if sequence is not None else self.sequence)
 
-    def is_p2sh(self):
+    def is_p2sh(self) -> bool:
         return self.redeem_script != b''
 
-    @classmethod
-    def _parse_script_sig(TxIn, script_sig):
+    @staticmethod
+    def _parse_script_sig(script_sig: bytes) -> Tuple[bytes, bytes]:
         '''
         byte_string -> (byte_string, byte_string)
         '''
@@ -110,11 +123,10 @@ class TxIn(ByteData):
             redeem_script = serialization.serialize(items[-1])
         except (IndexError, ValueError, NotImplementedError):
             pass
-
         return stack_script, redeem_script
 
     @classmethod
-    def from_bytes(TxIn, byte_string):
+    def from_bytes(TxIn, byte_string: bytes) -> 'TxIn':
         '''
         byte_string -> TxIn
         parses a TxIn from a byte-like object
@@ -144,7 +156,10 @@ class TxOut(ByteData):
     NB: value must be little-endian
     '''
 
-    def __init__(self, value, output_script):
+    value: bytes
+    output_script: bytes
+
+    def __init__(self, value: bytes, output_script: bytes):
         super().__init__()
 
         self.validate_bytes(value, 8)
@@ -155,19 +170,20 @@ class TxOut(ByteData):
         self += output_script
 
         self.value = value
-        self.output_script_len = len(output_script)
         self.output_script = output_script
 
         self._make_immutable()
 
-    def copy(self, value=None, output_script=None):
+    def copy(self,
+             value: Optional[bytes] = None,
+             output_script: Optional[bytes] = None) -> 'TxOut':
         return TxOut(
             value=value if value is not None else self.value,
             output_script=(output_script if output_script is not None
                            else self.output_script))
 
     @classmethod
-    def from_bytes(TxOut, byte_string):
+    def from_bytes(TxOut, byte_string: bytes) -> 'TxOut':
         n = VarInt.from_bytes(byte_string[8:])
         script_start = 8 + len(n)
         script_end = script_start + n.number
@@ -182,25 +198,20 @@ class TxOut(ByteData):
 
 class WitnessStackItem(ByteData):
 
-    def __init__(self, item):
+    def __init__(self, item: bytes):
         super().__init__()
 
         self.validate_bytes(item, None)
-        # if len(item) > 520:
-        #     print(item.hex())
-        #     raise ValueError(
-        #         'Item is too large. Expected <=520 bytes. '
-        #         'Got: {} bytes'.format(len(item)))
+
         self += VarInt(len(item))
         self += item
 
-        self.item_len = len(item)
         self.item = item
 
         self._make_immutable()
 
     @classmethod
-    def from_bytes(WitnessStackItem, byte_string):
+    def from_bytes(WitnessStackItem, byte_string: bytes) -> 'WitnessStackItem':
         n = VarInt.from_bytes(byte_string)
         item_start = len(n)
         item_end = item_start + n.number
@@ -209,7 +220,9 @@ class WitnessStackItem(ByteData):
 
 class InputWitness(ByteData):
 
-    def __init__(self, stack):
+    stack: Tuple[WitnessStackItem, ...]
+
+    def __init__(self, stack: Sequence[WitnessStackItem]):
         '''
         list(WitnessStackItem) -> InputWitness
         '''
@@ -225,23 +238,23 @@ class InputWitness(ByteData):
         for item in stack:
             self += item
 
-        self.stack_len = len(stack)
-        self.stack = [item for item in stack]
+        self.stack = tuple(item for item in stack)
 
         self._make_immutable()
 
     @classmethod
-    def from_bytes(InputWitness, byte_string):
+    def from_bytes(InputWitness, byte_string: bytes) -> 'InputWitness':
         stack_items = VarInt.from_bytes(byte_string)
         item_start = len(stack_items)
-        items = []
+        items: List[WitnessStackItem] = []
         while len(items) < stack_items.number:
             item = WitnessStackItem.from_bytes(byte_string[item_start:])
             item_start += len(item)
             items.append(item)
         return InputWitness(items)
 
-    def copy(self, stack=None):
+    def copy(self,
+             stack: Optional[List[WitnessStackItem]] = None) -> 'InputWitness':
         return InputWitness(
             stack=stack if stack is not None else self.stack)
 
@@ -253,8 +266,24 @@ class Tx(ByteData):
     NB: version, lock_time must be little-endian
     '''
 
-    def __init__(self, version, flag, tx_ins,
-                 tx_outs, tx_witnesses, lock_time):
+    version: bytes
+    flag: Optional[bytes]
+    tx_ins: Tuple[TxIn, ...]
+    tx_outs: Tuple[TxOut, ...]
+    tx_witnesses: Optional[Tuple[InputWitness, ...]]
+    lock_time: bytes
+    tx_id_le: bytes
+    wtx_id_le: Optional[bytes]
+    tx_id: bytes
+    wtx_id: Optional[bytes]
+
+    def __init__(self,
+                 version: bytes,
+                 flag: Optional[bytes],
+                 tx_ins: Sequence[TxIn],
+                 tx_outs: Sequence[TxOut],
+                 tx_witnesses: Optional[Sequence[InputWitness]],
+                 lock_time: bytes):
 
         super().__init__()
 
@@ -268,7 +297,7 @@ class Tx(ByteData):
                     'Expected None or {}. Got: {}'
                     .format(riemann.network.SEGWIT_TX_FLAG, flag))
 
-        if tx_witnesses is not None:
+        if tx_witnesses is not None and len(tx_witnesses) != 0:
             if flag is None:
                 raise ValueError('Got witnesses but no segwit flag.')
             if len(tx_witnesses) != len(tx_ins):
@@ -316,11 +345,8 @@ class Tx(ByteData):
 
         self.version = version
         self.flag = flag
-        self.tx_ins_len = len(tx_ins)
         self.tx_ins = tuple(tx_in for tx_in in tx_ins)
-        self.tx_outs_len = len(tx_outs)
         self.tx_outs = tuple(tx_out for tx_out in tx_outs)
-        self.tx_witnesses_len = self.tx_ins_len
         self.tx_witnesses = \
             tuple(wit for wit in tx_witnesses) if tx_witnesses is not None \
             else None
@@ -341,11 +367,11 @@ class Tx(ByteData):
         self._make_immutable()
 
     @classmethod
-    def from_hex(Tx, hex_string):
+    def from_hex(Tx, hex_string: str) -> 'Tx':
         return Tx.from_bytes(bytes.fromhex(hex_string))
 
     @classmethod
-    def from_bytes(Tx, byte_string):
+    def from_bytes(Tx, byte_string: bytes) -> 'Tx':
         version = byte_string[0:4]
         if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:
             tx_ins_num_loc = 6
@@ -371,15 +397,13 @@ class Tx(ByteData):
             current += len(tx_out)
             tx_outs.append(tx_out)
 
+        tx_witnesses: List[InputWitness] = []
         if flag and len(byte_string[current:]) > 4:
-            tx_witnesses = []
             tx_witnesses_num = tx_ins_num
             for _ in range(tx_witnesses_num.number):
                 tx_witness = InputWitness.from_bytes(byte_string[current:])
                 current += len(tx_witness)
                 tx_witnesses.append(tx_witness)
-        else:
-            tx_witnesses = None
 
         lock_time = byte_string[current:current + 4]
         return Tx(
@@ -390,7 +414,7 @@ class Tx(ByteData):
             tx_witnesses=tx_witnesses,
             lock_time=lock_time)
 
-    def no_witness(self):
+    def no_witness(self) -> bytes:
         '''
         Tx -> bytes
         '''
@@ -403,12 +427,12 @@ class Tx(ByteData):
         for tx_out in self.tx_outs:
             tx += tx_out.to_bytes()
         tx += self.lock_time
-        return bytes(tx)
+        return tx
 
-    def is_witness(self):
+    def is_witness(self) -> bool:
         return self.flag is not None or self.tx_witnesses is not None
 
-    def calculate_fee(self, input_values):
+    def calculate_fee(self, input_values: Sequence[int]) -> int:
         '''
         Tx, list(int) -> int
         Inputs don't know their value without the whole chain.
@@ -417,11 +441,16 @@ class Tx(ByteData):
             sum(input_values) \
             - sum([utils.le2i(o.value) for o in self.tx_outs])
 
-    def sighash_none(self):
+    def sighash_none(self) -> bytes:
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
-    def copy(self, version=None, flag=None, tx_ins=None,
-             tx_outs=None, tx_witnesses=None, lock_time=None):
+    def copy(self,
+             version: Optional[bytes] = None,
+             flag: Optional[bytes] = None,
+             tx_ins: Optional[Sequence[TxIn]] = None,
+             tx_outs: Optional[Sequence[TxOut]] = None,
+             tx_witnesses: Optional[Sequence[InputWitness]] = None,
+             lock_time: Optional[bytes] = None) -> 'Tx':
         '''
         Tx, byte-like, byte-like, list(TxIn),
         list(TxOut), list(InputWitness), byte-like -> Tx
@@ -437,9 +466,8 @@ class Tx(ByteData):
                   lock_time=(lock_time if lock_time is not None
                              else self.lock_time))
 
-    def _sighash_prep(self, index, script):
+    def _sighash_prep(self, index: int, script: Optional[bytes]) -> 'Tx':
         '''
-        Tx, int, byte-like -> Tx
         Sighashes suck
         Performs the sighash setup described here:
         https://en.bitcoin.it/wiki/OP_CHECKSIG#How_it_works
@@ -452,13 +480,32 @@ class Tx(ByteData):
 
         # NB: The script for the current transaction input in txCopy is set to
         #     subScript (lead in by its length as a var-integer encoded!)
+        to_strip = VarInt.from_bytes(script)
         copy_tx_ins[index] = \
-            copy_tx_ins[index].copy(stack_script=b'', redeem_script=script)
+            copy_tx_ins[index].copy(redeem_script=script[len(to_strip):])
 
         return self.copy(tx_ins=copy_tx_ins)
 
-    def sighash_all(self, index, script=None,
-                    prevout_value=None, anyone_can_pay=False):
+    @overload
+    def sighash_all(self,
+                    index: int,
+                    script: Optional[bytes],
+                    prevout_value: bytes,
+                    anyone_can_pay: bool) -> bytes:
+        ...
+
+    @overload  # noqa: F811
+    def sighash_all(self,
+                    index: int,
+                    script: Optional[bytes],
+                    anyone_can_pay: bool) -> bytes:
+        ...
+
+    def sighash_all(self,  # noqa: F811
+                    index,
+                    script=None,
+                    prevout_value=None,
+                    anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
@@ -488,8 +535,26 @@ class Tx(ByteData):
 
         return self._sighash_final_hashing(copy_tx, shared.SIGHASH_ALL)
 
-    def sighash_single(self, index, script=None,
-                       prevout_value=None, anyone_can_pay=False):
+    @overload
+    def sighash_single(self,
+                       index: int,
+                       script: bytes,
+                       prevout_value: bytes,
+                       anyone_can_pay: bool) -> bytes:
+        ...
+
+    @overload  # noqa: F811
+    def sighash_single(self,
+                       index: int,
+                       script: bytes,
+                       anyone_can_pay: bool) -> bytes:
+        ...
+
+    def sighash_single(self,  # noqa: F811
+                       index,
+                       script,
+                       prevout_value=None,
+                       anyone_can_pay=False):
         '''
         Tx, int, byte-like, byte-like, bool -> bytearray
         Sighashes suck
@@ -522,7 +587,7 @@ class Tx(ByteData):
 
         # Remove outputs after the one we're signing
         # Other tx_outs are set to -1 value and null scripts
-        copy_tx_outs = copy_tx.tx_outs[:index + 1]
+        copy_tx_outs = list(copy_tx.tx_outs[:index + 1])
         copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
                         for _ in copy_tx.tx_ins]  # Null them all
         copy_tx_outs[index] = copy_tx.tx_outs[index]  # Fix the current one
@@ -542,8 +607,12 @@ class Tx(ByteData):
 
         return self._sighash_final_hashing(copy_tx, shared.SIGHASH_SINGLE)
 
-    def segwit_sighash(self, index, script, prevout_value=None,
-                       sighash_type=None, anyone_can_pay=False):
+    def segwit_sighash(self,
+                       index: int,
+                       sighash_type: int,
+                       prevout_value: bytes,
+                       script: bytes,
+                       anyone_can_pay: bool = False) -> bytes:
         '''
         this function sets up sighash in BIP143 style
         https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
@@ -565,7 +634,7 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        data += self._adjusted_script_code(script=script)
+        data += script
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value
@@ -585,7 +654,11 @@ class Tx(ByteData):
 
         return utils.hash256(data.to_bytes())
 
-    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
+    def _sighash_anyone_can_pay(
+            self,
+            index: int,
+            copy_tx: 'Tx',
+            sighash_type: int) -> bytes:
         '''
         int, byte-like, Tx, int -> bytes
         Applies SIGHASH_ANYONECANPAY procedure.
@@ -601,7 +674,10 @@ class Tx(ByteData):
         return self._sighash_final_hashing(
             copy_tx, sighash_type | shared.SIGHASH_ANYONECANPAY)
 
-    def _sighash_final_hashing(self, copy_tx, sighash_type):
+    def _sighash_final_hashing(
+            self,
+            copy_tx: 'Tx',
+            sighash_type: int) -> bytes:
         '''
         Tx, int -> bytes
         Returns the hash that should be signed
@@ -613,7 +689,7 @@ class Tx(ByteData):
 
         return utils.hash256(sighash.to_bytes())
 
-    def _hash_prevouts(self, anyone_can_pay):
+    def _hash_prevouts(self, anyone_can_pay: bool) -> bytes:
         if anyone_can_pay:
             # If the ANYONECANPAY flag is set,
             # hashPrevouts is a uint256 of 0x0000......0000.
@@ -626,7 +702,7 @@ class Tx(ByteData):
             hash_prevouts = utils.hash256(outpoints.to_bytes())
         return hash_prevouts
 
-    def _hash_sequence(self, sighash_type, anyone_can_pay):
+    def _hash_sequence(self, sighash_type: int, anyone_can_pay: bool) -> bytes:
         '''BIP143 hashSequence implementation
 
         Args:
@@ -646,26 +722,7 @@ class Tx(ByteData):
                 sequences += tx_in.sequence
             return utils.hash256(sequences.to_bytes())
 
-    def _adjusted_script_code(self, script):
-        '''
-        Checks if the script code pased in to the sighash function is already
-        length-prepended
-        This will break if there's a redeem script that's just a pushdata
-        That won't happen in practice
-
-        Args:
-            script (bytes): the spend script
-        Returns:
-            (bytes): the length-prepended script (if necessary)
-        '''
-        script_code = ByteData()
-        if script[0] == len(script) - 1:
-            return script
-        script_code += VarInt(len(script))
-        script_code += script
-        return script_code
-
-    def _hash_outputs(self, index, sighash_type):
+    def _hash_outputs(self, index: int, sighash_type: int) -> bytes:
         '''BIP143 hashOutputs implementation
 
         Args:
@@ -693,7 +750,8 @@ class Tx(ByteData):
             raise NotImplementedError(
                 'I refuse to implement the SIGHASH_SINGLE bug.')
 
-    def _forkid_sighash_adjustment(self, sighash_type, anyone_can_pay):
+    def _forkid_sighash_adjustment(
+            self, sighash_type: int, anyone_can_pay: bool) -> bytes:
         # The sighash type is altered to include a 24-bit fork id
         # ss << ((GetForkID() << 8) | nHashType)
         forkid = riemann.network.FORKID << 8
@@ -702,14 +760,22 @@ class Tx(ByteData):
             sighash = sighash | shared.SIGHASH_ANYONECANPAY
         return utils.i2le_padded(sighash, 4)
 
-    def _segwit_sighash_adjustment(self, sighash_type, anyone_can_pay):
+    def _segwit_sighash_adjustment(
+            self,
+            sighash_type: int,
+            anyone_can_pay: bool) -> bytes:
         # sighash type altered to include ANYONECANPAY
         if anyone_can_pay:
             sighash_type = sighash_type | shared.SIGHASH_ANYONECANPAY
         return utils.i2le_padded(sighash_type, 4)
 
-    def _sighash_forkid(self, index, script, prevout_value,
-                        sighash_type, anyone_can_pay=False):
+    def _sighash_forkid(
+            self,
+            index: int,
+            script: bytes,
+            prevout_value: bytes,
+            sighash_type: int,
+            anyone_can_pay: bool = False):
         '''
         Tx, int, byte-like, byte-like, int, bool -> bytes
         https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
@@ -732,7 +798,7 @@ class Tx(ByteData):
         data += self.tx_ins[index].outpoint
 
         # 5. scriptCode of the input (serialized as scripts inside CTxOuts)
-        data += self._adjusted_script_code(script=script)
+        data += script
 
         # 6. value of the output spent by this input (8-byte little endian)
         data += prevout_value

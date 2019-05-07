@@ -1,7 +1,8 @@
 import riemann
 from riemann import utils
 from riemann.tx import shared
-from riemann.tx.tx import TxOut
+
+from typing import List, Optional
 
 
 class DecredByteData(shared.ByteData):
@@ -15,6 +16,10 @@ class DecredByteData(shared.ByteData):
 
 
 class DecredOutpoint(DecredByteData):
+
+    tx_id: bytes
+    index: bytes
+    tree: bytes
 
     def __init__(self, tx_id: bytes, index: bytes, tree: bytes):
         super().__init__()
@@ -34,9 +39,9 @@ class DecredOutpoint(DecredByteData):
         self._make_immutable()
 
     def copy(self,
-             tx_id: bytes = None,
-             index: bytes = None,
-             tree: bytes = None):
+             tx_id: Optional[bytes] = None,
+             index: Optional[bytes] = None,
+             tree: Optional[bytes] = None):
         return DecredOutpoint(
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index,
@@ -52,7 +57,10 @@ class DecredOutpoint(DecredByteData):
 
 class DecredTxIn(DecredByteData):
 
-    def __init__(self, outpoint: bytes, sequence: bytes):
+    outpoint: DecredOutpoint
+    sequence: bytes
+
+    def __init__(self, outpoint: DecredOutpoint, sequence: bytes):
         super().__init__()
 
         self.validate_bytes(outpoint, 37)
@@ -66,13 +74,15 @@ class DecredTxIn(DecredByteData):
 
         self._make_immutable()
 
-    def copy(self, outpoint=None, sequence=None):
+    def copy(self,
+             outpoint: Optional[DecredOutpoint] = None,
+             sequence: Optional[bytes] = None) -> 'DecredTxIn':
         return DecredTxIn(
             outpoint=outpoint if outpoint is not None else self.outpoint,
             sequence=sequence if sequence is not None else self.sequence)
 
     @classmethod
-    def from_bytes(DecredTxIn, byte_string):
+    def from_bytes(DecredTxIn, byte_string: bytes) -> 'DecredTxIn':
         return DecredTxIn(
             outpoint=DecredOutpoint.from_bytes(byte_string[:37]),
             sequence=byte_string[37:41])
@@ -80,7 +90,11 @@ class DecredTxIn(DecredByteData):
 
 class DecredTxOut(DecredByteData):
 
-    def __init__(self, value, version, output_script):
+    value: bytes
+    version: bytes
+    output_script: bytes
+
+    def __init__(self, value: bytes, version: bytes, output_script: bytes):
         super().__init__()
 
         self.validate_bytes(value, 8)
@@ -99,7 +113,10 @@ class DecredTxOut(DecredByteData):
 
         self._make_immutable()
 
-    def copy(self, value=None, version=None, output_script=None):
+    def copy(self,
+             value: Optional[bytes] = None,
+             version: Optional[bytes] = None,
+             output_script: Optional[bytes] = None) -> 'DecredTxOut':
         return DecredTxOut(
             value=value if value is not None else self.value,
             version=version if version is not None else self.version,
@@ -107,7 +124,7 @@ class DecredTxOut(DecredByteData):
                            else self.output_script))
 
     @classmethod
-    def from_bytes(DecredTxOut, byte_string):
+    def from_bytes(DecredTxOut, byte_string: bytes) -> 'DecredTxOut':
         n = shared.VarInt.from_bytes(byte_string[10:])
         script_start = 10 + len(n)
         script_end = script_start + n.number
@@ -123,7 +140,18 @@ class DecredTxOut(DecredByteData):
 
 class DecredInputWitness(DecredByteData):
 
-    def __init__(self, value, height, index, stack_script, redeem_script):
+    value: bytes
+    height: bytes
+    index: bytes
+    stack_script: bytes
+    redeem_script: bytes
+
+    def __init__(self,
+                 value: bytes,
+                 height: bytes,
+                 index: bytes,
+                 stack_script: bytes,
+                 redeem_script: bytes):
         super().__init__()
 
         self.validate_bytes(value, 8)
@@ -149,8 +177,12 @@ class DecredInputWitness(DecredByteData):
 
         self._make_immutable()
 
-    def copy(self, value=None, height=None, index=None,
-             stack_script=None, redeem_script=None):
+    def copy(self,
+             value: Optional[bytes] = None,
+             height: Optional[bytes] = None,
+             index: Optional[bytes] = None,
+             stack_script: Optional[bytes] = None,
+             redeem_script: Optional[bytes] = None) -> 'DecredInputWitness':
         return DecredInputWitness(
             value=value if value is not None else self.value,
             height=height if height is not None else self.height,
@@ -161,14 +193,20 @@ class DecredInputWitness(DecredByteData):
                            else self.redeem_script))
 
     @classmethod
-    def from_bytes(DecredInputWitness, byte_string):
+    def from_bytes(DecredInputWitness,
+                   byte_string: bytes) -> 'DecredInputWitness':
         raise NotImplementedError('TODO')
 
 
 class DecredTx(DecredByteData):
 
-    def __init__(self, version, tx_ins, tx_outs,
-                 lock_time, expiry, tx_witnesses):
+    def __init__(self,
+                 version: bytes,
+                 tx_ins: List[DecredTxIn],
+                 tx_outs: List[DecredTxOut],
+                 lock_time: bytes,
+                 expiry: bytes,
+                 tx_witnesses: List[DecredInputWitness]):
         super().__init__()
 
         self.validate_bytes(version, 4)
@@ -177,12 +215,6 @@ class DecredTx(DecredByteData):
 
         if min(len(tx_ins), len(tx_outs)) == 0:
             raise ValueError('Too few inputs or outputs. Stop that.')
-
-        # if len(tx_witnesses) != len(tx_ins):
-        #     raise ValueError(
-        #         'Witness and TxIn lists must be same length. '
-        #         'Got {} inputs and {} witnesses.'
-        #         .format(len(tx_ins), len(tx_witnesses)))
 
         for tx_in in tx_ins:
             if not isinstance(tx_in, DecredTxIn):
@@ -234,7 +266,7 @@ class DecredTx(DecredByteData):
         self.tx_id_le = self.prefix_hash()
         self.tx_id = utils.change_endianness(self.tx_id_le)
 
-        # Ignoring this, as it's only used for in-block merkle trees
+        # Ignoring this for now, as it's only used for in-block merkle trees
         # self.tx_id_full_le = utils.blake256(self.tx_id_le
         #                                     + self.witness_hash())
         # self.tx_id_full = utils.change_endianness(self.tx_id_full_le)
@@ -242,22 +274,22 @@ class DecredTx(DecredByteData):
         self._make_immutable()
 
     @classmethod
-    def from_bytes(DecredTx, byte_string):
+    def from_bytes(DecredTx, byte_string: bytes) -> 'DecredTx':
         raise NotImplementedError('TODO')
 
-    def prefix_hash(self):
+    def prefix_hash(self) -> bytes:
         try:
             return self.tx_id_le  # Prevent redundant hashing
         except AttributeError:
             return utils.blake256(self.prefix())
 
-    def witness_hash(self):
+    def witness_hash(self) -> bytes:
         return utils.blake256(self.witness())
 
-    def witness_signing_hash(self):
+    def witness_signing_hash(self) -> bytes:
         return utils.blake256(self.witness_signing())
 
-    def prefix(self):
+    def prefix(self) -> bytes:
         data = DecredByteData()
         data += self.version[:2]
         data += b'\x01\x00'  # Serialization type 1 (prefix only)
@@ -271,7 +303,7 @@ class DecredTx(DecredByteData):
         data += self.expiry
         return data.to_bytes()
 
-    def witness(self):
+    def witness(self) -> bytes:
         data = DecredByteData()
         data += self.version[:2]
         data += b'\x02\x00'  # Serialization type 2 (witness only)
@@ -280,7 +312,7 @@ class DecredTx(DecredByteData):
             data += tx_witness
         return data.to_bytes()
 
-    def witness_signing(self):
+    def witness_signing(self) -> bytes:
         data = DecredByteData()
         data += self.version[:2]
         data += b'\x03\x00'  # Serialization type 3 (witness signing)
@@ -290,7 +322,7 @@ class DecredTx(DecredByteData):
             data += tx_witness.script_sig
         return data.to_bytes()
 
-    def calculate_fee(self):
+    def calculate_fee(self) -> int:
         return \
             sum([utils.le2i(w.value) for w in self.tx_witnesses]) \
             - sum([utils.le2i(o.value) for o in self.tx_outs])
@@ -307,10 +339,12 @@ class DecredTx(DecredByteData):
             tx_witnesses=(tx_witnesses if tx_witnesses is not None
                           else self.tx_witnesses))
 
-    def sighash_none(self):
+    def sighash_none(self) -> bytes:
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
-    def _sighash_prep(self, index, script=None):
+    def _sighash_prep(self,
+                      index: int,
+                      script: Optional[bytes] = None) -> 'DecredTx':
         copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
                              for w in self.tx_witnesses]
         copy_tx_witnesses[index] = \
@@ -319,8 +353,10 @@ class DecredTx(DecredByteData):
 
         return self.copy(tx_witnesses=copy_tx_witnesses)
 
-    def sighash_single(self, index, script=None,
-                       anyone_can_pay=False):
+    def sighash_single(self,
+                       index: int,
+                       script: Optional[bytes] = None,
+                       anyone_can_pay: bool = False) -> bytes:
         '''
         https://github.com/decred/dcrd/blob/master/txscript/script.go
         '''
@@ -330,7 +366,10 @@ class DecredTx(DecredByteData):
 
         try:
             copy_tx_outs = copy_tx.tx_outs[:index + 1]
-            copy_tx_outs = [TxOut(value=b'\xff' * 8, output_script=b'')
+            copy_tx_outs = [DecredTxOut(
+                            value=b'\xff' * 8,
+                            version=b'\x00\x00',
+                            output_script=b'')
                             for _ in copy_tx.tx_ins]
             copy_tx_outs[index] = copy_tx.tx_outs[index]
         except IndexError:
@@ -353,7 +392,10 @@ class DecredTx(DecredByteData):
             copy_tx=copy_tx,
             sighash_type=shared.SIGHASH_SINGLE)
 
-    def sighash_all(self, index, script=None, anyone_can_pay=False):
+    def sighash_all(self,
+                    index: int,
+                    script: Optional[bytes] = None,
+                    anyone_can_pay: bool = False) -> bytes:
         '''
         https://gist.github.com/davecgh/b00ec6e11f73620c3deddf160353961c
         https://github.com/decred/dcrd/blob/master/txscript/script.go
@@ -371,9 +413,13 @@ class DecredTx(DecredByteData):
             copy_tx=copy_tx,
             sighash_type=shared.SIGHASH_ALL)
 
-    def _sighash_anyone_can_pay(self, index, copy_tx, sighash_type):
-        copy_tx_witnesses = [w.copy(stack_script=b'', redeem_script=b'')
-                             for w in copy_tx.tx_witnesses]
+    def _sighash_anyone_can_pay(self,
+                                index: int,
+                                copy_tx: 'DecredTx',
+                                sighash_type: int) -> bytes:
+        copy_tx_witnesses = [
+            w.copy(stack_script=b'', redeem_script=b'')
+            for w in copy_tx.tx_witnesses]
         copy_tx_witnesses[index] = copy_tx.tx_witnesses[index]
         copy_tx = copy_tx.copy(tx_witnesses=copy_tx_witnesses)
 
@@ -382,7 +428,11 @@ class DecredTx(DecredByteData):
             copy_tx=copy_tx,
             sighash_type=sighash_type | shared.SIGHASH_ANYONECANPAY)
 
-    def _sighash_final_hashing(self, index, copy_tx, sighash_type):
+    def _sighash_final_hashing(
+            self,
+            index: int,
+            copy_tx: 'DecredTx',
+            sighash_type: int) -> bytes:
         sighash = DecredByteData()
         sighash += utils.i2le_padded(sighash_type, 4)
         sighash += copy_tx.prefix_hash()

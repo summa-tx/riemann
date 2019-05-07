@@ -24,7 +24,7 @@ def check_is_standard_tx(t: tx.Tx) -> bool:
     if len(t.no_witness()) * 3 + len(t) > MAX_STANDARD_TX_WEIGHT:
         return False
 
-    for tx_in in t.tx_ins():
+    for tx_in in t.tx_ins:
         try:
             # 'scriptsig-size'
             # 'scriptsig-not-pushonly'
@@ -76,7 +76,7 @@ def check_is_standard(t: tx.Tx) -> bool:
             return False
 
         # 'dust'
-        if (rutils.i2le(o.value) < 550
+        if (rutils.le2i(o.value) < 550
                 and o.output_script[:2] != b'\x00\x14'):
             return False
 

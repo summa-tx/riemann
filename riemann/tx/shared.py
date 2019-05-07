@@ -1,6 +1,8 @@
 import riemann
 from riemann import utils
 
+from typing import Optional, Union
+Byteslike = Union[bytes, bytearray, 'ByteData']
 
 SIGHASH_ALL = 0x01
 SIGHASH_NONE = 0x02
@@ -30,7 +32,7 @@ class ByteData():
     def __getitem__(self, val):
         return self._bytes[val]
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: Byteslike):
         '''
         ByteData, byte-like -> ByteData
         Define += operator.
@@ -73,7 +75,7 @@ class ByteData():
         '''
         return len(self._bytes)
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value):
         if self.__immutable:
             raise TypeError("%r cannot be written to." % self)
         object.__setattr__(self, key, value)
@@ -84,13 +86,13 @@ class ByteData():
         '''
         return '{}: {}'.format(type(self).__name__, self._bytes)
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
         '''
         ByteData -> bytes
         '''
         return bytes(self._bytes)
 
-    def hex(self):
+    def hex(self) -> str:
         '''
         ByteData -> hex_string
         '''
@@ -103,7 +105,7 @@ class ByteData():
         self._bytes = bytes(self._bytes)
         self.__immutable = True
 
-    def find(self, substring):
+    def find(self, substring: Byteslike) -> int:
         '''
         byte-like -> int
         Finds the index of substring
@@ -113,7 +115,7 @@ class ByteData():
         return self._bytes.find(substring)
 
     @staticmethod
-    def validate_bytes(data, length=4):
+    def validate_bytes(data: Byteslike, length: Optional[int] = 4):
         '''
         Raises ValueError if data is not bytes.
         Raises ValueError if len(data) is not length.
@@ -126,6 +128,7 @@ class ByteData():
             raise ValueError('Expected byte-like object. '
                              'Got: {}'.format(type(data)))
 
+        # allow any length
         if length is None:
             return
 
@@ -135,15 +138,21 @@ class ByteData():
                              .format(length, type(data), len(data)))
 
     @classmethod
-    def from_hex(C, hex_string):
+    def from_hex(C, hex_string: str):
         return C.from_bytes(bytes.fromhex(hex_string))
+
+    @classmethod
+    def from_bytes(ByteData, byte_string: bytes) -> 'ByteData':
+        ret = ByteData()
+        ret += byte_string
+        return ret
 
 
 class VarInt(ByteData):
     '''
     NB: number must be integer
     '''
-    def __init__(self, number, length=None):
+    def __init__(self, number: int, length: Optional[int] = None):
         super().__init__()
         if number < 0x0:
             raise ValueError('VarInt cannot be less than 0. '
@@ -173,11 +182,11 @@ class VarInt(ByteData):
 
         self._make_immutable()
 
-    def copy(self):
+    def copy(self) -> 'VarInt':
         return VarInt(self.number)
 
     @classmethod
-    def from_bytes(VarInt, byte_string):
+    def from_bytes(VarInt, byte_string: bytes) -> 'VarInt':
         '''
         byte-like -> VarInt
         accepts arbitrary length input, gets a VarInt off the front

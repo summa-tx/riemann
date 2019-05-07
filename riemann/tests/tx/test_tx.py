@@ -211,7 +211,6 @@ class TestWitnessStackItem(unittest.TestCase):
     def test_create_stack_item(self):
         w = tx.WitnessStackItem(self.stack_item_bytes)
         self.assertEqual(w.item, self.stack_item_bytes)
-        self.assertEqual(w.item_len, len(self.stack_item_bytes))
         self.assertEqual(
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
@@ -220,7 +219,6 @@ class TestWitnessStackItem(unittest.TestCase):
         w = tx.WitnessStackItem.from_bytes(
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
         self.assertEqual(w.item, self.stack_item_bytes)
-        self.assertEqual(w.item_len, len(self.stack_item_bytes))
         self.assertEqual(
             w,
             bytes([len(self.stack_item_bytes)]) + self.stack_item_bytes)
@@ -583,7 +581,6 @@ class TestTx(unittest.TestCase):
 
     def test_segwit_sighash_all(self):
         t = tx.Tx.from_bytes(helpers.P2WPKH['ser']['tx']['signed'])
-
         self.assertEqual(
             t.sighash_all(
                 0,

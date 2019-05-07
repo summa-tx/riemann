@@ -177,7 +177,7 @@ class TestTxBuilder(unittest.TestCase):
             tb.length_prepend(b'\x00' * 256),
             b'\xfd\x00\x01' + b'\x00' * 256)
 
-    @mock.patch('riemann.tx.tx_builder.tx')
+    @mock.patch('riemann.tx.tx_builder.sprout')
     def test_sprout_snowflake(self, mock_tx):
         # TODO: Improve
         riemann.select_network('zcash_sprout_main')
@@ -186,7 +186,7 @@ class TestTxBuilder(unittest.TestCase):
             tb.make_tx(0, 0, 0, 0, tx_joinsplits=[]),
             0)
 
-    @mock.patch('riemann.tx.tx_builder.tx')
+    @mock.patch('riemann.tx.tx_builder.overwinter')
     def test_overwinter_snowflake(self, mock_tx):
         # TODO: Improve
         riemann.select_network('zcash_overwinter_main')

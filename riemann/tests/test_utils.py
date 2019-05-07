@@ -27,6 +27,7 @@ class TestUtils(unittest.TestCase):
                          b'\xef\xcd\xab\x00\x00')
 
     def test_i2le_script(self):
+        self.assertEqual(utils.i2le_script(0), '00')
         self.assertEqual(utils.i2le_script(128), '8000')
         self.assertEqual(utils.i2le_script(-128), '80')
         self.assertEqual(utils.i2le_script(127), '7f')
