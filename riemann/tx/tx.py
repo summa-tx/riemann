@@ -501,9 +501,22 @@ class Tx(ByteData):
                     anyone_can_pay: bool) -> bytes:
         ...
 
+    @overload  # noqa: F811
+    def sighash_all(self,
+                    index: int,
+                    script: bytes,
+                    prevout_value: bytes) -> bytes:
+        ...
+
+    @overload  # noqa: F811
+    def sighash_all(self,
+                    index: int,
+                    script: bytes) -> bytes:
+        ...
+
     def sighash_all(self,  # noqa: F811
                     index,
-                    script=None,
+                    script,
                     prevout_value=None,
                     anyone_can_pay=False):
         '''
@@ -548,6 +561,19 @@ class Tx(ByteData):
                        index: int,
                        script: bytes,
                        anyone_can_pay: bool) -> bytes:
+        ...
+
+    @overload  # noqa: F811
+    def sighash_single(self,
+                       index: int,
+                       script: bytes,
+                       prevout_value: bytes) -> bytes:
+        ...
+
+    @overload  # noqa: F811
+    def sighash_single(self,
+                       index: int,
+                       script: bytes) -> bytes:
         ...
 
     def sighash_single(self,  # noqa: F811
