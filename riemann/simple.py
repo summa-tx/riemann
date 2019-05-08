@@ -50,6 +50,18 @@ def unsigned_input(
     ...
 
 
+@overload   # noqa: F811
+def unsigned_input(
+        outpoint: decred.DecredOutpoint) -> decred.DecredTxIn:
+    ...
+
+
+@overload   # noqa: F811
+def unsigned_input(
+        outpoint: decred.DecredOutpoint) -> decred.DecredTxIn:
+    ...
+
+
 def unsigned_input(outpoint, sequence=0xFFFFFFFE):   # noqa: F811
     '''
     Outpoint, byte-like, int -> TxIn
@@ -72,7 +84,7 @@ def unsigned_legacy_tx(tx_ins, tx_outs, **kwargs):
 
         **kwargs:
         version     (int): transaction version number
-        locktime            (hex): transaction locktime
+        lock_time            (hex): transaction locktime
         expiry              (int): overwinter expiry time
         tx_joinsplits       (list): list of joinsplits transactions
         joinsplit_pubkey    (bytes): joinsplit public key
