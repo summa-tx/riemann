@@ -337,7 +337,8 @@ class DecredTest(Network):
     SYMBOL = 'DCRT'
     NETWORK_NAME = 'decred'
     SUBNET_NAME = 'test'
-    P2PKH_PREFIX = b'\x28\xf7'
+    P2PKH_PREFIX = b'\x0f\x21'
+    P2PK_PREFIX = b'\x28\xf7'
     P2SH_PREFIX = b'\x0e\xfc'
     SEGWIT = False
     OPCODE_CHANGES = [
