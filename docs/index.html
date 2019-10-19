@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Riemann: Cryptocurrency Transactions for Humans &#8212; riemann v2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Simple" href="simple.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="riemann-cryptocurrency-transactions-for-humans">
+<h1>Riemann: Cryptocurrency Transactions for Humans<a class="headerlink" href="#riemann-cryptocurrency-transactions-for-humans" title="Permalink to this headline">¶</a></h1>
+<p>$ pip install riemann-tx`</p>
+<p>Riemann is a <strong>dependency-free Python3</strong> library for creating <strong>bitcoin-style
+transactions</strong>. It is <strong>compatible with many chains</strong> and <strong>supports SegWit</strong>.</p>
+<p>Riemann aims to make it easy to create application-specific transactions. It
+serializes and unserializes scripts from human-readable strings. It contains
+a complete toolbox for transaction construction, as well as built-in support
+for ~20 live networks and ~40 testnet or regtest nets.</p>
+<p>Riemann is NOT a wallet. It does NOT handle keys or create signatures.
+Riemann is NOT a protocol or RPC implementation. Riemann does NOT communicate
+with anything. Ever. Riemann is NOT a Script VM. Riemann does NOT check the
+validity of your scriptsigs.</p>
+<p>Riemann is _almost_ stateless. Before calling functions, you select from a list
+of <a class="reference internal" href="networks.html#networks"><span class="std std-ref">Networks</span></a>. Tests are made using on-chain transactions, primarily from
+Bitcoin.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Submodules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="simple.html">Simple</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx builder.html">Tx Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bytedata.html">ByteData</a></li>
+<li class="toctree-l2"><a class="reference internal" href="outpoint.html">Outpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txin.html">Txin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txout.html">TxOut</a></li>
+<li class="toctree-l2"><a class="reference internal" href="witnessstackitem.html">WitnessStackItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inputwitness.html">InputWitness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tx.html">Tx</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="encoding.html">Encoding</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="encoding.html#module-riemann.encoding.addresses">Addresses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="script.html">Script</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="script.html#module-riemann.script.serialization">Serialization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="networks.html#module-riemann.networks.networks">Supported Networks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">riemann</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Submodules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="simple.html">Simple</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx builder.html">Tx Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encoding.html">Encoding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="script.html">Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="simple.html" title="next chapter">Simple</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, James Prestwich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

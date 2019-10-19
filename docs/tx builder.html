@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tx Builder &#8212; riemann v2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Riemann Transactions" href="transactions.html" />
+    <link rel="prev" title="Simple" href="simple.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="tx-builder">
+<h1>Tx Builder<a class="headerlink" href="#tx-builder" title="Permalink to this headline">¶</a></h1>
+<p><cite>tx_builder</cite> is a collection of useful functions for instantiating transactions
+or components of transactions. As opposed to <a class="reference internal" href="simple.html#simple"><span class="std std-ref">Simple</span></a>, <cite>tx_builder</cite> offers
+more low-level control, and accepts instantiated or components rather than
+human-readable ones.</p>
+<span class="target" id="module-riemann.tx.tx_builder"></span><dl class="function">
+<dt id="riemann.tx.tx_builder.length_prepend">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">length_prepend</code><span class="sig-paren">(</span><em class="sig-param">byte_string: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.length_prepend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a VarInt length marker to a bytestring</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_decred_input">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_decred_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint: riemann.tx.decred.DecredOutpoint</em>, <em class="sig-param">sequence: int</em><span class="sig-paren">)</span> &#x2192; riemann.tx.decred.DecredTxIn<a class="headerlink" href="#riemann.tx.tx_builder.make_decred_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_decred_witness">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_decred_witness</code><span class="sig-paren">(</span><em class="sig-param">value: bytes</em>, <em class="sig-param">height: bytes</em>, <em class="sig-param">index: bytes</em>, <em class="sig-param">stack_script: bytes</em>, <em class="sig-param">redeem_script: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.decred.DecredInputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_decred_witness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_empty_witness">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_empty_witness</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.InputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_empty_witness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_legacy_input">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_legacy_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint</em>, <em class="sig-param">stack_script</em>, <em class="sig-param">redeem_script</em>, <em class="sig-param">sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_legacy_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a legacy input</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_op_return_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_op_return_output</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_op_return_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates OP_RETURN output for data less than 78 bytes.
+If data is 76 or 77 bytes, OP_PUSHDATA1 is included:
+&lt;OP_RETURN&gt;&lt;OP_PUSHDATA1&gt;&lt;data len&gt;&lt;data&gt;
+If data is less than 76 bytes, OP_PUSHDATA1 is not included:
+&lt;OP_RETURN&gt;&lt;data len&gt;&lt;data&gt;
+80 bytes is the default setting for an OP_RETURN output script.
+<a class="reference external" href="https://github.com/bitpay/bitcore/issues/1389">https://github.com/bitpay/bitcore/issues/1389</a>
+:param data: data included in output
+:type data: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>TxOut object with OP_RETURN output</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(<a class="reference internal" href="txout.html#riemann.tx.TxOut" title="riemann.tx.TxOut">TxOut</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_outpoint">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_outpoint</code><span class="sig-paren">(</span><em class="sig-param">tx_id_le</em>, <em class="sig-param">index</em>, <em class="sig-param">tree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_outpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>byte-like, int, int -&gt; Outpoint</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2pkh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2pkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2pkh_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2pkh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2pkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2pkh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2sh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2sh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2sh_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2sh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2sh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2sh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2wpkh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wpkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wpkh_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2wpkh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wpkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wpkh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2wsh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wsh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wsh_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_p2wsh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wsh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wsh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_pkh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_pkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_pkh_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_pkh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_pkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_pkh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a pkh pubkey script</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_script_sig">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_script_sig</code><span class="sig-paren">(</span><em class="sig-param">stack_script: str</em>, <em class="sig-param">redeem_script: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_script_sig" title="Permalink to this definition">¶</a></dt>
+<dd><p>str, str -&gt; bytearray</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_sh_output">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiates</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_sh_output_script">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_output_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>str -&gt; bytearray</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_sh_script_pubkey">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_script_pubkey</code><span class="sig-paren">(</span><em class="sig-param">script_bytes: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_script_pubkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_tx">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_tx</code><span class="sig-paren">(</span><em class="sig-param">version</em>, <em class="sig-param">tx_ins</em>, <em class="sig-param">tx_outs</em>, <em class="sig-param">lock_time</em>, <em class="sig-param">expiry=None</em>, <em class="sig-param">value_balance=0</em>, <em class="sig-param">tx_shielded_spends=None</em>, <em class="sig-param">tx_shielded_outputs=None</em>, <em class="sig-param">tx_witnesses=None</em>, <em class="sig-param">tx_joinsplits=None</em>, <em class="sig-param">joinsplit_pubkey=None</em>, <em class="sig-param">joinsplit_sig=None</em>, <em class="sig-param">binding_sig=None</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>int, list(TxIn), list(TxOut), int, list(InputWitness) -&gt; Tx</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_witness">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness</code><span class="sig-paren">(</span><em class="sig-param">data_list: List[bytes]</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.InputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_witness" title="Permalink to this definition">¶</a></dt>
+<dd><p>list(bytes) -&gt; InputWitness</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_witness_input">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint</em>, <em class="sig-param">sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_witness_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a witness input</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.tx.tx_builder.make_witness_stack_item">
+<code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness_stack_item</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.WitnessStackItem<a class="headerlink" href="#riemann.tx.tx_builder.make_witness_stack_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">riemann</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Submodules:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="simple.html">Simple</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tx Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encoding.html">Encoding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="script.html">Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="simple.html" title="previous chapter">Simple</a></li>
+      <li>Next: <a href="transactions.html" title="next chapter">Riemann Transactions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, James Prestwich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tx builder.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

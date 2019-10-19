@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Simple &#8212; riemann v2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tx Builder" href="tx builder.html" />
+    <link rel="prev" title="Riemann: Cryptocurrency Transactions for Humans" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="simple">
+<h1>Simple<a class="headerlink" href="#simple" title="Permalink to this headline">¶</a></h1>
+<p>Riemann offers a simplified transaction builder that accepts human-readable
+inputs, i.e. integers and strings instead of serialized LE numbers and
+bytestrings.</p>
+<span class="target" id="module-riemann.simple"></span><dl class="function">
+<dt id="riemann.simple.outpoint">
+<code class="sig-prename descclassname">riemann.simple.</code><code class="sig-name descname">outpoint</code><span class="sig-paren">(</span><em class="sig-param">tx_id</em>, <em class="sig-param">index</em>, <em class="sig-param">tree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.simple.outpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some overloads are not documented by Sphinx</p>
+<p>hex_str, int, int -&gt; Outpoint
+accepts block explorer txid string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.simple.output">
+<code class="sig-prename descclassname">riemann.simple.</code><code class="sig-name descname">output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">address: str</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.simple.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>int, str -&gt; TxOut
+accepts base58 or bech32 addresses</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.simple.unsigned_input">
+<code class="sig-prename descclassname">riemann.simple.</code><code class="sig-name descname">unsigned_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint</em>, <em class="sig-param">sequence=4294967294</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.simple.unsigned_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some overloads are not documented by Sphinx</p>
+<p>Outpoint, byte-like, int -&gt; TxIn</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.simple.unsigned_legacy_tx">
+<code class="sig-prename descclassname">riemann.simple.</code><code class="sig-name descname">unsigned_legacy_tx</code><span class="sig-paren">(</span><em class="sig-param">tx_ins</em>, <em class="sig-param">tx_outs</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.simple.unsigned_legacy_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an unsigned transaction
+Use this to generate sighashes for unsigned TxIns
+Hint: set version to 2 if using sequence number relative time locks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list</strong> (<em>tx_outs</em>) – list of transaction inputs</p></li>
+<li><p><strong>list</strong> – list of transaction outputs</p></li>
+<li><p><strong>**kwargs</strong> – </p></li>
+<li><p><strong>version</strong> (<em>int</em>) – transaction version number</p></li>
+<li><p><strong>lock_time</strong> (<em>hex</em>) – transaction locktime</p></li>
+<li><p><strong>expiry</strong> (<em>int</em>) – overwinter expiry time</p></li>
+<li><p><strong>tx_joinsplits</strong> (<em>list</em>) – list of joinsplits transactions</p></li>
+<li><p><strong>joinsplit_pubkey</strong> (<em>bytes</em>) – joinsplit public key</p></li>
+<li><p><strong>joinsplit_sig</strong> (<em>bytes</em>) – joinsplit signature</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned transaction</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(Tx instance)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.simple.unsigned_witness_tx">
+<code class="sig-prename descclassname">riemann.simple.</code><code class="sig-name descname">unsigned_witness_tx</code><span class="sig-paren">(</span><em class="sig-param">tx_ins</em>, <em class="sig-param">tx_outs</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.simple.unsigned_witness_tx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an unsigned segwit transaction
+Create an unsigned segwit transaction
+Use this to generate sighashes for unsigned TxIns
+Hint: set version to 2 if using sequence number relative time locks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list</strong> (<em>tx_outs</em>) – list of transaction inputs</p></li>
+<li><p><strong>list</strong> – list of transaction outputs</p></li>
+<li><p><strong>**kwargs</strong> – </p></li>
+<li><p><strong>version</strong> (<em>int</em>) – transaction version number</p></li>
+<li><p><strong>locktime</strong> (<em>hex</em>) – transaction locktime</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>unsigned transaction with empty witness</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(Tx instance)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">riemann</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Submodules:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Simple</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx builder.html">Tx Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="encoding.html">Encoding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="script.html">Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Riemann: Cryptocurrency Transactions for Humans</a></li>
+      <li>Next: <a href="tx builder.html" title="next chapter">Tx Builder</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, James Prestwich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/simple.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
