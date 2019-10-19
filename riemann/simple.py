@@ -29,6 +29,8 @@ def outpoint(tx_id: str, index: int) -> tx.Outpoint:
 
 def outpoint(tx_id, index, tree=None):  # noqa: F811
     '''
+    Some overloads are not documented by Sphinx
+
     hex_str, int, int -> Outpoint
     accepts block explorer txid string
     '''
@@ -58,12 +60,14 @@ def unsigned_input(
 
 @overload   # noqa: F811
 def unsigned_input(
-        outpoint: decred.DecredOutpoint) -> decred.DecredTxIn:
+        outpoint: tx.Outpoint) -> decred.DecredTxIn:
     ...
 
 
 def unsigned_input(outpoint, sequence=0xFFFFFFFE):   # noqa: F811
     '''
+    Some overloads are not documented by Sphinx
+
     Outpoint, byte-like, int -> TxIn
     '''
     return tb.make_legacy_input(

@@ -293,9 +293,9 @@ class Tx(ByteData):
         if flag is not None:
             if flag != riemann.network.SEGWIT_TX_FLAG:
                 raise ValueError(
-                    'Invald segwit flag. '
-                    'Expected None or {}. Got: {}'
-                    .format(riemann.network.SEGWIT_TX_FLAG, flag))
+                    'Invald segwit flag. Expected None or '
+                    f'{riemann.network.SEGWIT_TX_FLAG.hex()}. '
+                    f'Got: {flag.hex()}')
 
         if tx_witnesses is not None and len(tx_witnesses) != 0:
             if flag is None:

@@ -127,7 +127,7 @@ def to_long(
         try:
             v += lookup_f(c)
         except Exception:
-            raise ValueError("bad character %s in string %s" % (c, s))
+            raise ValueError(f"bad character {c!r} in string {s!r}")
         if v == 0:
             prefix += 1
     return v, prefix
