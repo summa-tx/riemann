@@ -80,6 +80,17 @@ class ByteData():
             raise TypeError("%r cannot be written to." % self)
         object.__setattr__(self, key, value)
 
+    def __format__(self, code):
+        '''
+        ByteData -> str
+        us use the internal bytes formatting methods
+        '''
+        if 'x' in code:
+            return self.hex()
+        if 'X' in code:
+            return self.hex().upper()
+        return self._bytes.__format__(code)
+
     def __repr__(self):
         '''
         ByteData -> str
