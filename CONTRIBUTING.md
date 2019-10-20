@@ -1,6 +1,7 @@
 Hi! Thanks for contributing to Riemann!
 
-We have a few rules for contributors. These rules are designed to protect contributors and users
+We have a few rules for contributors. These rules are designed to protect
+contributors and users
 
 1. Be cool
 2. Sign your commits
@@ -21,12 +22,21 @@ If you're not already set up to sign commits, follow these steps:
 2. [Add the public key to your github account](https://help.github.com/articles/adding-a-new-gpg-key-to-your-github-account/)
 3. [Set git to sign your commits](https://help.github.com/articles/telling-git-about-your-gpg-key/)
 
-If you've already made unsigned commits, that's no biggie. Set up signing and then squash your branch. We can help you out if necessary.
+If you've already made unsigned commits, that's no biggie. Set up signing and
+then squash your branch. We can help you out if necessary.
 
 ### Run the tests
 
-PRs will not be merged if they decrease test coverage. You can run the tests with `pytest`. For coverage details, run `tox`.
+PRs will not be merged if they decrease test coverage. You can run the tests
+with `pytest`. For coverage details, run `tox`.
 
 ### Riemann is free software
 
-This code is all released under the LGPL. There's no CLA carve-out for the company. When you contribute to Riemann, your code will be released under the LGPL license.
+This code is all released under the LGPL. There's no CLA carve-out for the
+company. When you contribute to Riemann, your code will be released under the
+LGPL license.
+
+### Contributing to docs
+
+Docstrings are mandatory going forward. You can find the RST source in
+`docs/source`. :)
