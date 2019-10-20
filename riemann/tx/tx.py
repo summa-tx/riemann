@@ -366,13 +366,15 @@ class Tx(ByteData):
     '''
     A complete transaction. It consists of a version, a flag that indicates the
     presence of witnesses (and breaks legacy parsers), a length-prepended
-    vector of `TxIn`s, a length-prepended vector of `TxOut`s, and a locktime
-    number. Compatibility and Segwit transactions MUST contain the witness
-    flag. Signed Compatibility and Segwit transactions will additionally
-    contain a vector of `InputWitness` objects.
+    vector of `TxIn` objects, a length-prepended vector of `TxOut` objects, and
+    a locktime number. Compatibility and Segwit transactions MUST contain the
+    witness flag. Signed Compatibility and Segwit transactions will
+    additionally contain a vector of `InputWitness` objects.
 
     This object provides a number of conveniences for interacting with
     transactions, including `tx_id` calculation, and sighash calculation.
+
+    To serialize the transaction, call `to_bytes()` or `hex()`.
 
     Note:
         The `lock_time` field is used to set absolute timelocks.
