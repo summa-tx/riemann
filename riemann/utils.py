@@ -4,11 +4,13 @@ from riemann import blake256 as b256
 
 
 def i2le(number: int) -> bytes:
-    '''Convert int to little endian (l.e.) bytes
+    '''
+    Convert int to little endian (LE) bytes
+
     Args:
-        number  (int): int value to convert to bytes in l.e. format
+        number: int value to convert to bytes in LE format
     Returns:
-                (bytes): bytes in l.e. format
+        LE-encoded number
     '''
     if number == 0:
         return b'\x00'
@@ -16,22 +18,26 @@ def i2le(number: int) -> bytes:
 
 
 def i2le_padded(number: int, length: int) -> bytes:
-    '''Convert int to little endian (l.e.) bytes with specified length
+    '''
+    Convert int to little endian (LE) bytes with specified length
+
     Args:
-        number  (int): int value to convert to l.e. bytes
-        length  (int): length of resulting bytes
+        number: int value to convert to LE bytes
+        length: length of resulting bytes
     Returns:
-        (bytes)
+        LE-encoded number with fixed length
     '''
     return number.to_bytes(length, 'little')
 
 
 def i2le_script(number: int) -> str:
-    '''Convert int to signed little endian (l.e.) hex for scripts
+    '''
+    Convert int to signed little endian (LE) hex for use within scripts
+
     Args:
-        number  (int): int value to convert to bytes in l.e. format
+        number: int value to convert to bytes in LE format
     Returns:
-                (str): the hex-encoded signed LE number
+        the hex-encoded signed LE number
     '''
     if number == 0:
         return '00'
@@ -48,33 +54,39 @@ def i2le_script(number: int) -> str:
 
 
 def le2i(b: bytes, signed: bool = False) -> int:
-    '''Convert little endian (l.e.) bytes to int
+    '''
+    Convert little endian (LE) bytes to int
+
     Args:
-        b       (bytes): l.e. bytes to convert to int
-        signed  (bool): two's complement flag
+        b: LE bytes to convert to int
+        signed: two's complement flag
     Returns:
-                (int)
+
     '''
     return int.from_bytes(b, 'little', signed=signed)
 
 
 def be2i(b: bytes, signed: bool = False) -> int:
-    '''Convert big endian (b.e.) bytes to int
+    '''
+    Convert big endian (b.e.) bytes to int
+
     Args:
-        b       (bytes): b.e. bytes to convert to int
-        signed  (bool): two's complement flag
+        b: BE bytes to convert to int
+        signed: two's complement flag
     Returns:
-                (int)
+
     '''
     return int.from_bytes(b, 'big', signed=signed)
 
 
 def i2be(number: int) -> bytes:
-    '''Convert int to big endian (b.e.) bytes
+    '''
+    Convert int to big endian (b.e.) bytes
+
     Args:
-        number  (int): int value to convert to bytes in b.e. format
+        number: int value to convert to bytes in BE format
     Returns:
-                (bytes): bytes in b.e. format
+        bytes in BE format
     '''
     if number == 0:
         return b'\x00'
@@ -82,12 +94,14 @@ def i2be(number: int) -> bytes:
 
 
 def i2be_padded(number: int, length: int) -> bytes:
-    '''Convert int to big endian (b.e.) bytes with specified length
+    '''
+    Convert int to big endian (b.e.) bytes with specified length
+
     Args:
-        number  (int): int value to convert to bytes in b.e. format
-        length  (int): length of resulting bytes
+        number: int value to convert to bytes in BE format
+        length: length of resulting bytes
     Returns:
-                (bytes): bytes in b.e. format with specified length
+        bytes in BE format with specified length
     '''
     return number.to_bytes(length, 'big')
 
@@ -99,7 +113,7 @@ def change_endianness(b: bytes) -> bytes:
 
 def rmd160(msg_bytes: bytes) -> bytes:
     '''
-    byte-like -> bytes
+    ripemd160 digest of a messge
     '''
     h = hashlib.new('ripemd160')
     h.update(msg_bytes)

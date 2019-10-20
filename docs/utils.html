@@ -36,16 +36,16 @@
 <dl class="function">
 <dt id="riemann.utils.be2i">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">be2i</code><span class="sig-paren">(</span><em class="sig-param">b: bytes</em>, <em class="sig-param">signed: bool = False</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#riemann.utils.be2i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert big endian (b.e.) bytes to int
-:param b: b.e. bytes to convert to int
-:type b: bytes
-:param signed: two’s complement flag
-:type signed: bool</p>
+<dd><p>Convert big endian (b.e.) bytes to int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(int)</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – BE bytes to convert to int</p></li>
+<li><p><strong>signed</strong> – two’s complement flag</p></li>
+</ul>
 </dd>
 </dl>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="function">
@@ -87,15 +87,13 @@
 <dl class="function">
 <dt id="riemann.utils.i2be">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">i2be</code><span class="sig-paren">(</span><em class="sig-param">number: int</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.utils.i2be" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert int to big endian (b.e.) bytes
-:param number: int value to convert to bytes in b.e. format
-:type number: int</p>
+<dd><p>Convert int to big endian (b.e.) bytes</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>bytes in b.e. format</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number</strong> – int value to convert to bytes in BE format</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bytes)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bytes in BE format</p>
 </dd>
 </dl>
 </dd></dl>
@@ -103,17 +101,16 @@
 <dl class="function">
 <dt id="riemann.utils.i2be_padded">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">i2be_padded</code><span class="sig-paren">(</span><em class="sig-param">number: int</em>, <em class="sig-param">length: int</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.utils.i2be_padded" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert int to big endian (b.e.) bytes with specified length
-:param number: int value to convert to bytes in b.e. format
-:type number: int
-:param length: length of resulting bytes
-:type length: int</p>
+<dd><p>Convert int to big endian (b.e.) bytes with specified length</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>bytes in b.e. format with specified length</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> – int value to convert to bytes in BE format</p></li>
+<li><p><strong>length</strong> – length of resulting bytes</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bytes)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bytes in BE format with specified length</p>
 </dd>
 </dl>
 </dd></dl>
@@ -121,15 +118,13 @@
 <dl class="function">
 <dt id="riemann.utils.i2le">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">i2le</code><span class="sig-paren">(</span><em class="sig-param">number: int</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.utils.i2le" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert int to little endian (l.e.) bytes
-:param number: int value to convert to bytes in l.e. format
-:type number: int</p>
+<dd><p>Convert int to little endian (LE) bytes</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>bytes in l.e. format</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number</strong> – int value to convert to bytes in LE format</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(bytes)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>LE-encoded number</p>
 </dd>
 </dl>
 </dd></dl>
@@ -137,14 +132,16 @@
 <dl class="function">
 <dt id="riemann.utils.i2le_padded">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">i2le_padded</code><span class="sig-paren">(</span><em class="sig-param">number: int</em>, <em class="sig-param">length: int</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.utils.i2le_padded" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert int to little endian (l.e.) bytes with specified length
-:param number: int value to convert to l.e. bytes
-:type number: int
-:param length: length of resulting bytes
-:type length: int</p>
+<dd><p>Convert int to little endian (LE) bytes with specified length</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(bytes)</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number</strong> – int value to convert to LE bytes</p></li>
+<li><p><strong>length</strong> – length of resulting bytes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>LE-encoded number with fixed length</p>
 </dd>
 </dl>
 </dd></dl>
@@ -152,15 +149,13 @@
 <dl class="function">
 <dt id="riemann.utils.i2le_script">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">i2le_script</code><span class="sig-paren">(</span><em class="sig-param">number: int</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.utils.i2le_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert int to signed little endian (l.e.) hex for scripts
-:param number: int value to convert to bytes in l.e. format
-:type number: int</p>
+<dd><p>Convert int to signed little endian (LE) hex for use within scripts</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the hex-encoded signed LE number</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>number</strong> – int value to convert to bytes in LE format</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(str)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the hex-encoded signed LE number</p>
 </dd>
 </dl>
 </dd></dl>
@@ -168,22 +163,22 @@
 <dl class="function">
 <dt id="riemann.utils.le2i">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">le2i</code><span class="sig-paren">(</span><em class="sig-param">b: bytes</em>, <em class="sig-param">signed: bool = False</em><span class="sig-paren">)</span> &#x2192; int<a class="headerlink" href="#riemann.utils.le2i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert little endian (l.e.) bytes to int
-:param b: l.e. bytes to convert to int
-:type b: bytes
-:param signed: two’s complement flag
-:type signed: bool</p>
+<dd><p>Convert little endian (LE) bytes to int</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>(int)</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – LE bytes to convert to int</p></li>
+<li><p><strong>signed</strong> – two’s complement flag</p></li>
+</ul>
 </dd>
 </dl>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.utils.rmd160">
 <code class="sig-prename descclassname">riemann.utils.</code><code class="sig-name descname">rmd160</code><span class="sig-paren">(</span><em class="sig-param">msg_bytes: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.utils.rmd160" title="Permalink to this definition">¶</a></dt>
-<dd><p>byte-like -&gt; bytes</p>
+<dd><p>ripemd160 digest of a messge</p>
 </dd></dl>
 
 <dl class="function">
