@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Txin &#8212; riemann v2.0.3 documentation</title>
+    <title>TxIn &#8212; riemann v2.0.3 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,30 +33,87 @@
           <div class="body" role="main">
             
   <div class="section" id="txin">
-<h1>Txin<a class="headerlink" href="#txin" title="Permalink to this headline">¶</a></h1>
+<h1>TxIn<a class="headerlink" href="#txin" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="riemann.tx.TxIn">
 <em class="property">class </em><code class="sig-prename descclassname">riemann.tx.</code><code class="sig-name descname">TxIn</code><span class="sig-paren">(</span><em class="sig-param">outpoint: riemann.tx.tx.Outpoint</em>, <em class="sig-param">stack_script: bytes</em>, <em class="sig-param">redeem_script: bytes</em>, <em class="sig-param">sequence: bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.TxIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Outpoint, byte-like, byte-like, byte-like -&gt; TxIn
-stack_script and redeem_script should already be serialized
-NB: sequence must be little-endian</p>
+<dd><p>A transaction input, composed of an outpoint, a script_sig and a sequence
+number. Legacy TxIn script sigs contain spend authorization information for
+the referenced UTXO. Compatibility TxIn script sigs contain the witness
+program only. Segwit Txin script sigs are empty.</p>
+<p>The sequence number is used to set relative timelocks. See
+<a class="reference external" href="https://prestwi.ch/bitcoin-time-locks/">this blog post</a> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outpoint</strong> – The <cite>Outpoint</cite> object pointing to the prevout being consumed
+by this input</p></li>
+<li><p><strong>stack_script</strong> – The Script program that sets the initial stack, if any.
+Legacy inputs are unsigned without this. Segwit inputs
+never have this.</p></li>
+<li><p><strong>redeem_script</strong> – The Script program that controls spending, if any. Only
+present when spending a Legacy or Compatibility SH UTXO.
+Segwit inputs never have this.</p></li>
+<li><p><strong>sequence</strong> – The 4-byte LE encoded sequence number of the input. Can be
+used to set relative timelocks.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="riemann.tx.TxIn.outpoint">
+<code class="sig-name descname">outpoint</code><a class="headerlink" href="#riemann.tx.TxIn.outpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>The <cite>Outpoint</cite> object pointing to the prevout being consumed
+by this input</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="riemann.tx.TxIn.stack_script">
+<code class="sig-name descname">stack_script</code><a class="headerlink" href="#riemann.tx.TxIn.stack_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Script program that sets the initial stack, if any.
+Legacy inputs are unsigned without this. Segwit inputs
+never have this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="riemann.tx.TxIn.redeem_script">
+<code class="sig-name descname">redeem_script</code><a class="headerlink" href="#riemann.tx.TxIn.redeem_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Script program that controls spending, if any. Only
+present when spending a Legacy or Compatibility SH UTXO.
+Segwit inputs never have this.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="riemann.tx.TxIn.script_sig">
+<code class="sig-name descname">script_sig</code><a class="headerlink" href="#riemann.tx.TxIn.script_sig" title="Permalink to this definition">¶</a></dt>
+<dd><p>The combined stack_script and redeem_script. For Legacy and
+Compatibility PKH transactions this will be equal to the
+stack script.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="riemann.tx.TxIn.sequence">
+<code class="sig-name descname">sequence</code><a class="headerlink" href="#riemann.tx.TxIn.sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>The 4-byte LE encoded sequence number of the input. Can be
+used to set relative timelocks.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="riemann.tx.TxIn.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">outpoint: Optional[riemann.tx.tx.Outpoint] = None</em>, <em class="sig-param">stack_script: Optional[bytes] = None</em>, <em class="sig-param">redeem_script: Optional[bytes] = None</em>, <em class="sig-param">sequence: Optional[bytes] = None</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxIn<a class="headerlink" href="#riemann.tx.TxIn.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a copy with modifications</p>
+<dd><p>Make a new copy of the object with optional modifications.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="riemann.tx.TxIn.from_bytes">
 <em class="property">classmethod </em><code class="sig-name descname">from_bytes</code><span class="sig-paren">(</span><em class="sig-param">byte_string: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxIn<a class="headerlink" href="#riemann.tx.TxIn.from_bytes" title="Permalink to this definition">¶</a></dt>
-<dd><p>byte_string -&gt; TxIn
-parses a TxIn from a byte-like object</p>
+<dd><p>Parse a TxIn from a bytestring. Also available as from_hex</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="riemann.tx.TxIn.is_p2sh">
 <code class="sig-name descname">is_p2sh</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#riemann.tx.TxIn.is_p2sh" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return True if the TxIn has a non-empty <cite>redeem_script</cite></p>
+</dd></dl>
 
 </dd></dl>
 
@@ -86,7 +143,7 @@ parses a TxIn from a byte-like object</p>
 <li class="toctree-l1 current"><a class="reference internal" href="transactions.html">Riemann Transactions</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="bytedata.html">ByteData</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outpoint.html">Outpoint</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Txin</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TxIn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="txout.html">TxOut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="witnessstackitem.html">WitnessStackItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inputwitness.html">InputWitness</a></li>

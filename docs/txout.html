@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="WitnessStackItem" href="witnessstackitem.html" />
-    <link rel="prev" title="Txin" href="txin.html" />
+    <link rel="prev" title="TxIn" href="txin.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -37,16 +37,42 @@
 <dl class="class">
 <dt id="riemann.tx.TxOut">
 <em class="property">class </em><code class="sig-prename descclassname">riemann.tx.</code><code class="sig-name descname">TxOut</code><span class="sig-paren">(</span><em class="sig-param">value: bytes</em>, <em class="sig-param">output_script: bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.TxOut" title="Permalink to this definition">¶</a></dt>
-<dd><p>NB: value must be little-endian</p>
+<dd><p>A transaction output, composed of a value (in satoshi) and an output script
+describing the spend conditions on the new UTXO.</p>
+<p>Value is serialized as an 8-byte LE integer, measured in satoshi. Use the
+<cite>i2le_padded</cite> function in <a class="reference internal" href="utils.html#module-riemann.utils"><span class="std std-ref">Utils</span></a> to serialize integers.</p>
+<p>TxOut accepts un-prepended output scripts, and adds their length for you.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the 8-byte LE encoded value of the output (in satoshi)</p></li>
+<li><p><strong>output_script</strong> – the non-length-prepended output script as a bytestring</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="riemann.tx.TxOut.value">
+<code class="sig-name descname">value</code><a class="headerlink" href="#riemann.tx.TxOut.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>the 8-byte LE encoded value of the output (in satoshi)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="riemann.tx.TxOut.output_script">
+<code class="sig-name descname">output_script</code><a class="headerlink" href="#riemann.tx.TxOut.output_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>the non-length-prepended output script as a bytestring</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="riemann.tx.TxOut.copy">
 <code class="sig-name descname">copy</code><span class="sig-paren">(</span><em class="sig-param">value: Optional[bytes] = None</em>, <em class="sig-param">output_script: Optional[bytes] = None</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.TxOut.copy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Make a new copy of the object with optional modifications.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="riemann.tx.TxOut.from_bytes">
 <em class="property">classmethod </em><code class="sig-name descname">from_bytes</code><span class="sig-paren">(</span><em class="sig-param">byte_string: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.TxOut.from_bytes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse a TxOut from a bytestring. Also available as from_hex</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -76,7 +102,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="transactions.html">Riemann Transactions</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="bytedata.html">ByteData</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outpoint.html">Outpoint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="txin.html">Txin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txin.html">TxIn</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">TxOut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="witnessstackitem.html">WitnessStackItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inputwitness.html">InputWitness</a></li>
@@ -94,7 +120,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="transactions.html">Riemann Transactions</a><ul>
-      <li>Previous: <a href="txin.html" title="previous chapter">Txin</a></li>
+      <li>Previous: <a href="txin.html" title="previous chapter">TxIn</a></li>
       <li>Next: <a href="witnessstackitem.html" title="next chapter">WitnessStackItem</a></li>
   </ul></li>
   </ul></li>

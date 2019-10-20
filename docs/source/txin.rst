@@ -1,4 +1,4 @@
-Txin
+TxIn
 ====
 .. autoclass:: riemann.tx.TxIn
     :members:

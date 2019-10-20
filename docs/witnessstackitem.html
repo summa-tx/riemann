@@ -37,10 +37,25 @@
 <dl class="class">
 <dt id="riemann.tx.WitnessStackItem">
 <em class="property">class </em><code class="sig-prename descclassname">riemann.tx.</code><code class="sig-name descname">WitnessStackItem</code><span class="sig-paren">(</span><em class="sig-param">item: bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.WitnessStackItem" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>A witness stack item. Each input witness is composed of an initial stack
+to be evaluated by the witness program. Witnesses for P2WSH inputs have a
+serialized script as the last stack element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>item</strong> – the raw data to be placed on the stack</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="riemann.tx.WitnessStackItem.item">
+<code class="sig-name descname">item</code><a class="headerlink" href="#riemann.tx.WitnessStackItem.item" title="Permalink to this definition">¶</a></dt>
+<dd><p>the raw data to be placed on the stack</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="riemann.tx.WitnessStackItem.from_bytes">
 <em class="property">classmethod </em><code class="sig-name descname">from_bytes</code><span class="sig-paren">(</span><em class="sig-param">byte_string: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.WitnessStackItem<a class="headerlink" href="#riemann.tx.WitnessStackItem.from_bytes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parse a WitnessStackItem from a bytestring. Also available as from_hex</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -70,7 +85,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="transactions.html">Riemann Transactions</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="bytedata.html">ByteData</a></li>
 <li class="toctree-l2"><a class="reference internal" href="outpoint.html">Outpoint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="txin.html">Txin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="txin.html">TxIn</a></li>
 <li class="toctree-l2"><a class="reference internal" href="txout.html">TxOut</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">WitnessStackItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inputwitness.html">InputWitness</a></li>

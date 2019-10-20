@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Encoders &#8212; riemann v2.0.3 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Script" href="script.html" />
+    <link rel="prev" title="Encoding" href="encoding.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="encoders">
+<h1>Encoders<a class="headerlink" href="#encoders" title="Permalink to this headline">¶</a></h1>
+<p>Riemann offers 3 encoders: <cite>base58</cite>, <cite>bech32</cite>, and <cite>cashaddr</cite> (also bech32).
+Each exposes an <cite>encode</cite> and <cite>decode</cite> function.</p>
+<div class="section" id="module-riemann.encoding.base58">
+<span id="base58"></span><h2>Base58<a class="headerlink" href="#module-riemann.encoding.base58" title="Permalink to this headline">¶</a></h2>
+<p>Implementation of Base58 encoding with checksum</p>
+<dl class="function">
+<dt id="riemann.encoding.base58.decode">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">s: str</em>, <em class="sig-param">checksum: bool = True</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.base58.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert base58 to binary using BASE58_ALPHABET.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.decode_with_checksum">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">decode_with_checksum</code><span class="sig-paren">(</span><em class="sig-param">s: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.base58.decode_with_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>If the passed string is base58check, return the binary data.</p>
+<p>Otherwise raises a ValueError.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.encode">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em>, <em class="sig-param">checksum: bool = True</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.base58.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert binary to base58 using BASE58_ALPHABET.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.encode_with_checksum">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">encode_with_checksum</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.base58.encode_with_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>A “hashed_base58” structure is a base58 integer (which looks like a string)
+with four bytes of hash data at the end.</p>
+<p>This function turns data into its hashed_base58 equivalent.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.from_long">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">from_long</code><span class="sig-paren">(</span><em class="sig-param">v: int, prefix: int, base: int, charset: Callable[..., int]</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.base58.from_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>The inverse of to_long. Convert an integer to an arbitrary base.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> – the integer value to convert</p></li>
+<li><p><strong>prefix</strong> – the number of prefixed 0s to include</p></li>
+<li><p><strong>base</strong> – the new radix</p></li>
+<li><p><strong>charset</strong> – an array indicating printable characters to use for each value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.has_checksum">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">has_checksum</code><span class="sig-paren">(</span><em class="sig-param">base58: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#riemann.encoding.base58.has_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if and only if base58 is valid hashed_base58.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.base58.to_long">
+<code class="sig-prename descclassname">riemann.encoding.base58.</code><code class="sig-name descname">to_long</code><span class="sig-paren">(</span><em class="sig-param">base: int, lookup_f: Callable[..., int], s: bytes</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int]<a class="headerlink" href="#riemann.encoding.base58.to_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an array to a (possibly bignum) integer, along with a prefix value
+of how many prefixed zeros there are.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base</strong> – the source radix</p></li>
+<li><p><strong>lookup_f</strong> – a function to convert an element of s to a value between 0
+and base-1.</p></li>
+<li><p><strong>s</strong> – the value to convert</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-riemann.encoding.bech32">
+<span id="bech32"></span><h2>Bech32<a class="headerlink" href="#module-riemann.encoding.bech32" title="Permalink to this headline">¶</a></h2>
+<p>Reference implementation for Bech32 and segwit addresses.</p>
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_create_checksum">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_create_checksum</code><span class="sig-paren">(</span><em class="sig-param">hrp</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_create_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the checksum values given HRP and data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_decode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_decode</code><span class="sig-paren">(</span><em class="sig-param">bech</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a Bech32 string, and determine HRP and data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_encode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_encode</code><span class="sig-paren">(</span><em class="sig-param">hrp</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a Bech32 string given HRP and data values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_hrp_expand">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_hrp_expand</code><span class="sig-paren">(</span><em class="sig-param">hrp</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_hrp_expand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expand the HRP into values for checksum computation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_polymod">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_polymod</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_polymod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal function that computes the Bech32 checksum.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.bech32_verify_checksum">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">bech32_verify_checksum</code><span class="sig-paren">(</span><em class="sig-param">hrp</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.bech32_verify_checksum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify a checksum given HRP and converted data characters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.convertbits">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">convertbits</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">frombits</em>, <em class="sig-param">tobits</em>, <em class="sig-param">pad=True</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.convertbits" title="Permalink to this definition">¶</a></dt>
+<dd><p>General power-of-2 base conversion.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.decode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bech: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.bech32.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert bech32 to bytes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.encode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.bech32.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert bytes to bech32</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.segwit_decode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">segwit_decode</code><span class="sig-paren">(</span><em class="sig-param">hrp</em>, <em class="sig-param">addr</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.segwit_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode a segwit address.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.bech32.segwit_encode">
+<code class="sig-prename descclassname">riemann.encoding.bech32.</code><code class="sig-name descname">segwit_encode</code><span class="sig-paren">(</span><em class="sig-param">hrp</em>, <em class="sig-param">witver</em>, <em class="sig-param">witprog</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.bech32.segwit_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a segwit address.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-riemann.encoding.cashaddr">
+<span id="cashaddr"></span><h2>Cashaddr<a class="headerlink" href="#module-riemann.encoding.cashaddr" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.b32decode">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">b32decode</code><span class="sig-paren">(</span><em class="sig-param">inputs</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.b32decode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.b32encode">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">b32encode</code><span class="sig-paren">(</span><em class="sig-param">inputs</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.b32encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.calculate_checksum">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">calculate_checksum</code><span class="sig-paren">(</span><em class="sig-param">prefix</em>, <em class="sig-param">payload</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.calculate_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.convertbits">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">convertbits</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">frombits</em>, <em class="sig-param">tobits</em>, <em class="sig-param">pad=True</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.convertbits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.decode">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">data: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.cashaddr.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert cashaddr-bech32 to bytes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.encode">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">encode</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.cashaddr.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert bytes to cashaddr-bech32</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.polymod">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">polymod</code><span class="sig-paren">(</span><em class="sig-param">values</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.polymod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.prefix_expand">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">prefix_expand</code><span class="sig-paren">(</span><em class="sig-param">prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.prefix_expand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="riemann.encoding.cashaddr.verify_checksum">
+<code class="sig-prename descclassname">riemann.encoding.cashaddr.</code><code class="sig-name descname">verify_checksum</code><span class="sig-paren">(</span><em class="sig-param">prefix</em>, <em class="sig-param">payload</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.encoding.cashaddr.verify_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">riemann</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Submodules:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="simple.html">Simple</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tx builder.html">Tx Builder</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="encoding.html">Encoding</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Encoders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoding.html#module-riemann.encoding.addresses">Addresses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="script.html">Script</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="encoding.html">Encoding</a><ul>
+      <li>Previous: <a href="encoding.html" title="previous chapter">Encoding</a></li>
+      <li>Next: <a href="script.html" title="next chapter">Script</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, James Prestwich.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/encoders.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

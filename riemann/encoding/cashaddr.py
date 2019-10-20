@@ -27,9 +27,7 @@ CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 
 def encode(data: bytes) -> str:
-    '''
-    bytes -> str
-    '''
+    '''Convert bytes to cashaddr-bech32'''
     if riemann.network.CASHADDR_PREFIX is None:
         raise ValueError('Network {} does not support cashaddresses.'
                          .format(riemann.get_current_network_name()))
@@ -46,9 +44,8 @@ def encode(data: bytes) -> str:
 
 
 def decode(data: str) -> bytes:
-    '''
-    str -> bytes
-    '''
+    '''Convert cashaddr-bech32 to bytes'''
+
     if riemann.network.CASHADDR_PREFIX is None:
         raise ValueError('Network {} does not support cashaddresses.'
                          .format(riemann.get_current_network_name()))

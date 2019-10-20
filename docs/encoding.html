@@ -14,7 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Script" href="script.html" />
+    <link rel="next" title="Encoders" href="encoders.html" />
     <link rel="prev" title="Tx" href="tx.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -37,76 +37,205 @@
 <p>Riemann provides support for encoding addresses for all supported chains,
 including native SegWit and cashaddrs. Typically, we recommend using the high
 level <cite>addresses</cite> module, but the encoders themselves are also available.</p>
+<p>We recommend generally using the <cite>addresses</cite> module. Addresses may be encoded
+by type (e.g. <cite>make_p2wsh_address</cite>) or you may allow Riemann to select for you
+(e.g. <cite>make_sh_address</cite>). Riemann prefers <cite>cashaddr</cite> where available, and
+legacy elsewhere. Developers wanting Segwit addresses should be careful to use
+Segwit specific methods.</p>
+<p>Note: Compatibility Segwit addresses (witness-over-p2sh) are not first-class
+address types in Riemann. You’ll have to make script-sigs yourself.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Encoder Info:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="encoders.html">Encoders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#module-riemann.encoding.base58">Base58</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#module-riemann.encoding.bech32">Bech32</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html#module-riemann.encoding.cashaddr">Cashaddr</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="section" id="module-riemann.encoding.addresses">
 <span id="addresses"></span><h2>Addresses<a class="headerlink" href="#module-riemann.encoding.addresses" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="riemann.encoding.addresses.from_output_script">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">from_output_script</code><span class="sig-paren">(</span><em class="sig-param">output_script: bytes</em>, <em class="sig-param">cashaddr: bool = True</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.from_output_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert output script (the on-chain format) to an address
-There’s probably a better way to do this</p>
+<dd><p>Convert an output script (the on-chain format) to an address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_script</strong> – The output script to encode as an address</p></li>
+<li><p><strong>cashaddr</strong> – Pass False to prefer legacy to cashaddr. Default True.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_legacy_p2pkh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_legacy_p2pkh_address</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_legacy_p2pkh_address" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Turns a pubkey into a legacy p2pkh address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pubkey</strong> – The 33 or 65 byte public key</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_legacy_p2sh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_legacy_p2sh_address</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_legacy_p2sh_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns a human-readable script into a non-cashaddr p2sh address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – The human-readable script</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_p2pkh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_p2pkh_address</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_p2pkh_address" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Turns a pubkey into a p2pkh address, cashaddr if available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pubkey</strong> – The 33 or 65 byte public key</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_p2sh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_p2sh_address</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_p2sh_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns a human-readable script into a p2sh address</p>
+<dd><p>Turns a human-readable script into a p2sh address, cashaddr if possible</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – The human-readable script</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_p2wpkh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_p2wpkh_address</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_p2wpkh_address" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Turns a pubkey into a p2wpkh address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pubkey</strong> – The 33 or 65 byte public key</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_p2wsh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_p2wsh_address</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_p2wsh_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turns a human-readable script into a p2wsh address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – The human-readable script</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_pkh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_pkh_address</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em>, <em class="sig-param">witness: bool = False</em>, <em class="sig-param">cashaddr: bool = True</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_pkh_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns a pubkey into an address</p>
+<dd><p>Turns a pubkey into an address. Prefers Cashaddrs to legacy addresses
+whenever supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pubkey</strong> – The 33 or 65 byte public key</p></li>
+<li><p><strong>witness</strong> – Pass True to generate a witness address if supported.
+Default False.</p></li>
+<li><p><strong>cashaddr</strong> – Pass False to prefer legacy to cashaddr. Default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.make_sh_address">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">make_sh_address</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em>, <em class="sig-param">witness: bool = False</em>, <em class="sig-param">cashaddr: bool = True</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.encoding.addresses.make_sh_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turns a human-readable script into an address</p>
+<dd><p>Turns a human-readable script into an address. Prefers Cashaddrs to legacy
+addresses whenever supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_string</strong> – The human-readable script</p></li>
+<li><p><strong>witness</strong> – Pass True to generate a witness address if supported.
+Default False.</p></li>
+<li><p><strong>cashaddr</strong> – Pass False to prefer legacy to cashaddr. Default True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.parse">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param">address: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.addresses.parse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Decode an address to the underlying raw bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>address</strong> – The address to parse</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The raw bytestring encoded by the address</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.parse_hash">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">parse_hash</code><span class="sig-paren">(</span><em class="sig-param">address: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.addresses.parse_hash" title="Permalink to this definition">¶</a></dt>
-<dd><p>There’s probably a better way to do this.</p>
+<dd><p>Extract the pubkey or script hash encoded in an address</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>address</strong> – The address to parse</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The 20 or 32 byte hash represented by the address</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.encoding.addresses.to_output_script">
 <code class="sig-prename descclassname">riemann.encoding.addresses.</code><code class="sig-name descname">to_output_script</code><span class="sig-paren">(</span><em class="sig-param">address: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.encoding.addresses.to_output_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an address into its associated output script
-There’s probably a better way to do this</p>
+<dd><p>Convert an address into its associated output script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>address</strong> – The address to parse</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The output script that corresponds to the address, suitable for
+inclusion in a TxOut</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -135,6 +264,7 @@ There’s probably a better way to do this</p>
 <li class="toctree-l1"><a class="reference internal" href="tx builder.html">Tx Builder</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transactions.html">Riemann Transactions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Encoding</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="encoders.html">Encoders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-riemann.encoding.addresses">Addresses</a></li>
 </ul>
 </li>
@@ -148,7 +278,7 @@ There’s probably a better way to do this</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="tx.html" title="previous chapter">Tx</a></li>
-      <li>Next: <a href="script.html" title="next chapter">Script</a></li>
+      <li>Next: <a href="encoders.html" title="next chapter">Encoders</a></li>
   </ul></li>
 </ul>
 </div>

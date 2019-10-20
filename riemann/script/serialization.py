@@ -4,7 +4,17 @@ from riemann.script.opcodes import CODE_TO_INT, INT_TO_CODE
 
 
 def serialize(script_string: str) -> bytes:
-    '''serialize a human-readable script to bytes'''
+    '''
+    Serialize a human-readable script to bytes
+
+    Example:
+        serialize('OP_DUP OP_CAT OP_HASH160 0011deadbeef')
+
+    Args:
+        script_string: A human-readable Bitcoin Script string
+    Returns:
+        The Script serialized as a bytestring
+    '''
     string_tokens = script_string.split()
     serialized_script = bytearray()
 
@@ -48,12 +58,31 @@ def serialize(script_string: str) -> bytes:
 
 
 def hex_serialize(script_string: str) -> str:
-    '''serialize a human-readable script to hex'''
+    '''
+    Serialize a human-readable script to hex
+
+    Example:
+        hex_serialize('OP_DUP OP_CAT OP_HASH160 0011deadbeef')
+
+    Args:
+        script_string: A human-readable Bitcoin Script string
+    Returns:
+        The Script serialized as a hex string
+    '''
     return serialize(script_string).hex()
 
 
 def deserialize(serialized_script: bytes) -> str:
-    '''deserialize a script from bytes to human-readable'''
+    '''
+    Deserialize a human-readable script from bytes
+
+    Example:
+        deserialize(b'\x19\x76\xa9\x88\xac')
+    Args:
+        serialized_script: The Script serialized as a bytestring
+    Returns:
+        A human-readable Script string
+    '''
     deserialized = []
     i = 0
     while i < len(serialized_script):
@@ -108,5 +137,14 @@ def deserialize(serialized_script: bytes) -> str:
 
 
 def hex_deserialize(script_hex: str) -> str:
-    '''deserialize a script from hex to human-readable'''
+    '''
+    Deserialize a human-readable script from hex
+
+    Example:
+        hex_deserialize('1976a988ac')
+    Args:
+        serialized_script: The Script serialized as a hex string
+    Returns:
+        A human-readable Script string
+    '''
     return deserialize(bytes.fromhex(script_hex))

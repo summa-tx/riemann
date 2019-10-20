@@ -39,6 +39,7 @@
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
@@ -74,7 +75,17 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.b32decode">b32decode() (in module riemann.encoding.cashaddr)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.b32encode">b32encode() (in module riemann.encoding.cashaddr)</a>
+</li>
       <li><a href="utils.html#riemann.utils.be2i">be2i() (in module riemann.utils)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_create_checksum">bech32_create_checksum() (in module riemann.encoding.bech32)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_decode">bech32_decode() (in module riemann.encoding.bech32)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_encode">bech32_encode() (in module riemann.encoding.bech32)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.BitcoinGoldMain.BECH32_HRP">BECH32_HRP (riemann.networks.networks.BitcoinGoldMain attribute)</a>
 
@@ -130,6 +141,12 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_hrp_expand">bech32_hrp_expand() (in module riemann.encoding.bech32)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_polymod">bech32_polymod() (in module riemann.encoding.bech32)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.bech32_verify_checksum">bech32_verify_checksum() (in module riemann.encoding.bech32)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.BitcoinCashMain">BitcoinCashMain (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.BitcoinCashRegtest">BitcoinCashRegtest (class in riemann.networks.networks)</a>
@@ -180,6 +197,8 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.calculate_checksum">calculate_checksum() (in module riemann.encoding.cashaddr)</a>
+</li>
       <li><a href="tx.html#riemann.tx.Tx.calculate_fee">calculate_fee() (riemann.tx.Tx method)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.Network.CASHADDR_ENCODER">CASHADDR_ENCODER (riemann.networks.networks.Network attribute)</a>
@@ -228,6 +247,12 @@
         <li><a href="networks.html#riemann.networks.networks.Network.CODE_TO_INT_OVERWRITE">(riemann.networks.networks.Network attribute)</a>
 </li>
       </ul></li>
+      <li><a href="encoders.html#riemann.encoding.bech32.convertbits">convertbits() (in module riemann.encoding.bech32)</a>
+
+      <ul>
+        <li><a href="encoders.html#riemann.encoding.cashaddr.convertbits">(in module riemann.encoding.cashaddr)</a>
+</li>
+      </ul></li>
       <li><a href="inputwitness.html#riemann.tx.InputWitness.copy">copy() (riemann.tx.InputWitness method)</a>
 
       <ul>
@@ -252,14 +277,24 @@
 </li>
       <li><a href="networks.html#riemann.networks.networks.DashTest">DashTest (class in riemann.networks.networks)</a>
 </li>
+      <li><a href="encoders.html#riemann.encoding.base58.decode">decode() (in module riemann.encoding.base58)</a>
+
+      <ul>
+        <li><a href="encoders.html#riemann.encoding.bech32.decode">(in module riemann.encoding.bech32)</a>
+</li>
+        <li><a href="encoders.html#riemann.encoding.cashaddr.decode">(in module riemann.encoding.cashaddr)</a>
+</li>
+      </ul></li>
+      <li><a href="encoders.html#riemann.encoding.base58.decode_with_checksum">decode_with_checksum() (in module riemann.encoding.base58)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.DecredMain">DecredMain (class in riemann.networks.networks)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="networks.html#riemann.networks.networks.DecredSimnet">DecredSimnet (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.DecredTest">DecredTest (class in riemann.networks.networks)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="script.html#riemann.script.serialization.deserialize">deserialize() (in module riemann.script.serialization)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.DigibyteMain">DigibyteMain (class in riemann.networks.networks)</a>
@@ -277,6 +312,24 @@
   </ul></td>
 </tr></table>
 
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.base58.encode">encode() (in module riemann.encoding.base58)</a>
+
+      <ul>
+        <li><a href="encoders.html#riemann.encoding.bech32.encode">(in module riemann.encoding.bech32)</a>
+</li>
+        <li><a href="encoders.html#riemann.encoding.cashaddr.encode">(in module riemann.encoding.cashaddr)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.base58.encode_with_checksum">encode_with_checksum() (in module riemann.encoding.base58)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -287,6 +340,8 @@
       <li><a href="networks.html#riemann.networks.networks.FeathercoinTest">FeathercoinTest (class in riemann.networks.networks)</a>
 </li>
       <li><a href="bytedata.html#riemann.tx.ByteData.find">find() (riemann.tx.ByteData method)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.flag">flag (riemann.tx.Tx attribute)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.BitcoinCashMain.FORKID">FORKID (riemann.networks.networks.BitcoinCashMain attribute)</a>
 
@@ -334,6 +389,8 @@
         <li><a href="tx.html#riemann.tx.Tx.from_hex">(riemann.tx.Tx class method)</a>
 </li>
       </ul></li>
+      <li><a href="encoders.html#riemann.encoding.base58.from_long">from_long() (in module riemann.encoding.base58)</a>
+</li>
       <li><a href="encoding.html#riemann.encoding.addresses.from_output_script">from_output_script() (in module riemann.encoding.addresses)</a>
 </li>
   </ul></td>
@@ -360,6 +417,8 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="encoders.html#riemann.encoding.base58.has_checksum">has_checksum() (in module riemann.encoding.base58)</a>
+</li>
       <li><a href="utils.html#riemann.utils.hash160">hash160() (in module riemann.utils)</a>
 </li>
       <li><a href="utils.html#riemann.utils.hash256">hash256() (in module riemann.utils)</a>
@@ -388,6 +447,8 @@
 </li>
       <li><a href="utils.html#riemann.utils.i2le_script">i2le_script() (in module riemann.utils)</a>
 </li>
+      <li><a href="outpoint.html#riemann.tx.Outpoint.index">index (riemann.tx.Outpoint attribute)</a>
+</li>
       <li><a href="inputwitness.html#riemann.tx.InputWitness">InputWitness (class in riemann.tx)</a>
 </li>
   </ul></td>
@@ -405,6 +466,8 @@
       <li><a href="txin.html#riemann.tx.TxIn.is_p2sh">is_p2sh() (riemann.tx.TxIn method)</a>
 </li>
       <li><a href="tx.html#riemann.tx.Tx.is_witness">is_witness() (riemann.tx.Tx method)</a>
+</li>
+      <li><a href="witnessstackitem.html#riemann.tx.WitnessStackItem.item">item (riemann.tx.WitnessStackItem attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -425,6 +488,8 @@
       <li><a href="networks.html#riemann.networks.networks.LitecoinRegtest">LitecoinRegtest (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.LitecoinTest">LitecoinTest (class in riemann.networks.networks)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.lock_time">lock_time (riemann.tx.Tx attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -690,9 +755,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="outpoint.html#riemann.tx.Outpoint">Outpoint (class in riemann.tx)</a>
 </li>
+      <li><a href="txin.html#riemann.tx.TxIn.outpoint">outpoint (riemann.tx.TxIn attribute)</a>
+</li>
       <li><a href="simple.html#riemann.simple.outpoint">outpoint() (in module riemann.simple)</a>
 </li>
       <li><a href="simple.html#riemann.simple.output">output() (in module riemann.simple)</a>
+</li>
+      <li><a href="txout.html#riemann.tx.TxOut.output_script">output_script (riemann.tx.TxOut attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1166,22 +1235,34 @@
 </li>
       <li><a href="networks.html#riemann.networks.networks.PivxTest">PivxTest (class in riemann.networks.networks)</a>
 </li>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.polymod">polymod() (in module riemann.encoding.cashaddr)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.prefix_expand">prefix_expand() (in module riemann.encoding.cashaddr)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="txin.html#riemann.tx.TxIn.redeem_script">redeem_script (riemann.tx.TxIn attribute)</a>
+</li>
       <li><a href="networks.html#module-riemann">riemann (module)</a>
 </li>
       <li><a href="encoding.html#module-riemann.encoding.addresses">riemann.encoding.addresses (module)</a>
 </li>
+      <li><a href="encoders.html#module-riemann.encoding.base58">riemann.encoding.base58 (module)</a>
+</li>
+      <li><a href="encoders.html#module-riemann.encoding.bech32">riemann.encoding.bech32 (module)</a>
+</li>
+      <li><a href="encoders.html#module-riemann.encoding.cashaddr">riemann.encoding.cashaddr (module)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="networks.html#module-riemann.networks.networks">riemann.networks.networks (module)</a>
 </li>
       <li><a href="script.html#module-riemann.script.serialization">riemann.script.serialization (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="simple.html#module-riemann.simple">riemann.simple (module)</a>
 </li>
       <li><a href="tx builder.html#module-riemann.tx.tx_builder">riemann.tx.tx_builder (module)</a>
@@ -1196,6 +1277,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="txin.html#riemann.tx.TxIn.script_sig">script_sig (riemann.tx.TxIn attribute)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.AxeMain.SEGWIT">SEGWIT (riemann.networks.networks.AxeMain attribute)</a>
 
       <ul>
@@ -1344,6 +1427,10 @@
         <li><a href="networks.html#riemann.networks.networks.ZcashSproutTest.SEGWIT">(riemann.networks.networks.ZcashSproutTest attribute)</a>
 </li>
       </ul></li>
+      <li><a href="encoders.html#riemann.encoding.bech32.segwit_decode">segwit_decode() (in module riemann.encoding.bech32)</a>
+</li>
+      <li><a href="encoders.html#riemann.encoding.bech32.segwit_encode">segwit_encode() (in module riemann.encoding.bech32)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.BitcoreMain.SEGWIT_ENCODER">SEGWIT_ENCODER (riemann.networks.networks.BitcoreMain attribute)</a>
 
       <ul>
@@ -1384,6 +1471,8 @@
 </li>
       <li><a href="networks.html#riemann.select_network">select_network() (in module riemann)</a>
 </li>
+      <li><a href="txin.html#riemann.tx.TxIn.sequence">sequence (riemann.tx.TxIn attribute)</a>
+</li>
       <li><a href="script.html#riemann.script.serialization.serialize">serialize() (in module riemann.script.serialization)</a>
 </li>
       <li><a href="utils.html#riemann.utils.sha256">sha256() (in module riemann.utils)</a>
@@ -1393,6 +1482,10 @@
       <li><a href="tx.html#riemann.tx.Tx.sighash_none">sighash_none() (riemann.tx.Tx method)</a>
 </li>
       <li><a href="tx.html#riemann.tx.Tx.sighash_single">sighash_single() (riemann.tx.Tx method)</a>
+</li>
+      <li><a href="inputwitness.html#riemann.tx.InputWitness.stack">stack (riemann.tx.InputWitness attribute)</a>
+</li>
+      <li><a href="txin.html#riemann.tx.TxIn.stack_script">stack_script (riemann.tx.TxIn attribute)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.AxeMain.SUBNET_NAME">SUBNET_NAME (riemann.networks.networks.AxeMain attribute)</a>
 
@@ -1706,11 +1799,27 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="bytedata.html#riemann.tx.ByteData.to_bytes">to_bytes() (riemann.tx.ByteData method)</a>
 </li>
+      <li><a href="encoders.html#riemann.encoding.base58.to_long">to_long() (in module riemann.encoding.base58)</a>
+</li>
       <li><a href="encoding.html#riemann.encoding.addresses.to_output_script">to_output_script() (in module riemann.encoding.addresses)</a>
 </li>
+      <li><a href="tx.html#riemann.tx.Tx">Tx (class in riemann.tx)</a>
+</li>
+      <li><a href="outpoint.html#riemann.tx.Outpoint.tx_id">tx_id (riemann.tx.Outpoint attribute)</a>
+
+      <ul>
+        <li><a href="tx.html#riemann.tx.Tx.tx_id">(riemann.tx.Tx attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="tx.html#riemann.tx.Tx">Tx (class in riemann.tx)</a>
+      <li><a href="tx.html#riemann.tx.Tx.tx_id_le">tx_id_le (riemann.tx.Tx attribute)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.tx_ins">tx_ins (riemann.tx.Tx attribute)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.tx_outs">tx_outs (riemann.tx.Tx attribute)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.tx_witnesses">tx_witnesses (riemann.tx.Tx attribute)</a>
 </li>
       <li><a href="txin.html#riemann.tx.TxIn">TxIn (class in riemann.tx)</a>
 </li>
@@ -1738,16 +1847,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="bytedata.html#riemann.tx.ByteData.validate_bytes">validate_bytes() (riemann.tx.ByteData static method)</a>
 </li>
+      <li><a href="txout.html#riemann.tx.TxOut.value">value (riemann.tx.TxOut attribute)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.VergeMain">VergeMain (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.VergeRegtest">VergeRegtest (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.VergeTest">VergeTest (class in riemann.networks.networks)</a>
 </li>
-      <li><a href="networks.html#riemann.networks.networks.VertcoinMain">VertcoinMain (class in riemann.networks.networks)</a>
+      <li><a href="encoders.html#riemann.encoding.cashaddr.verify_checksum">verify_checksum() (in module riemann.encoding.cashaddr)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tx.html#riemann.tx.Tx.version">version (riemann.tx.Tx attribute)</a>
+</li>
+      <li><a href="networks.html#riemann.networks.networks.VertcoinMain">VertcoinMain (class in riemann.networks.networks)</a>
+</li>
       <li><a href="networks.html#riemann.networks.networks.VertcoinRegtest">VertcoinRegtest (class in riemann.networks.networks)</a>
 </li>
       <li><a href="networks.html#riemann.networks.networks.VertcoinTest">VertcoinTest (class in riemann.networks.networks)</a>
@@ -1765,6 +1880,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="witnessstackitem.html#riemann.tx.WitnessStackItem">WitnessStackItem (class in riemann.tx)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="tx.html#riemann.tx.Tx.wtx_id">wtx_id (riemann.tx.Tx attribute)</a>
+</li>
+      <li><a href="tx.html#riemann.tx.Tx.wtx_id_le">wtx_id_le (riemann.tx.Tx attribute)</a>
 </li>
   </ul></td>
 </tr></table>

@@ -9,8 +9,23 @@ from typing import List, Optional, overload, Sequence, Tuple
 
 class Outpoint(ByteData):
     '''
+    An outpoint. A pointer to the previous output being consumed by the
+    associated input. It specifies the prevout by transaction id and index
+    within that transaction's output vector
+
     NB: Args must be little-endian
+
+    Args:
+        tx_id: the 32-byte LE hash of the previous transaction
+        index: the 4-byte LE encoded index of the prevout in its transaction
+
+    Attributes:
+        tx_id: the 32-byte LE hash of the previous transaction
+        index: the 4-byte LE encoded index of the prevout in its transaction
     '''
+
+    tx_id: bytes
+    index: bytes
 
     def __init__(self, tx_id: bytes, index: bytes):
         super().__init__()
@@ -29,6 +44,9 @@ class Outpoint(ByteData):
     def copy(self,
              tx_id: Optional[bytes] = None,
              index: Optional[bytes] = None) -> 'Outpoint':
+        '''
+        Make a new copy of the object with optional modifications.
+        '''
         return Outpoint(
             tx_id=tx_id if tx_id is not None else self.tx_id,
             index=index if index is not None else self.index)
@@ -36,7 +54,7 @@ class Outpoint(ByteData):
     @classmethod
     def from_bytes(Outpoint, byte_string: bytes) -> 'Outpoint':
         '''
-        bytes -> Outpoint
+        Parse an Outpoint from a bytestring. Also available as from_hex
         '''
         return Outpoint(
             tx_id=byte_string[:32],
@@ -45,9 +63,40 @@ class Outpoint(ByteData):
 
 class TxIn(ByteData):
     '''
-    Outpoint, byte-like, byte-like, byte-like -> TxIn
-    stack_script and redeem_script should already be serialized
-    NB: sequence must be little-endian
+    A transaction input, composed of an outpoint, a script_sig and a sequence
+    number. Legacy TxIn script sigs contain spend authorization information for
+    the referenced UTXO. Compatibility TxIn script sigs contain the witness
+    program only. Segwit Txin script sigs are empty.
+
+    The sequence number is used to set relative timelocks. See
+    `this blog post <https://prestwi.ch/bitcoin-time-locks/>`_ for details.
+
+    Args:
+        outpoint: The `Outpoint` object pointing to the prevout being consumed
+                  by this input
+        stack_script: The Script program that sets the initial stack, if any.
+                      Legacy inputs are unsigned without this. Segwit inputs
+                      never have this.
+        redeem_script: The Script program that controls spending, if any. Only
+                       present when spending a Legacy or Compatibility SH UTXO.
+                       Segwit inputs never have this.
+        sequence: The 4-byte LE encoded sequence number of the input. Can be
+                  used to set relative timelocks.
+
+    Attributes:
+        outpoint: The `Outpoint` object pointing to the prevout being consumed
+                  by this input
+        stack_script: The Script program that sets the initial stack, if any.
+                      Legacy inputs are unsigned without this. Segwit inputs
+                      never have this.
+        redeem_script: The Script program that controls spending, if any. Only
+                       present when spending a Legacy or Compatibility SH UTXO.
+                       Segwit inputs never have this.
+        script_sig: The combined stack_script and redeem_script. For Legacy and
+                    Compatibility PKH transactions this will be equal to the
+                    stack script.
+        sequence: The 4-byte LE encoded sequence number of the input. Can be
+                  used to set relative timelocks.
     '''
 
     outpoint: Outpoint
@@ -91,7 +140,9 @@ class TxIn(ByteData):
              stack_script: Optional[bytes] = None,
              redeem_script: Optional[bytes] = None,
              sequence: Optional[bytes] = None) -> 'TxIn':
-        '''Make a copy with modifications'''
+        '''
+        Make a new copy of the object with optional modifications.
+        '''
         return TxIn(
             outpoint=outpoint if outpoint is not None else self.outpoint,
             stack_script=(stack_script if stack_script is not None
@@ -101,11 +152,15 @@ class TxIn(ByteData):
             sequence=sequence if sequence is not None else self.sequence)
 
     def is_p2sh(self) -> bool:
+        '''
+        Return True if the TxIn has a non-empty `redeem_script`
+        '''
         return self.redeem_script != b''
 
     @staticmethod
     def _parse_script_sig(script_sig: bytes) -> Tuple[bytes, bytes]:
         '''
+        Parse the scriptsig into a stack script and a redeem_script
         byte_string -> (byte_string, byte_string)
         '''
         # Is there a better way to do this?
@@ -128,8 +183,7 @@ class TxIn(ByteData):
     @classmethod
     def from_bytes(TxIn, byte_string: bytes) -> 'TxIn':
         '''
-        byte_string -> TxIn
-        parses a TxIn from a byte-like object
+        Parse a TxIn from a bytestring. Also available as from_hex
         '''
         outpoint = Outpoint.from_bytes(byte_string[:36])
 
@@ -153,7 +207,21 @@ class TxIn(ByteData):
 
 class TxOut(ByteData):
     '''
-    NB: value must be little-endian
+    A transaction output, composed of a value (in satoshi) and an output script
+    describing the spend conditions on the new UTXO.
+
+    Value is serialized as an 8-byte LE integer, measured in satoshi. Use the
+    `i2le_padded` function in :ref:`utils` to serialize integers.
+
+    TxOut accepts un-prepended output scripts, and adds their length for you.
+
+    Args:
+        value: the 8-byte LE encoded value of the output (in satoshi)
+        output_script: the non-length-prepended output script as a bytestring
+
+    Attributes:
+        value: the 8-byte LE encoded value of the output (in satoshi)
+        output_script: the non-length-prepended output script as a bytestring
     '''
 
     value: bytes
@@ -177,6 +245,9 @@ class TxOut(ByteData):
     def copy(self,
              value: Optional[bytes] = None,
              output_script: Optional[bytes] = None) -> 'TxOut':
+        '''
+        Make a new copy of the object with optional modifications.
+        '''
         return TxOut(
             value=value if value is not None else self.value,
             output_script=(output_script if output_script is not None
@@ -184,6 +255,9 @@ class TxOut(ByteData):
 
     @classmethod
     def from_bytes(TxOut, byte_string: bytes) -> 'TxOut':
+        '''
+        Parse a TxOut from a bytestring. Also available as from_hex
+        '''
         n = VarInt.from_bytes(byte_string[8:])
         script_start = 8 + len(n)
         script_end = script_start + n.number
@@ -197,7 +271,17 @@ class TxOut(ByteData):
 
 
 class WitnessStackItem(ByteData):
+    '''
+    A witness stack item. Each input witness is composed of an initial stack
+    to be evaluated by the witness program. Witnesses for P2WSH inputs have a
+    serialized script as the last stack element.
 
+    Args:
+        item: the raw data to be placed on the stack
+
+    Attributes:
+        item: the raw data to be placed on the stack
+    '''
     def __init__(self, item: bytes):
         super().__init__()
 
@@ -212,6 +296,9 @@ class WitnessStackItem(ByteData):
 
     @classmethod
     def from_bytes(WitnessStackItem, byte_string: bytes) -> 'WitnessStackItem':
+        '''
+        Parse a WitnessStackItem from a bytestring. Also available as from_hex
+        '''
         n = VarInt.from_bytes(byte_string)
         item_start = len(n)
         item_end = item_start + n.number
@@ -219,7 +306,17 @@ class WitnessStackItem(ByteData):
 
 
 class InputWitness(ByteData):
+    '''
+    The witness for a Compatibility or Segwit TxIn. It consists of a stack that
+    will be evaluated by the witness program, represented as an ordered list of
+    `WitnessStackItem` objects.
 
+    Args:
+        stack: the ordered sequence of WitnessStackItems
+
+    Attributes:
+        stack: the ordered sequence of WitnessStackItems
+    '''
     stack: Tuple[WitnessStackItem, ...]
 
     def __init__(self, stack: Sequence[WitnessStackItem]):
@@ -244,6 +341,9 @@ class InputWitness(ByteData):
 
     @classmethod
     def from_bytes(InputWitness, byte_string: bytes) -> 'InputWitness':
+        '''
+        Parse an InputWitness from a bytestring. Also available as from_hex
+        '''
         stack_items = VarInt.from_bytes(byte_string)
         item_start = len(stack_items)
         items: List[WitnessStackItem] = []
@@ -255,15 +355,76 @@ class InputWitness(ByteData):
 
     def copy(self,
              stack: Optional[List[WitnessStackItem]] = None) -> 'InputWitness':
+        '''
+        Make a new copy of the object with optional modifications.
+        '''
         return InputWitness(
             stack=stack if stack is not None else self.stack)
 
 
 class Tx(ByteData):
     '''
-    byte-like, byte-like, list(TxIn),
-    list(TxOut), list(InputWitness), byte-like -> Tx
-    NB: version, lock_time must be little-endian
+    A complete transaction. It consists of a version, a flag that indicates the
+    presence of witnesses (and breaks legacy parsers), a length-prepended
+    vector of `TxIn`s, a length-prepended vector of `TxOut`s, and a locktime
+    number. Compatibility and Segwit transactions MUST contain the witness
+    flag. Signed Compatibility and Segwit transactions will additionally
+    contain a vector of `InputWitness` objects.
+
+    This object provides a number of conveniences for interacting with
+    transactions, including `tx_id` calculation, and sighash calculation.
+
+    Note:
+        The `lock_time` field is used to set absolute timelocks.
+        These are complex and confusing. See
+        `this blog post <https://prestwi.ch/bitcoin-time-locks/>`_ for details.
+
+    Args:
+        version: the 4-byte LE version number. Must be 1 or 2. Setting to 1
+                 deactivates relative lock times.
+        tx_ins: the ordered sequence of TxIn objects representing TXOs.
+                consumed by this transaction. Signed Legacy transaction will
+                include spend authorization here.
+        tx_outs: the ordered sequence of TxOut objects representing TXOs
+                 created by this transaction.
+        tx_witnesses: the ordered sequence of InputWitness objects associated
+                      with this transaction. Always empty in Legacy
+                      transactions. In Compatibility and Segwit transactions
+                      there must be one witness per input.
+        lock_time: the 4-byte LE locktime number. Setting this invokes the
+                   absolute time lock system. If it is below 500,000,000 it is
+                   interpreted as a blockheight before which the transaction is
+                   invalid. If set above that, it is interpreted as a Unix
+                   timestamp before which the transaction is invalid.
+
+    Attributes:
+        version: the 4-byte LE version number. Must be 1 or 2. Setting to 1
+                 deactivates relative lock times.
+        flag: the 2-byte witness transaction flag. Always empty for Legacy
+              transaction, or '0001' for Compatibility and Witness transactions
+        tx_ins: the ordered sequence of TxIn objects representing TXOs.
+                consumed by this transaction. Signed Legacy transaction will
+                include spend authorization here.
+        tx_outs: the ordered sequence of TxOut objects representing TXOs
+                 created by this transaction.
+        tx_witnesses: the ordered sequence of InputWitness objects associated
+                      with this transaction. Always empty in Legacy
+                      transactions. In Compatibility and Segwit transactions
+                      there must be one witness per input.
+        lock_time: the 4-byte LE locktime number. Setting this invokes the
+                   absolute time lock system. If it is below 500,000,000 it is
+                   interpreted as a blockheight before which the transaction is
+                   invalid. If set above that, it is interpreted as a Unix
+                   timestamp before which the transaction is invalid.
+        tx_id_le: the LE (in-protocol) hash committed to by the block header
+                  transaction merkle tree.
+        wtx_id_le: the LE (in-protocol) hash committed to by the coinbase
+                   transaction witness merkle tree. Not present in Legacy
+                   transactions.
+        tx_id: the BE (block explorer or human-facing) tx_id.
+        wtx_id: the BE (block explorer or human-facing) wtx_id. Not present in
+                Legacy transactions.
+
     '''
 
     version: bytes
@@ -368,10 +529,12 @@ class Tx(ByteData):
 
     @classmethod
     def from_hex(Tx, hex_string: str) -> 'Tx':
+        '''Instantiate a Tx object from a hex string'''
         return Tx.from_bytes(bytes.fromhex(hex_string))
 
     @classmethod
     def from_bytes(Tx, byte_string: bytes) -> 'Tx':
+        '''Instantiate a Tx object from a bytestring'''
         version = byte_string[0:4]
         if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:
             tx_ins_num_loc = 6
@@ -416,7 +579,8 @@ class Tx(ByteData):
 
     def no_witness(self) -> bytes:
         '''
-        Tx -> bytes
+        Return the Tx as a bytestring stripped of witnesses. This is the
+        preimage of `tx_id` and `tx_id_le`.
         '''
         tx = bytes()
         tx += self.version
@@ -430,18 +594,25 @@ class Tx(ByteData):
         return tx
 
     def is_witness(self) -> bool:
+        '''Return True if the transaction witness flag is set'''
         return self.flag is not None or self.tx_witnesses is not None
 
     def calculate_fee(self, input_values: Sequence[int]) -> int:
         '''
-        Tx, list(int) -> int
-        Inputs don't know their value without the whole chain.
+        Calculate the fee associated with a transaction. Caller must provide a
+        sequence representing the value (in satoshi) of each input.
+
+        Args:
+            input_values: The value of each input in order.
+        Returns:
+            The total fee paid to miners by this transaction.
         '''
         return \
             sum(input_values) \
             - sum([utils.le2i(o.value) for o in self.tx_outs])
 
     def sighash_none(self) -> bytes:
+        '''SIGHASH_NONE is a bad idea.'''
         raise NotImplementedError('SIGHASH_NONE is a bad idea.')
 
     def copy(self,
@@ -452,10 +623,7 @@ class Tx(ByteData):
              tx_witnesses: Optional[Sequence[InputWitness]] = None,
              lock_time: Optional[bytes] = None) -> 'Tx':
         '''
-        Tx, byte-like, byte-like, list(TxIn),
-        list(TxOut), list(InputWitness), byte-like -> Tx
-
-        Makes a copy. Allows over-writing specific pieces.
+        Make a new copy of the object with optional modifications.
         '''
         return Tx(version=version if version is not None else self.version,
                   flag=flag if flag is not None else self.flag,
@@ -518,13 +686,60 @@ class Tx(ByteData):
                     index,
                     script,
                     prevout_value=None,
-                    anyone_can_pay=False):
+                    anyone_can_pay=False) -> bytes:
         '''
-        Tx, int, byte-like, byte-like, bool -> bytearray
-        Sighashes suck
-        Generates the hash to be signed with shared.SIGHASH_ALL
-        https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
-        '''
+        Calculate the hash to be signed when adding authorization information
+        (a script sig or a witness) to an input using SIGHASH_ALL.
+
+        SIGHASH_ALL commits to ALL inputs, and ALL outputs. It indicates that
+        no further modification of the transaction is allowed without
+        invalidating the signature.
+
+        SIGHASH_ALL + ANYONECANPAY commits to ONE input and ALL outputs. It
+        indicates that anyone may add additional value to the transaction, but
+        that no one may modify the payments made. Any extra value added above
+        the sum of output values will be given to miners as part of the tx fee.
+
+        We must specify the index of the input in the `tx_ins` sequence, the
+        script controlling the TXO being spent by the input, and whether to use
+        the ANYONECANPAY sighash modifier. Compatibility and Witness inputs
+        must additionally supply the value of the TXO being consumed.
+
+        This function automatically selects between Legacy, Witness, and Bcash
+        SIGHASH_FORKID based on the network selected, and whether the witness
+        flag is present in the transaction.
+
+        For Legacy sighash documentation, see here:
+
+        - https://en.bitcoin.it/wiki/OP_CHECKSIG#Hashtype_SIGHASH_ALL_.28default.29
+
+        For BIP143 (Witness and Compatibility) documentation, see here:
+
+        - https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+
+        For the BitcoinCash specific rip-off of BIP143 documentation, see here:
+
+        - https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
+
+        Note:
+            After signing the digest, you MUST append the sighash indicator
+            byte to the resulting signature. This will be 0x01 (SIGHASH_ALL) or
+            0x81 (SIGHASH_ALL + SIGHASH_ANYONECANPAY).
+
+        Args:
+            index: The index of the input being authorized
+            script: The length-prepended script associated with the TXO being
+                    spent. For PKH outputs this will be a pkh spend script (
+                    i.e. '1976a914....88ac'). For SH outputs this will be the
+                    redeem_script (Legacy) or Witness Script (Compatibility and
+                    Segwit). If the TXO being spent has a non-standard output
+                    script, use that here.
+            prevout_value: The 8-byte LE integer-encoded value of the prevout
+            anyone_can_pay: True if using the ANYONECANPAY sighash modifier
+
+        Returns:
+            The 32-byte digest to be signed.
+        '''  # noqa: E501
 
         if riemann.network.FORKID is not None:
             return self._sighash_forkid(index=index,
@@ -582,13 +797,77 @@ class Tx(ByteData):
                        prevout_value=None,
                        anyone_can_pay=False):
         '''
-        Tx, int, byte-like, byte-like, bool -> bytearray
-        Sighashes suck
-        Generates the hash to be signed with SIGHASH_SINGLE
-        https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
-        https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
-        https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
-        '''
+        Calculate the hash to be signed when adding authorization information
+        (a script sig or a witness) to an input using SIGHASH_SINGLE.
+
+        SIGHASH_SINGLE commits to ALL inputs, and ONE output. It indicates that/
+        anyone may append additional outputs to the transaction to reroute
+        funds from the inputs. Additional inputs cannot be added without
+        invalidating the signature. It is logically difficult to use securely,
+        as it consents to funds being moved, without specifying their
+        destination.
+
+        SIGHASH_SINGLE commits specifically the the output at the same index as
+        the input being signed. If there is no output at that index, (because,
+        e.g. the input vector is longer than the output vector) it behaves
+        insecurely, and we do not implement that protocol bug.
+
+        SIGHASH_SINGLE + ANYONECANPAY commits to ONE input and ONE output. It
+        indicates that anyone may add additional value to the transaction, and
+        route value to any other location. The signed input and output must be
+        included in the fully-formed transaction at the same index in their
+        respective vectors.
+
+        When the input is larger than the output, a partial transaction signed
+        this way cedes the difference to whoever cares to construct a complete
+        transaction. However, when the output is larger than the input, it
+        functions as a one-time-use payment invoice. Anyone may consume the
+        input by adding value. This is useful for addressing race conditions in
+        certain cross-chain protocols that the author of this documentation
+        invented. :)
+
+        We must specify the index of the input in the `tx_ins` sequence, the
+        script controlling the TXO being spent by the input, and whether to use
+        the ANYONECANPAY sighash modifier. Compatibility and Witness inputs
+        must additionally supply the value of the TXO being consumed.
+
+        This function automatically selects between Legacy, Witness, and Bcash
+        SIGHASH_FORKID based on the network selected, and whether the witness
+        flag is present in the transaction.
+
+        For Legacy sighash documentation, see here:
+
+        - https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_SINGLE
+        - https://bitcoin.stackexchange.com/questions/3890/for-sighash-single-do-the-outputs-other-than-at-the-input-index-have-8-bytes-or
+        - https://github.com/petertodd/python-bitcoinlib/blob/051ec4e28c1f6404fd46713c2810d4ebbed38de4/bitcoin/core/script.py#L913-L965
+
+        For BIP143 (Witness and Compatibility) documentation, see here:
+
+        - https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+
+        For the BitcoinCash specific rip-off of BIP143 documentation, see here:
+
+        - https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
+
+        Note:
+           After signing the digest, you MUST append the sighash indicator
+           byte to the resulting signature. This will be 0x03 (SIGHASH_SINGLE)
+           or 0x83 (SIGHASH_SINGLE + SIGHASH_ANYONECANPAY).
+
+        Args:
+           index: The index of the input being authorized
+           script: The length-prepended script associated with the TXO being
+                   spent. For PKH outputs this will be a pkh spend script (
+                   i.e. '1976a914....88ac'). For SH outputs this will be the
+                   redeem_script (Legacy) or Witness Script (Compatibility and
+                   Segwit). If the TXO being spent has a non-standard output
+                   script, use that here.
+           prevout_value: The 8-byte LE integer-encoded value of the prevout
+           anyone_can_pay: True if using the ANYONECANPAY sighash modifier
+
+        Returns:
+           The 32-byte digest to be signed.
+        '''  # noqa: E501
 
         if index >= len(self.tx_outs):
             raise NotImplementedError(
@@ -640,8 +919,13 @@ class Tx(ByteData):
                        script: bytes,
                        anyone_can_pay: bool = False) -> bytes:
         '''
-        this function sets up sighash in BIP143 style
+        Implements bip143 (witness) sighash. Prefer calling `sighash_all` or
+        `sighash_single`.
+
+        For documentation see here:
         https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
+
+        For an excellent pasta dinner, see here:
         https://ricette.giallozafferano.it/Spaghetti-alla-Norma.html
         '''
         data = ByteData()
@@ -692,7 +976,6 @@ class Tx(ByteData):
         Not on its own.
         https://en.bitcoin.it/wiki/OP_CHECKSIG#Procedure_for_Hashtype_SIGHASH_ANYONECANPAY
         '''
-
         # The txCopy input vector is resized to a length of one.
         copy_tx_ins = [copy_tx.tx_ins[index]]
         copy_tx = copy_tx.copy(tx_ins=copy_tx_ins)
@@ -803,7 +1086,6 @@ class Tx(ByteData):
             sighash_type: int,
             anyone_can_pay: bool = False):
         '''
-        Tx, int, byte-like, byte-like, int, bool -> bytes
         https://github.com/bitcoincashorg/spec/blob/master/replay-protected-sighash.md
         '''
         self.validate_bytes(prevout_value, 8)

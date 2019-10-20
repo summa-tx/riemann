@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Networks" href="networks.html" />
-    <link rel="prev" title="Encoding" href="encoding.html" />
+    <link rel="prev" title="Encoders" href="encoders.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -47,25 +47,65 @@ This can be serialized to bytes via <cite>serialization.serialize</cite> or to h
 <dl class="function">
 <dt id="riemann.script.serialization.deserialize">
 <code class="sig-prename descclassname">riemann.script.serialization.</code><code class="sig-name descname">deserialize</code><span class="sig-paren">(</span><em class="sig-param">serialized_script: bytes</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.script.serialization.deserialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>deserialize a script from bytes to human-readable</p>
+<dd><p>Deserialize a human-readable script from bytes</p>
+<p class="rubric">Example</p>
+<p>deserialize(b’v©¬’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>serialized_script</strong> – The Script serialized as a bytestring</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A human-readable Script string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.script.serialization.hex_deserialize">
 <code class="sig-prename descclassname">riemann.script.serialization.</code><code class="sig-name descname">hex_deserialize</code><span class="sig-paren">(</span><em class="sig-param">script_hex: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.script.serialization.hex_deserialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>deserialize a script from hex to human-readable</p>
+<dd><p>Deserialize a human-readable script from hex</p>
+<p class="rubric">Example</p>
+<p>hex_deserialize(‘1976a988ac’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>serialized_script</strong> – The Script serialized as a hex string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A human-readable Script string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.script.serialization.hex_serialize">
 <code class="sig-prename descclassname">riemann.script.serialization.</code><code class="sig-name descname">hex_serialize</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#riemann.script.serialization.hex_serialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>serialize a human-readable script to hex</p>
+<dd><p>Serialize a human-readable script to hex</p>
+<p class="rubric">Example</p>
+<p>hex_serialize(‘OP_DUP OP_CAT OP_HASH160 0011deadbeef’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – A human-readable Bitcoin Script string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Script serialized as a hex string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.script.serialization.serialize">
 <code class="sig-prename descclassname">riemann.script.serialization.</code><code class="sig-name descname">serialize</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.script.serialization.serialize" title="Permalink to this definition">¶</a></dt>
-<dd><p>serialize a human-readable script to bytes</p>
+<dd><p>Serialize a human-readable script to bytes</p>
+<p class="rubric">Example</p>
+<p>serialize(‘OP_DUP OP_CAT OP_HASH160 0011deadbeef’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – A human-readable Bitcoin Script string</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Script serialized as a bytestring</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -106,7 +146,7 @@ This can be serialized to bytes via <cite>serialization.serialize</cite> or to h
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="encoding.html" title="previous chapter">Encoding</a></li>
+      <li>Previous: <a href="encoders.html" title="previous chapter">Encoders</a></li>
       <li>Next: <a href="networks.html" title="next chapter">Networks</a></li>
   </ul></li>
 </ul>
