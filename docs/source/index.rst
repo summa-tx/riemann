@@ -1,7 +1,9 @@
 Riemann: Cryptocurrency Transactions for Humans
 ===============================================
 
-$ pip install riemann-tx`
+.. code-block:: bash
+
+    $ pip install riemann-tx
 
 Riemann is a **dependency-free Python3** library for creating **bitcoin-style
 transactions**. It is **compatible with many chains** and **supports SegWit**.

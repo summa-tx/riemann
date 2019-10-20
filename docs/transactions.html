@@ -37,9 +37,18 @@
 <p>Riemann supports transactions in many chains. See <a class="reference internal" href="networks.html#networks"><span class="std std-ref">Networks</span></a> for a
 complete list.</p>
 <p>Riemann represents transactions as bytestrings with some additional sugar on
-top. All elements of a transaction inherit from the <cite>ByteData</cite> class. This
-provides indexing <cite>version = my_tx[:4]</cite>, formatting <cite>print(my_tx)</cite> and
-<cite>f’{my_tx:x}’</cite>, as well as equality and other useful operators.</p>
+top. All elements of a transaction inherit from the <cite>ByteData</cite> class. The
+ByteData class provides useful syntactic sugar:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># indexing</span>
+<span class="n">version</span> <span class="o">=</span> <span class="n">my_tx</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+
+<span class="c1"># formatting</span>
+<span class="n">f</span><span class="s1">&#39;{my_tx:x}&#39;</span>
+
+<span class="c1"># equality</span>
+<span class="n">my_tx</span> <span class="o">==</span> <span class="n">some_other_tx</span>
+</pre></div>
+</div>
 <p>Generally, developers want to interact with the <cite>Tx</cite> class and its components,
 <cite>TxIn</cite>, <cite>TxOut</cite>, and <cite>InputWitness</cite>.</p>
 <div class="toctree-wrapper compound">
