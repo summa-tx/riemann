@@ -52,6 +52,11 @@ class Outpoint(ByteData):
             index=index if index is not None else self.index)
 
     @classmethod
+    def null(Outpoint) -> 'Outpoint':
+        '''Make a null outpoing, as found in coinbase transactions'''
+        return Outpoint(b'\x00' * 32, b'\xff' * 4)
+
+    @classmethod
     def from_bytes(Outpoint, byte_string: bytes) -> 'Outpoint':
         '''
         Parse an Outpoint from a bytestring. Also available as from_hex
@@ -187,15 +192,25 @@ class TxIn(ByteData):
         '''
         outpoint = Outpoint.from_bytes(byte_string[:36])
 
+        # Extract the script sig length
         script_sig_len = VarInt.from_bytes(byte_string[36:45])
+
+        # Extract the script sig
         script_start = 36 + len(script_sig_len)
         script_end = script_start + script_sig_len.number
         script_sig = byte_string[script_start:script_end]
 
         sequence = byte_string[script_end:script_end + 4]
+
+        # If the script-sig is blank, both stack and redeem are blank
         if script_sig == b'':
             stack_script = b''
             redeem_script = b''
+        # If the outpoint is null (coinbase), don't try parsing the script sig
+        elif outpoint == Outpoint.null():
+            stack_script = script_sig
+            redeem_script = b''
+        # Parse the script sig into stack and redeem
         else:
             stack_script, redeem_script = TxIn._parse_script_sig(script_sig)
         return TxIn(
@@ -537,31 +552,43 @@ class Tx(ByteData):
     @classmethod
     def from_bytes(Tx, byte_string: bytes) -> 'Tx':
         '''Instantiate a Tx object from a bytestring'''
+
+        # Get the version number
         version = byte_string[0:4]
+
+        # Check if this is a witness tx
         if byte_string[4:6] == riemann.network.SEGWIT_TX_FLAG:
             tx_ins_num_loc = 6
             flag = riemann.network.SEGWIT_TX_FLAG
         else:
             tx_ins_num_loc = 4
             flag = None
+
+        # Get the length of the tx_in vector
         tx_ins = []
         tx_ins_num = VarInt.from_bytes(byte_string[tx_ins_num_loc:])
 
+        # `current` is the index of next read
         current = tx_ins_num_loc + len(tx_ins_num)
 
+        # Deserialize all tx_ins
         for _ in range(tx_ins_num.number):
             tx_in = TxIn.from_bytes(byte_string[current:])
             current += len(tx_in)
             tx_ins.append(tx_in)
 
+        # Get the length of the tx_out vector
         tx_outs = []
         tx_outs_num = VarInt.from_bytes(byte_string[current:])
+
+        # Deserialize all outputs
         current += len(tx_outs_num)
         for _ in range(tx_outs_num.number):
             tx_out = TxOut.from_bytes(byte_string[current:])
             current += len(tx_out)
             tx_outs.append(tx_out)
 
+        # Deserialize all witnesses if necessary
         tx_witnesses: List[InputWitness] = []
         if flag and len(byte_string[current:]) > 4:
             tx_witnesses_num = tx_ins_num
@@ -570,6 +597,7 @@ class Tx(ByteData):
                 current += len(tx_witness)
                 tx_witnesses.append(tx_witness)
 
+        # Get the lock time and return a complete tx
         lock_time = byte_string[current:current + 4]
         return Tx(
             version=version,

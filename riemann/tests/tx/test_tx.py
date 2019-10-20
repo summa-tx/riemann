@@ -165,6 +165,13 @@ class TestTxIn(unittest.TestCase):
         self.assertEqual(tx_in.stack_script, b'')
         self.assertEqual(tx_in.redeem_script, b'')
 
+    def test_from_bytes_coinbase(self):
+        # test cases for patched error in txin deserialization
+        for tx_in_hex in helpers.COINBASE_REGRESSION:
+            print(tx_in_hex)
+            tx_in = tx.TxIn.from_hex(tx_in_hex)
+            self.assertEqual(tx_in.hex(), tx_in_hex)
+
 
 class TestTxOut(unittest.TestCase):
 
