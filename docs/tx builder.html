@@ -52,37 +52,55 @@ human-readable ones.</p>
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_decred_witness">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_decred_witness</code><span class="sig-paren">(</span><em class="sig-param">value: bytes</em>, <em class="sig-param">height: bytes</em>, <em class="sig-param">index: bytes</em>, <em class="sig-param">stack_script: bytes</em>, <em class="sig-param">redeem_script: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.decred.DecredInputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_decred_witness" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Decred has a unique witness structure.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_empty_witness">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_empty_witness</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.InputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_empty_witness" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create an InputWitness with an empty stack. Useful for unsigned
+transactions, as well as Legacy inputs in Segwit transactions. By
+consensus, if any witness is present, all inputs must have a witness.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_legacy_input">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_legacy_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint</em>, <em class="sig-param">stack_script</em>, <em class="sig-param">redeem_script</em>, <em class="sig-param">sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_legacy_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a legacy input</p>
+<dd><p>Make a legacy input. This supports creating Compatibility inputs by passing
+the witness program to <cite>redeem_script</cite> while passing an empty bytestring
+for <cite>stack_script</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outpoint</strong> – The Outpoint object</p></li>
+<li><p><strong>stack_script</strong> – A serialized Script program that sets the initial stack</p></li>
+<li><p><strong>redeem_script</strong> – A serialized Script program that is run on the stack</p></li>
+<li><p><strong>sequence</strong> – The 4-byte LE-encoded sequence number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Legacy TxIn object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_op_return_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_op_return_output</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_op_return_output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates OP_RETURN output for data less than 78 bytes.
-If data is 76 or 77 bytes, OP_PUSHDATA1 is included:
-&lt;OP_RETURN&gt;&lt;OP_PUSHDATA1&gt;&lt;data len&gt;&lt;data&gt;
-If data is less than 76 bytes, OP_PUSHDATA1 is not included:
-&lt;OP_RETURN&gt;&lt;data len&gt;&lt;data&gt;
-80 bytes is the default setting for an OP_RETURN output script.
-<a class="reference external" href="https://github.com/bitpay/bitcore/issues/1389">https://github.com/bitpay/bitcore/issues/1389</a>
-:param data: data included in output
-:type data: bytes</p>
+<dd><p>Generates OP_RETURN output for data of up to 77 bytes. OP_RETURN outputs
+are data carriers with no impact on the UTXO set. They are comonly used to
+create on-chain commitments to some off-chain information. There are few
+consensus constraints on their content or structure, however they become
+non-standard above 77 bytes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>TxOut object with OP_RETURN output</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – data to be included in output</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>(<a class="reference internal" href="txout.html#riemann.tx.TxOut" title="riemann.tx.TxOut">TxOut</a>)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TxOut object with OP_RETURN output</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(<a class="reference internal" href="txout.html#riemann.tx.TxOut" title="riemann.tx.TxOut">TxOut</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -90,105 +108,309 @@ If data is less than 76 bytes, OP_PUSHDATA1 is not included:
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_outpoint">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_outpoint</code><span class="sig-paren">(</span><em class="sig-param">tx_id_le</em>, <em class="sig-param">index</em>, <em class="sig-param">tree=None</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_outpoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>byte-like, int, int -&gt; Outpoint</p>
+<dd><p>Instantiate an Outpoint object from a transaction id and an index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tx_id_le</strong> – The 32-byte LE hash of the transaction that created the
+prevout being referenced.</p></li>
+<li><p><strong>index</strong> – The index of the TxOut that created the prevout in its
+transaction’s output vector</p></li>
+<li><p><strong>tree</strong> – Only in Decred transactions. Specifies the commitment tree.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>An Outpoint object. If network is set to Decred, a DecredOutpoint</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2pkh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2pkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2pkh_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Instantiates a P2PKH TxOut from value and raw pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>pubkey</strong> – The 33- or 65-byte raw public key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object paying a P2PKH script pubkey</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2pkh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2pkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2pkh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Makes a P2PKH script pubkey from a raw public key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pubkey</strong> – The 33- or 65-byte public key.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The P2PKH script pubkey containing the hash of the pubkey.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2sh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2sh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2sh_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Instantiates a P2SH TxOut from value and human-readable Script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>output_script</strong> – The non-length-prepended output script.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object paying a P2SH script pubkey.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2sh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2sh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2sh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Make a P2SH script pubkey from a human-readable Script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – The human-readable redeem script.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The P2SH script pubkey containing the hash of the serialized script.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2wpkh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wpkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wpkh_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Instantiates a P2WPKH TxOut from value and raw pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>pubkey</strong> – The 33- or 65-byte raw public key.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object paying a P2WPKH script pubkey</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2wpkh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wpkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wpkh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Makes a P2PKH or P2WPKH script pubkey from a raw public key. Does not
+support Compatibility p2wsh-via-p2sh output scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pubkey</strong> – The 33- or 65-byte public key.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The P2WPKH script pubkey containing the hash of the pubkey.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2wsh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wsh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wsh_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Instantiates a P2WSH TxOut from value and human-readable Script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>output_script</strong> – The non-length-prepended output script.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object paying a P2WSH script pubkey.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_p2wsh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_p2wsh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_p2wsh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Make a P2WSH script pubkey from a human-readable Script. Does not support
+Compatibility p2wsh-via-p2sh output scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>script_string</strong> – The human-readable witness script.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The P2WSH script pubkey containing the hash of the serialized script.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_pkh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_pkh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">pubkey: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_pkh_output" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Instantiates a P2PKH or P2WPKH TxOut from value and raw pubkey.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>pubkey</strong> – The 33- or 65-byte raw public key.</p></li>
+<li><p><strong>witness</strong> – Pass True to make a P2WPKH script pubkey.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_pkh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_pkh_output_script</code><span class="sig-paren">(</span><em class="sig-param">pubkey: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_pkh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Makes a pkh pubkey script</p>
+<dd><p>Makes a P2PKH or P2WPKH script pubkey from a raw public key. Does not
+support Compatibility p2wpkh-via-p2sh output scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pubkey</strong> – The 33- or 65-byte public key.</p></li>
+<li><p><strong>witness</strong> – Pass True to make a P2WSH script pubkey.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The script pubkey containing the hash of the pubkey.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_script_sig">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_script_sig</code><span class="sig-paren">(</span><em class="sig-param">stack_script: str</em>, <em class="sig-param">redeem_script: str</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_script_sig" title="Permalink to this definition">¶</a></dt>
-<dd><p>str, str -&gt; bytearray</p>
+<dd><p>Make a serialized script sig from a human-readable stack script and redeem
+script.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_sh_output">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_output</code><span class="sig-paren">(</span><em class="sig-param">value: int</em>, <em class="sig-param">output_script: str</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.TxOut<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_output" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instantiates</p>
+<dd><p>Instantiates a P2SH or P2WSH TxOut from value and human-readable Script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The 8-byte LE-encoded integer value of the output.</p></li>
+<li><p><strong>output_script</strong> – The non-length-prepended human-readable Script.</p></li>
+<li><p><strong>witness</strong> – Pass True to make a P2WSH script pubkey.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A TxOut object</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_sh_output_script">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_output_script</code><span class="sig-paren">(</span><em class="sig-param">script_string: str</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_output_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>str -&gt; bytearray</p>
+<dd><p>Make a P2SH or P2WSH script pubkey from a human-readable script. Does not
+support Compatibility p2wsh-via-p2sh output scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_string</strong> – The human-readable redeem script or witness script.</p></li>
+<li><p><strong>witness</strong> – Pass True to make a P2WSH script pubkey.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The script pubkey containing the hash of the serialized script.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_sh_script_pubkey">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_sh_script_pubkey</code><span class="sig-paren">(</span><em class="sig-param">script_bytes: bytes</em>, <em class="sig-param">witness: bool = False</em><span class="sig-paren">)</span> &#x2192; bytes<a class="headerlink" href="#riemann.tx.tx_builder.make_sh_script_pubkey" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Make a P2SH or P2WSH script pubkey from a serialized script. Does not
+support Compatibility p2wsh-via-p2sh output scripts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>script_bytes</strong> – The serialized redeem script or witness script.</p></li>
+<li><p><strong>witness</strong> – Pass True to make a P2WSH script pubkey.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The script pubkey containing the hash of the serialized script.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_tx">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_tx</code><span class="sig-paren">(</span><em class="sig-param">version</em>, <em class="sig-param">tx_ins</em>, <em class="sig-param">tx_outs</em>, <em class="sig-param">lock_time</em>, <em class="sig-param">expiry=None</em>, <em class="sig-param">value_balance=0</em>, <em class="sig-param">tx_shielded_spends=None</em>, <em class="sig-param">tx_shielded_outputs=None</em>, <em class="sig-param">tx_witnesses=None</em>, <em class="sig-param">tx_joinsplits=None</em>, <em class="sig-param">joinsplit_pubkey=None</em>, <em class="sig-param">joinsplit_sig=None</em>, <em class="sig-param">binding_sig=None</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_tx" title="Permalink to this definition">¶</a></dt>
-<dd><p>int, list(TxIn), list(TxOut), int, list(InputWitness) -&gt; Tx</p>
+<dd><p>Instantiate a complete Tx object from its components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> – The 4-byte LE-encoded version number.</p></li>
+<li><p><strong>tx_ins</strong> – A list of TxIn objects.</p></li>
+<li><p><strong>tx_outs</strong> – A list of TxOut objects.</p></li>
+<li><p><strong>lock_time</strong> – The 4-byte LE-encoded lock_time number.</p></li>
+<li><p><strong>expiry</strong> – Decred, Overwinter, and Sapling only. 4-byte LE expiry number.</p></li>
+<li><p><strong>value_balance</strong> – Sapling only. An 8-byte LE number representing the net
+change in shielded pool size as a result of this
+transaction.</p></li>
+<li><p><strong>tx_shielded_spends</strong> – Sapling only. An array of SaplingShieldedSpend.</p></li>
+<li><p><strong>tx_shielded_outputs</strong> – Sapling only. An array of SaplingShieldedOutput.</p></li>
+<li><p><strong>tx_witnesses</strong> – An array of InputWitness objects.</p></li>
+<li><p><strong>tx_joinsplits</strong> – Sprout, Overwinter, and Sapling only. An array of
+SproutJoinsplit or SaplingJoinsplit objects.</p></li>
+<li><p><strong>joinsplit_pubkey</strong> – The joinsplit pubkey. See Zcash protocol docs.</p></li>
+<li><p><strong>joinsplit_sig</strong> – The joinsplit signature. See Zcash protocol docs.</p></li>
+<li><p><strong>binding_sig</strong> – The binding signature. See Zcash protocol docs.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Tx object. DecredTx if network is set to Decred. SproutTx if set to
+Zcash Sprout. OverwinterTx if set to Zcash Overwinter. SaplingTx if set
+to Zcash Sapling.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_witness">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness</code><span class="sig-paren">(</span><em class="sig-param">data_list: List[bytes]</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.InputWitness<a class="headerlink" href="#riemann.tx.tx_builder.make_witness" title="Permalink to this definition">¶</a></dt>
-<dd><p>list(bytes) -&gt; InputWitness</p>
+<dd><p>Make a witness stack from a list of bytestrings. Each bytestring is wrapped
+in a WitnessStackItem object and places into the InputWitness in order</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_witness_input">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness_input</code><span class="sig-paren">(</span><em class="sig-param">outpoint</em>, <em class="sig-param">sequence</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.tx_builder.make_witness_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make a witness input</p>
+<dd><p>Make a Segwit input. This is clearly superior to <cite>make_legacy_input</cite> and
+you should use witness always.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outpoint</strong> – The Outpoint object</p></li>
+<li><p><strong>sequence</strong> – The 4-byte LE-encoded sequence number</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A Segwit TxIn object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="riemann.tx.tx_builder.make_witness_stack_item">
 <code class="sig-prename descclassname">riemann.tx.tx_builder.</code><code class="sig-name descname">make_witness_stack_item</code><span class="sig-paren">(</span><em class="sig-param">data: bytes</em><span class="sig-paren">)</span> &#x2192; riemann.tx.tx.WitnessStackItem<a class="headerlink" href="#riemann.tx.tx_builder.make_witness_stack_item" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Wrap a bytestring in a WitnessStackItem object</p>
+</dd></dl>
 
 </div>
 
