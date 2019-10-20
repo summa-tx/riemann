@@ -39,12 +39,13 @@
 <em class="property">class </em><code class="sig-prename descclassname">riemann.tx.</code><code class="sig-name descname">Tx</code><span class="sig-paren">(</span><em class="sig-param">version: bytes, flag: Optional[bytes], tx_ins: Sequence[riemann.tx.tx.TxIn], tx_outs: Sequence[riemann.tx.tx.TxOut], tx_witnesses: Optional[Sequence[riemann.tx.tx.InputWitness]], lock_time: bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#riemann.tx.Tx" title="Permalink to this definition">¶</a></dt>
 <dd><p>A complete transaction. It consists of a version, a flag that indicates the
 presence of witnesses (and breaks legacy parsers), a length-prepended
-vector of <cite>TxIn`s, a length-prepended vector of `TxOut`s, and a locktime
-number. Compatibility and Segwit transactions MUST contain the witness
-flag. Signed Compatibility and Segwit transactions will additionally
-contain a vector of `InputWitness</cite> objects.</p>
+vector of <cite>TxIn</cite> objects, a length-prepended vector of <cite>TxOut</cite> objects, and
+a locktime number. Compatibility and Segwit transactions MUST contain the
+witness flag. Signed Compatibility and Segwit transactions will
+additionally contain a vector of <cite>InputWitness</cite> objects.</p>
 <p>This object provides a number of conveniences for interacting with
 transactions, including <cite>tx_id</cite> calculation, and sighash calculation.</p>
+<p>To serialize the transaction, call <cite>to_bytes()</cite> or <cite>hex()</cite>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <cite>lock_time</cite> field is used to set absolute timelocks.
