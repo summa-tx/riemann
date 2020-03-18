@@ -53,7 +53,7 @@ class Outpoint(ByteData):
 
     @classmethod
     def null(Outpoint) -> 'Outpoint':
-        '''Make a null outpoing, as found in coinbase transactions'''
+        '''Make a null outpoint, as found in coinbase transactions'''
         return Outpoint(b'\x00' * 32, b'\xff' * 4)
 
     @classmethod
