@@ -21,8 +21,8 @@ setup(
         'Topic :: Security :: Cryptography',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
+    license="MIT OR Apache-2.0"
 )
