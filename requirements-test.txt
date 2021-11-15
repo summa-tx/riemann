@@ -1,4 +1,4 @@
-pip==18.0
+pip==21.1
 flake8
 pytest
 pytest-cov
